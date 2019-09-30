@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootlayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/fl_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:visibility="gone"></FrameLayout>
+
+    <RelativeLayout
+        android:id="@+id/headw"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/backll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/return_arrow" />
+
+            <TextView
+                android:id="@+id/back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/back"
+                android:textColor="#fff"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/pendingcourse"
+            android:textColor="#fff"
+            android:textSize="18sp"
+            android:visibility="gone" />
+
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/myklassid" />
+
+        <TextView
+            android:id="@+id/courseid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="111" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_marginRight="36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!--<ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/hello" />-->
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/img_head"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:scaleType="center"
+                    fresco:fadeDuration="500"
+                    fresco:failureImage="@drawable/hello"
+                    fresco:failureImageScaleType="centerInside"
+                    fresco:placeholderImage="@drawable/hello"
+                    fresco:placeholderImageScaleType="fitCenter"
+                    fresco:roundAsCircle="true" />
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="8dp"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_marginRight="30dp"
+        android:gravity="right"
+        android:id="@+id/txt_bind_status"
+        android:textColor="#aaffffff"
+        android:textSize="14sp"
+        android:visibility="invisible"
+        android:text="TV auto sync is on"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:layout_marginLeft="45dp"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/tv_welcome" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:orientation="horizontal"
+        android:padding="5dp">
+        <!--<FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:background="@color/orange"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/red"/>
+            </LinearLayout>
+        </FrameLayout>-->
+
+        <LinearLayout
+            android:background="@drawable/bg_input"
+            android:layout_weight="1"
+            android:id="@+id/layout_edit"
+            android:layout_width="match_parent"
+            android:layout_height="65dp">
+            <EditText
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:imeOptions="flagNoExtractUi"
+                android:textColorHint="#aaffffff"
+                android:id="@+id/roomet"
+                android:background="@null"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:hint="Meeting or Meeting Room ID "
+                android:textColor="@color/white"
+                android:textSize="16sp"></EditText>
+        </LinearLayout>
+
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="2"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/lin_enter"
+                android:orientation="horizontal"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="65dp">
+                <TextView
+                    android:id="@+id/joinroom2"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/tv_join_meeting" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginLeft="6dp"
+                android:id="@+id/lin_logout"
+                android:orientation="horizontal"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="65dp">
+                <TextView
+                    android:layout_gravity="center"
+                    android:id="@+id/tv_logout"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="@drawable/tv_logout"
+                    />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+
+
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:gravity="center_vertical"
+        android:text="@string/ongoninglesson"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+    <ListView
+        android:id="@+id/courseList"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/white"
+        android:divider="@null"
+        android:scrollbars="none"
+        android:visibility="gone"></ListView>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginLeft="45dp"
+        android:layout_marginRight="45dp"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+
+        <LinearLayout
+            android:id="@+id/layout_card1"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_height="270dp">
+            <ImageView
+                android:paddingTop="30dp"
+                android:paddingBottom="30dp"
+                android:layout_gravity="center"
+                android:id="@+id/img1"
+                android:layout_width="0dp"
+                android:layout_height="250dp"
+                android:layout_weight="1"
+                android:src="@drawable/card1" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/layout_card2"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_height="270dp">
+        <ImageView
+            android:paddingTop="30dp"
+            android:paddingBottom="30dp"
+            android:id="@+id/img2"
+            android:layout_width="0dp"
+            android:layout_height="250dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:src="@drawable/card2" /></LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/layout_card3"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_height="270dp">
+
+        <ImageView
+            android:paddingTop="30dp"
+            android:paddingBottom="30dp"
+            android:layout_gravity="center"
+            android:id="@+id/img3"
+            android:layout_width="0dp"
+            android:layout_height="250dp"
+            android:layout_weight="1"
+            android:src="@drawable/card3" /></LinearLayout>
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycleview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"></android.support.v7.widget.RecyclerView>
+
+
+</LinearLayout>
