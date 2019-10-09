@@ -1,12 +1,16 @@
 package com.kloudsync.techexcel2.start;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -27,6 +31,10 @@ import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.tool.DensityUtil;
 import com.kloudsync.techexcel2.tool.Md5Tool;
+import com.pgyersdk.update.DownloadFileListener;
+import com.pgyersdk.update.PgyUpdateManager;
+import com.pgyersdk.update.UpdateManagerListener;
+import com.pgyersdk.update.javabean.AppBean;
 import com.ub.service.activity.KloudWebClientManager;
 import com.ub.service.activity.SocketService;
 import com.ub.techexcel.service.ConnectService;
@@ -60,6 +68,7 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
         StartWBService();
         findView();
         initView();
+        initUpdate();
 
     }
 
@@ -331,6 +340,102 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
 
     private void KillService() {
         stopService(service);
+    }
+
+    ProgressDialog progressDialog;
+    private void initUpdate() {
+        // TODO Auto-generated method stub
+        new PgyUpdateManager.Builder()
+                .setForced(false)                //设置是否强制更新,非自定义回调更新接口此方法有用
+                .setUserCanRetry(false)         //失败后是否提示重新下载，非自定义下载 apk 回调此方法有用
+                .setDeleteHistroyApk(false)     // 检查更新前是否删除本地历史 Apk
+                .setUpdateManagerListener(new UpdateManagerListener() {
+                    @Override
+                    public void onNoUpdateAvailable() {
+                        //没有更新是回调此方法
+                        Log.e("pgyer", "there is no new version");
+                    }
+
+                    @Override
+                    public void onUpdateAvailable(final AppBean appBean) {
+                        //有更新是回调此方法
+                        Log.e("pgyer", "there is new version can update"
+                                + "new versionCode is " + appBean.getVersionCode());
+
+                        //调用以下方法，DownloadFileListener 才有效；如果完全使用自己的下载方法，不需要设置DownloadFileListener
+//
+                        new AlertDialog.Builder(QrCodeActivity.this)
+                                .setTitle(getResources().getString(R.string.update))
+                                .setMessage(getResources().getString(R.string.update_message))
+                                .setPositiveButton(getResources().getString(R.string.No), new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        // TODO Auto-generated method stub
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .setNegativeButton(
+                                        getResources().getString(R.string.update),
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int which) {
+                                                PgyUpdateManager.downLoadApk(appBean.getDownloadURL());
+                                            }
+                                        }).show();
+                    }
+
+                    @Override
+                    public void checkUpdateFailed(Exception e) {
+                        //更新检测失败回调
+                        Log.e("pgyer", "check update failed ", e);
+
+                    }
+                })
+
+                //注意 ：下载方法调用 PgyUpdateManager.downLoadApk(appBean.getDownloadURL()); 此回调才有效
+                .setDownloadFileListener(new DownloadFileListener() {   // 使用蒲公英提供的下载方法，这个接口才有效。
+                    @Override
+                    public void downloadFailed() {
+                        //下载失败
+                        Log.e("pgyer", "download apk failed");
+                        if (progressDialog != null) {
+                            progressDialog.cancel();
+                            progressDialog = null;
+                        }
+
+                    }
+
+                    @Override
+                    public void downloadSuccessful(Uri uri) {
+                        Log.e("pgyer", "download apk failed");
+                        if (progressDialog != null) {
+                            progressDialog.cancel();
+                            progressDialog = null;
+                        }
+                        PgyUpdateManager.installApk(uri);  // 使用蒲公英提供的安装方法提示用户 安装apk
+
+                    }
+
+                    @Override
+                    public void onProgressUpdate(Integer... integers) {
+                        Log.e("pgyer", "update download apk progress : " + integers[0]);
+                        if (progressDialog == null) {
+                            progressDialog = new ProgressDialog(QrCodeActivity.this);
+                            progressDialog.setProgressStyle(1);
+                            progressDialog.setCancelable(false);
+                            progressDialog.setMessage(getResources().getString(R.string.downloading));
+                            progressDialog.show();
+                        } else {
+                            if (integers != null && integers.length > 0) {
+                                progressDialog.setProgress(integers[0]);
+                            }
+
+                        }
+                    }
+                }).register();
     }
 
 

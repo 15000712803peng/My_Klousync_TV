@@ -4,52 +4,52 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 
 public class KeyboardView {
-    private int viewId;
-    private View leftView;
-    private View rightView;
-    private View topView;
-    private View bottomView;
+    private View targeview;
+    private KeyboardView leftView;
+    private KeyboardView rightView;
+    private KeyboardView topView;
+    private KeyboardView bottomView;
     private boolean isSelected;
     private Drawable selectedBackgroud;
     private Drawable unSelectedBackgroud;
 
-    public int getViewId() {
-        return viewId;
+    public View getTargeview() {
+        return targeview;
     }
 
-    public void setViewId(int viewId) {
-        this.viewId = viewId;
+    public void setTargeview(View targeview) {
+        this.targeview = targeview;
     }
 
-    public View getLeftView() {
+    public KeyboardView getLeftView() {
         return leftView;
     }
 
-    public void setLeftView(View leftView) {
+    public void setLeftView(KeyboardView leftView) {
         this.leftView = leftView;
     }
 
-    public View getRightView() {
+    public KeyboardView getRightView() {
         return rightView;
     }
 
-    public void setRightView(View rightView) {
+    public void setRightView(KeyboardView rightView) {
         this.rightView = rightView;
     }
 
-    public View getTopView() {
+    public KeyboardView getTopView() {
         return topView;
     }
 
-    public void setTopView(View topView) {
+    public void setTopView(KeyboardView topView) {
         this.topView = topView;
     }
 
-    public View getBottomView() {
+    public KeyboardView getBottomView() {
         return bottomView;
     }
 
-    public void setBottomView(View bottomView) {
+    public void setBottomView(KeyboardView bottomView) {
         this.bottomView = bottomView;
     }
 
@@ -75,5 +75,20 @@ public class KeyboardView {
 
     public void setUnSelectedBackgroud(Drawable unSelectedBackgroud) {
         this.unSelectedBackgroud = unSelectedBackgroud;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        KeyboardView that = (KeyboardView) o;
+
+        return targeview != null ? targeview.equals(that.targeview) : that.targeview == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return targeview != null ? targeview.hashCode() : 0;
     }
 }

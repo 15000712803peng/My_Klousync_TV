@@ -6232,7 +6232,7 @@ public class CommonMeetingActivity extends BaseActivity implements View.OnClickL
     private void doConfigEngine(int cRole) {
         int vProfile = Constants.VIDEO_PROFILE_480P;
         worker().configEngine(cRole, vProfile);
-        worker().getRtcEngine().enableAudioVolumeIndication(200, 3);
+//        worker().getRtcEngine().enableAudioVolumeIndication(200, 3);
         worker().getRtcEngine().enableWebSdkInteroperability(true);
         currentTime = System.currentTimeMillis();
         Log.e("onAudioVolumeIndication", currentTime + ":");

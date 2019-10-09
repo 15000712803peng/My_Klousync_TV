@@ -454,6 +454,7 @@
     <string name="satOff">关闭</string>
     <string name="satOk">确认</string>
 
+    <string name="downloading">下载中...</string>
 
 
 </resources>

@@ -1080,6 +1080,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             changeNumber = jsonObject.getString("changeNumber");
             JSONObject retdata = jsonObject.getJSONObject("retData");
             JSONArray jsonArray = retdata.getJSONArray("usersList");
+            lessonId = retdata.getString("lessonId");
             List<Customer> joinlist = Tools.getUserListByJoinMeeting(jsonArray);
             msg = retdata.toString();
             String currentLine2 = getRetCodeByReturnData2("currentLine", msg);
@@ -6369,7 +6370,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private void doConfigEngine(int cRole) {
         int vProfile = Constants.VIDEO_PROFILE_480P;
         worker().configEngine(cRole, vProfile);
-        worker().getRtcEngine().enableAudioVolumeIndication(200, 3);
+//        worker().getRtcEngine().enableAudioVolumeIndication(200, 3);
         worker().getRtcEngine().enableWebSdkInteroperability(true);
         currentTime = System.currentTimeMillis();
         Log.e("onAudioVolumeIndication", currentTime + ":");

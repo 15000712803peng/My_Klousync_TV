@@ -84,8 +84,10 @@
             android:layout_alignParentBottom="true">
 
             <LinearLayout
+                android:padding="3dp"
+                android:id="@+id/keyboard_menu"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="45dp"
                 android:gravity="center_vertical"
@@ -190,7 +192,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_marginBottom="55dp"
+            android:layout_marginBottom="65dp"
             android:layout_marginRight="10dp"
             android:alpha="0.8"
             android:background="@drawable/icon_menu_bg"
@@ -201,34 +203,53 @@
             android:paddingTop="2dp"
             android:visibility="gone">
 
-            <RelativeLayout
-                android:id="@+id/displayFile"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal">
+                <RelativeLayout
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/icon_menu_file" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="File"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-
-                <TextView
+                    android:id="@+id/displayFile"
                     android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-            </RelativeLayout>
+                    android:layout_height="35dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:id="@+id/keyboard_file"
+                        android:layout_centerVertical="true"
+                        android:gravity="center_vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="28dp">
+
+                    <ImageView
+                        android:layout_marginLeft="8dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/icon_menu_file" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="12dp"
+                        android:text="File"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_alignParentBottom="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:background="@color/divider_line" />
+
+
+
+                </RelativeLayout>
+
+
+
+
 
 
             <RelativeLayout
@@ -382,10 +403,13 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:visibility="gone"
                 android:id="@+id/displayrecord"
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
                 android:orientation="horizontal">
+
+
 
                 <ImageView
                     android:id="@+id/recordicon"
@@ -419,7 +443,17 @@
                 android:layout_height="35dp"
                 android:orientation="horizontal">
 
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:id="@+id/keyboard_audio_setting"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp">
+
                 <ImageView
+                    android:layout_marginLeft="8dp"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerVertical="true"
@@ -430,10 +464,18 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="Setting"
+                    android:layout_marginLeft="12dp"
+                    android:text="Audio Setting"
                     android:textColor="@color/white"
                     android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/divider_line" />
             </RelativeLayout>
 
 
@@ -444,7 +486,17 @@
                 android:orientation="horizontal"
                 android:visibility="gone">
 
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:id="@+id/keyboard_close"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp">
+
                 <ImageView
+                    android:layout_marginLeft="8dp"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerVertical="true"
@@ -455,14 +507,17 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
+                    android:layout_marginLeft="12dp"
                     android:text="Close"
                     android:textColor="@color/white"
                     android:textSize="14sp" />
 
+                </LinearLayout>
+
 
             </RelativeLayout>
         </LinearLayout>
+
 
         <ImageView
             android:id="@+id/icon_back"
@@ -1275,6 +1330,22 @@
 
         </RelativeLayout>
 
+        <LinearLayout
+            android:id="@+id/layout_audio_channel"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:visibility="gone"
+            android:layout_height="match_parent">
+            <include layout="@layout/popup_audio_channel"/>
+        </LinearLayout>
+
+        <com.kloudsync.techexcel2.view.SimulateDirectionKeyboardView
+            android:layout_width="wrap_content"
+            android:id="@+id/simulate_keybord"
+            android:visibility="gone"
+            android:layout_height="wrap_content"></com.kloudsync.techexcel2.view.SimulateDirectionKeyboardView>
+
+
     </RelativeLayout>
 
 
@@ -1285,6 +1356,7 @@
         android:layout_alignParentRight="true"
         android:background="@color/darkblack2"
         android:visibility="gone" />
+
 
 
 </LinearLayout>

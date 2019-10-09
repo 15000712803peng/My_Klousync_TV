@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -49,6 +50,7 @@ import com.ub.techexcel.bean.LineItem;
 import com.ub.techexcel.bean.ServiceBean;
 import com.ub.techexcel.bean.UpcomingLesson;
 import com.ub.techexcel.tools.SpliteSocket;
+import com.ub.techexcel.tools.Tools;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
@@ -98,7 +100,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     private boolean flag_bo;
 
     private LinearLayout editLayout;
-    private TextView bindStatusText;
+    private TextView deviceTypeText;
 
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
@@ -219,33 +221,162 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     LinearLayout openDucumentLayout;
     LinearLayout startMeetingLayout;
     LinearLayout openSyncroomLayout;
+    SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notify);
         Log.e("NotifyActivity","on create");
         instance = this;
+        sharedPreferences = getSharedPreferences(AppConfig.LOGININFO,
+                MODE_PRIVATE);
         initView();
-        GetReceiverlala();
+        registerHeartBeatMessage();
     }
 
-    private void GetReceiverlala() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.kloudsync.techexcel2.BIND_STATUS");
-        registerReceiver(bindBroadcastReceiver, filter);
-    }
 
-    private BroadcastReceiver bindBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, final Intent intent) {
-            int deviceType = intent.getIntExtra("device_type",-1);
-            setBindStatus(deviceType);
-        }
-    };
+
 
     Intent service;
 
+    BroadcastReceiver heartBeatMsgReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String message = intent.getStringExtra("message");
+            if(!TextUtils.isEmpty(message)){
+                handleHeartMessage(message);
+            }
 
+        }
+    };
+
+    private String getRetCodeByReturnData2(String str, String returnData) {
+        if (!TextUtils.isEmpty(returnData)) {
+            try {
+                JSONObject jsonObject = new JSONObject(returnData);
+                if (jsonObject.has(str)) {
+                    return jsonObject.getString(str) + "";
+                } else {
+                    return "";
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return "";
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "";
+            }
+        } else {
+            return "";
+        }
+    }
+
+
+    private void sendEndMeetingMessage(){
+        Log.e("SocketService","sendEndMeetingMessage");
+        Intent intent = new Intent();
+        intent.setAction("com.cn.socket");
+        intent.putExtra("message", "END_MEETING");
+        sendBroadcast(intent);
+    }
+
+    private void updateBindUser(String bindUser){
+        if(sharedPreferences !=  null){
+            sharedPreferences.edit().putString("tv_bind_user",bindUser).commit();
+            Log.e("tv_bind_user",sharedPreferences.getString("tv_bind_user",""));
+            AppConfig.BINDUSERID = bindUser;
+            getBindUserInfo();
+        }
+    }
+
+    private void sendBindStatusMessage(int deviceType){
+        Intent intent = new Intent("com.kloudsync.techexcel2.BIND_STATUS");
+        intent.putExtra("device_type",deviceType);
+        sendBroadcast(intent);
+    }
+
+    private void handleHeartMessage(String msg) {
+        String data = Tools.getFromBase64(getRetCodeByReturnData2("data", msg));
+        Log.e("NotifyActivity", "heart beart response：" + data);
+//        if (WatchCourseActivity3.isMeetingStarted) {
+//            //TV已经在会议里面
+//            return;
+//        }
+        if(TextUtils.isEmpty(data)){
+            goToQrcodeActivity();
+            return;
+        }
+
+
+        try {
+                String meetingId = null;
+                int meetingType = 0;
+                JSONObject messageJson = new JSONObject(data);
+
+                if(messageJson.has("tvBindUserId")){
+                    updateBindUser(messageJson.getInt("tvBindUserId")+"");
+                }else {
+                    goToQrcodeActivity();
+                    return;
+                }
+
+                if (messageJson.has("hasOwner")) {
+                    //绑定了某台设备，或者web
+                    boolean hasOwner = messageJson.getBoolean("hasOwner");
+
+                    if (hasOwner) {
+
+                        if(messageJson.has("tvOwnerDeviceType")){
+                            setDeviceType(messageJson.getInt("tvOwnerDeviceType"));
+                        }
+
+                        if (messageJson.has("tvOwnerMeetingId")) {
+                            meetingId = messageJson.getString("tvOwnerMeetingId");
+                        }else {
+                            meetingId = "0";
+                        }
+
+                        roomid = meetingId;
+                        if(TextUtils.isEmpty(roomid) || roomid.equals("0")){
+                            // 心跳里面没有meeting的信息
+                            return;
+                        }
+                        if (messageJson.has("tvOwnerMeetingType")) {
+                            meetingType = messageJson.getInt("tvOwnerMeetingType");
+                        }
+
+                        type = meetingType;
+
+
+
+                        if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
+                            //已经在Meeting或者Document,或者SyncRoom里面
+                            Log.e("BeartHeart","inside,and heart beat meeting id:" + meetingId);
+                            if(TextUtils.isEmpty(meetingId) || meetingId.equals("0")){
+                                sendEndMeetingMessage();
+                                return;
+                            }
+                        } else {
+                            //不在，跳进去
+                            if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
+                                followUser();
+                                Log.e("BeartHeart","enter again");
+                            }
+                        }
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+    }
+
+
+
+    private void registerHeartBeatMessage(){
+        IntentFilter filter = new IntentFilter("com.kloudsync.techexcel2.HeartBeatMessage");
+        registerReceiver(heartBeatMsgReceiver,filter);
+    }
 
 
 
@@ -270,7 +401,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         courseid.setText(AppConfig.ClassRoomID);
 //        tv_name.setText(AppConfig.UserName);
 
-        bindStatusText = (TextView) findViewById(R.id.txt_bind_status);
+        deviceTypeText = (TextView) findViewById(R.id.txt_device_type);
         recyclerView = (RecyclerView) findViewById(R.id.recycleview);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -287,8 +418,10 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         GetBottom();
         editListener();
 
+
 //        EditHelp.hideSoftInputMethod(roomet, NotifyActivity.this);
-        GetPhoneInfo();
+//        GetPhoneInfo();
+        getBindUserInfo();
         SoftInputUtils.hideSoftInput(NotifyActivity.this);
         flag_enter = getIntent().getBooleanExtra("enter", false);
         roomid = getIntent().getStringExtra("meetingId");
@@ -371,10 +504,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                 MODE_PRIVATE).getString("tv_bind_user","");
         Log.e("NotifyActivity","bind user id:" + user);
         if(TextUtils.isEmpty(user)|| user.equals("0")){
-            Intent qrcodeIntent = new Intent(this, QrCodeActivity.class);
-            qrcodeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(qrcodeIntent);
-            finish();
+            goToQrcodeActivity();
         }
     }
 
@@ -399,7 +529,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
 
     private void followUser() {
         if (!TextUtils.isEmpty(roomid) && !TextUtils.isEmpty(AppConfig.BINDUSERID)) {
-            Log.e("NotifyActivity","follow user:" + type);
+            Log.e("NotifyActivity","follow user,meeting type:" + type + ",meeting id" + roomid);
             if(type == 1 || type == 2){
 
                 Intent intent = (type == 2) ? new Intent(NotifyActivity.this, WatchCourseActivity3.class) :
@@ -485,7 +615,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
 
     }
 
-    private void GetPhoneInfo() {
+    private void getBindUserInfo() {
         LoginGet lg = new LoginGet();
         lg.setDetailGetListener(new LoginGet.DetailGetListener() {
             @Override
@@ -509,9 +639,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
             }
         });
         lg.CustomerDetailRequest(getApplicationContext(), AppConfig.BINDUSERID);
-        if (LoginActivity.instance != null && !LoginActivity.instance.isFinishing()) {
-            LoginActivity.instance.finish();
-        }
+
     }
 
     private void editListener() {
@@ -639,8 +767,9 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
 
         switch (view.getId()) {
             case R.id.backll:
-                finish();
-                overridePendingTransition(R.anim.tran_in7, R.anim.tran_out7);
+//                finish();
+
+                goToQrcodeActivity();
                 break;
             case R.id.roomet:
                 ShowInput();
@@ -670,13 +799,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                         AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/logout",
                         new JSONObject());
 //                Log.e("logout_respose", responsedata.toString() + "");
-                getSharedPreferences(AppConfig.LOGININFO,
-                        MODE_PRIVATE).edit().putString("tv_bind_user","").commit();
-                AppConfig.BINDUSERID = "";
-                Intent qrcodeIntent = new Intent(NotifyActivity.this, QrCodeActivity.class);
-                qrcodeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(qrcodeIntent);
-                finish();
+                goToQrcodeActivity();
             }
         }).start();
 
@@ -745,8 +868,8 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) {
             Fmhaha();
-            finish();
-            overridePendingTransition(R.anim.tran_in7, R.anim.tran_out7);
+//            finish();
+//            overridePendingTransition(R.anim.tran_in7, R.anim.tran_out7);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
             Select_etinput();
@@ -901,9 +1024,9 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
             /*if (QrCodeActivity.instance != null && !QrCodeActivity.instance.isFinishing()) {
                 QrCodeActivity.instance.finish();
             }*/
-            if (MainActivity.instance != null && !MainActivity.instance.isFinishing()) {
-                MainActivity.instance.finish();
-            }
+//            if (MainActivity.instance != null && !MainActivity.instance.isFinishing()) {
+//                MainActivity.instance.finish();
+//            }
         }
     }
 
@@ -913,30 +1036,45 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         super.onDestroy();
         Log.e("NotifyActivity","on Destroy");
         Fmhaha();
-        if (bindBroadcastReceiver != null) {
-            unregisterReceiver(bindBroadcastReceiver);
+        if(heartBeatMsgReceiver != null){
+            unregisterReceiver(heartBeatMsgReceiver);
         }
 
     }
 
 
-
-    private void setBindStatus(int deviceType){
-        if(bindStatusText == null){
+    private void setDeviceType(int deviceType){
+        if(deviceTypeText == null){
             return;
         }
         Log.e("NotifyActivity","setBindStatus:" + deviceType);
         if(deviceType >= 0){
-            bindStatusText.setVisibility(View.VISIBLE);
+            deviceTypeText.setVisibility(View.VISIBLE);
             if(deviceType == 0){
-                bindStatusText.setText(" AutoSync is on with web");
+                deviceTypeText.setText(" AutoSync is on with web");
             }else if(deviceType == 1 || deviceType == 2){
-                bindStatusText.setText(" AutoSync is on with phone");
+                deviceTypeText.setText(" AutoSync is on with phone");
             }
         }else {
-            bindStatusText.setText(" AutoSync is off");
-            bindStatusText.setVisibility(View.INVISIBLE);
+            deviceTypeText.setText(" AutoSync is off");
+            deviceTypeText.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void goToQrcodeActivity(){
+        getSharedPreferences(AppConfig.LOGININFO,
+                MODE_PRIVATE).edit().putString("tv_bind_user","").commit();
+        AppConfig.BINDUSERID = "";
+        Intent intent = new Intent(this,QrCodeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        overridePendingTransition(R.anim.tran_in7, R.anim.tran_out7);
+        startActivity(intent);
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        },500);
     }
 }
 

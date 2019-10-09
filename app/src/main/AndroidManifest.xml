@@ -394,9 +394,15 @@
         <!-- 测试 -->
         <meta-data
             android:name="PGYER_APPID"
-            android:value="348f32cd109d7f624f0636ea64cb034e" />
+            android:value="8bf80b7244c3865d513295949bdb40bd" />
 
-        <activity android:name="com.pgyersdk.activity.FeedbackActivity" />
+        <!-- 正式 -->
+
+        <provider
+            android:name="com.pgyersdk.PgyerProvider"
+            android:exported="false"
+            android:authorities="${applicationId}.com.pgyer.provider" />
+
 
         <!-- umeng -->
         <!--

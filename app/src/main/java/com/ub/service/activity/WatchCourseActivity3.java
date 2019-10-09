@@ -97,12 +97,17 @@ import com.kloudsync.techexcel2.info.ConvertingResult;
 import com.kloudsync.techexcel2.info.Customer;
 import com.kloudsync.techexcel2.info.Favorite;
 import com.kloudsync.techexcel2.info.Uploadao;
+import com.kloudsync.techexcel2.keyboard.KeyboardEventDispatherListener;
+import com.kloudsync.techexcel2.keyboard.KeyboardSupporter;
+import com.kloudsync.techexcel2.keyboard.KeyboardView;
 import com.kloudsync.techexcel2.service.ConnectService;
 import com.kloudsync.techexcel2.start.LoginGet;
 import com.kloudsync.techexcel2.start.QrCodeActivity;
+import com.kloudsync.techexcel2.tool.AudioChannelPopup;
 import com.kloudsync.techexcel2.tool.FileGetTool;
 import com.kloudsync.techexcel2.tool.Md5Tool;
 import com.kloudsync.techexcel2.tool.MediaControlUtils;
+import com.kloudsync.techexcel2.view.SimulateDirectionKeyboardView;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.HttpHandler;
@@ -200,7 +205,7 @@ import static com.ub.techexcel.tools.ServiceInterfaceTools.TV_NOT_FOLLOW;
 /**
  * Created by wang on 2017/6/16.
  */
-public class WatchCourseActivity3 extends BaseActivity implements View.OnClickListener, AGEventHandler, VideoGestureRelativeLayout.VideoGestureListener, AddFileFromFavoriteDialog.OnFavoriteDocSelectedListener, AddFileFromDocumentDialog.OnDocSelectedListener {
+public class WatchCourseActivity3 extends BaseActivity implements View.OnClickListener, AGEventHandler, VideoGestureRelativeLayout.VideoGestureListener, AddFileFromFavoriteDialog.OnFavoriteDocSelectedListener, AddFileFromDocumentDialog.OnDocSelectedListener,KeyboardEventDispatherListener {
 
     private String targetUrl;
     private String newPath;
@@ -341,6 +346,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     private ProgressBar fileprogress;
     private TextView progressbartv;
     int meetingType = 2;
+    private SimulateDirectionKeyboardView simulateKeyboard;
 
     @Override
     public void onFavoriteDocSelected(String docId) {
@@ -362,6 +368,74 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             }
         });
     }
+
+    @Override
+    public boolean onKeyEventDispather(KeyEvent keyEvent, int viewId) {
+        return false;
+    }
+
+    @Override
+    public boolean onMenuEventDispather() {
+        onKeyboardMenuClicked();
+        return false;
+    }
+
+    @Override
+    public boolean onKeyEventEnterDispather(View targetView) {
+        if(menu_linearlayout.getVisibility() != View.VISIBLE){
+            return false;
+        }
+        if(targetView != null){
+            switch (targetView.getId()){
+                case R.id.keyboard_file:
+                    onKeyboardFileClicked();
+                    onKeyboardMenuClicked();
+                    break;
+                case R.id.keyboard_audio_setting:
+                    onKeyboardAudioSettingClicked();
+                    break;
+                case R.id.keyboard_close:
+                    onKeyboardCloseClicked();
+                    break;
+                case R.id.keyboard_sppinner_speaker:
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),"spinner speaker enter",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    if(audioChannelPopup!= null){
+                        audioChannelPopup.getKeyboardSpinnerSpeaker().performClick();
+                    }
+                    break;
+                case R.id.keyboard_cancel:
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),"spinner speaker enter",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    audioChannelLayout.setVisibility(View.GONE);
+                    if(audioChannelPopup != null){
+                        audioChannelPopup = null;
+                    }
+                    break;
+            }
+        }
+        return false;
+    }
+
+    AudioChannelPopup  audioChannelPopup;
+
+    private void onKeyboardAudioSettingClicked() {
+        audioChannelPopup = new AudioChannelPopup(this, audioChannelLayout);
+        audioChannelPopup.show();
+//        simulateKeyboard.setKeyboardEventReceiveListener(audioChannelPopup.getKeyboardSupporter());
+//        audioChannelPopup.
+    }
+
+    private LinearLayout audioChannelLayout;
+
 
     private class MyHandler extends Handler {
 
@@ -797,6 +871,11 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     }
 
+    LinearLayout keyboardMenu;
+    LinearLayout keyboardFile;
+    LinearLayout keyboardAudioSetting;
+    LinearLayout keyboardClose;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -807,6 +886,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 //        NotifyActivity.instance.ShowWhite();
         screenWidth = wm.getDefaultDisplay().getWidth();
         watch3instance = true;
+        keyboardSupporter = new KeyboardSupporter();
+
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
         pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.FULL_WAKE_LOCK, "TEST");
@@ -886,6 +967,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         if (mWebSocketClient == null) {
             return;
         }
+
         if (mWebSocketClient.getReadyState() == WebSocket.READYSTATE.OPEN) {
             sendStringBySocket2("JOIN_MEETING", AppConfig.UserToken, "", meetingId, "", true, "v20140605.0", false, identity, isInstantMeeting);
         }
@@ -1067,6 +1149,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             if (!isMeetingStarted) {
             } else {
 //                showAgoraOptionsDialog();
+                joinChannel();
                 isopenvideo(msg);
             }
             invitedUserIds.clear();
@@ -1164,6 +1247,23 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 //        meetingType = 0;
         initdefault();
 
+//        worker().joinChannel(meetingId.toUpperCase(), config().mUid);
+        joinChannel();
+    }
+
+    private void joinChannel(){
+
+
+        rtcEngine().setChannelProfile(io.agora.rtc.Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
+        rtcEngine().setAudioProfile(io.agora.rtc.Constants.AUDIO_PROFILE_MUSIC_HIGH_QUALITY_STEREO,
+                Constants.AUDIO_SCENARIO_SHOWROOM);
+//        rtcEngine().setAudioProfile(Constants.AUDIO_PROFILE_DEFAULT,
+//                Constants.AUDIO_SCENARIO_DEFAULT);
+        rtcEngine().enableAudio();
+        // High quality audio parameters
+//        rtcEngine().setParameters("{\"che.audio.specify.codec\":\"HEAAC_2ch\"}");
+//        // Enable stereo
+//        rtcEngine().setParameters("{\"che.audio.stereo\":true}");
         worker().joinChannel(meetingId.toUpperCase(), config().mUid);
     }
 
@@ -1736,6 +1836,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         }
     }
 
+    KeyboardSupporter keyboardSupporter;
+
     private void initView() {
 
         tt = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
@@ -1752,6 +1854,10 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         wv_show.setZOrderOnTop(false);
         wv_show.addJavascriptInterface(WatchCourseActivity3.this, "AnalyticsWebInterface");
         wv_show.getSettings().setDomStorageEnabled(true);
+        simulateKeyboard = (SimulateDirectionKeyboardView)findViewById(R.id.simulate_keybord);
+        simulateKeyboard.setKeyboardEventReceiveListener(keyboardSupporter);
+
+        audioChannelLayout = (LinearLayout) findViewById(R.id.layout_audio_channel);
 
         XWalkPreferences.setValue("enable-javascript", true);
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
@@ -1872,7 +1978,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         setting = (RelativeLayout) findViewById(R.id.setting);
         setting2 = (RelativeLayout) findViewById(R.id.setting2);
         if (identity != 2) {
-            setting.setVisibility(View.GONE);
+//            setting.setVisibility(View.GONE);
             findViewById(R.id.videoline).setVisibility(View.GONE);
         }
         setting.setOnClickListener(this);
@@ -1923,6 +2029,45 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         middleimage = (ImageView) findViewById(R.id.middleimage);
         smallimage = (ImageView) findViewById(R.id.smallimage);
         smallimage.setVisibility(View.VISIBLE);
+
+        //------keyboard
+
+        keyboardMenu = (LinearLayout) findViewById(R.id.keyboard_menu);
+        keyboardFile = (LinearLayout) findViewById(R.id.keyboard_file);
+        keyboardAudioSetting = (LinearLayout) findViewById(R.id.keyboard_audio_setting);
+        keyboardClose = (LinearLayout) findViewById(R.id.keyboard_close);
+
+
+        KeyboardView fileView = new KeyboardView();
+        fileView.setSelected(true);
+        fileView.setTargeview(keyboardFile);
+        fileView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+
+        KeyboardView audioSettingView = new KeyboardView();
+        audioSettingView.setTargeview(keyboardAudioSetting);
+        audioSettingView.setSelected(false);
+        audioSettingView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+
+        KeyboardView closeView = new KeyboardView();
+        closeView.setSelected(false);
+        closeView.setTargeview(keyboardClose);
+        closeView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+        fileView.setBottomView(audioSettingView);
+        audioSettingView.setTopView(fileView);
+        audioSettingView.setBottomView(closeView);
+        closeView.setTopView(audioSettingView);
+
+        keyboardSupporter.addKeyboardView(fileView);
+        keyboardSupporter.addKeyboardView(audioSettingView);
+        keyboardSupporter.addKeyboardView(closeView);
+
+        keyboardSupporter.init();
+
+
+
         handler = new MyHandler(this);
 
     }
@@ -1976,7 +2121,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 //        getLineAction(currentAttachmentPage, false);
         if (isMeetingStarted) {
             if (togglelinearlayout.getVisibility() == View.GONE) {
-                worker().joinChannel(meetingId.toUpperCase(), config().mUid);
+//                worker().joinChannel(meetingId.toUpperCase(), config().mUid);
+                joinChannel();
                 togglelinearlayout.setVisibility(View.VISIBLE);
                 issetting = true;
             }
@@ -2000,7 +2146,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         playstop.setImageResource(R.drawable.video_play);
         if (isMeetingStarted) {
             if (togglelinearlayout.getVisibility() == View.GONE) {
-                worker().joinChannel(meetingId.toUpperCase(), config().mUid);
+//                worker().joinChannel(meetingId.toUpperCase(), config().mUid);
+                joinChannel();
                 togglelinearlayout.setVisibility(View.VISIBLE);
                 issetting = true;
             }
@@ -3643,7 +3790,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 } else if (menu_linearlayout.getVisibility() == View.GONE) {
 
                     if (isHavePresenter()) {
-                        displayrecord.setVisibility(View.VISIBLE);
+                        displayrecord.setVisibility(View.GONE);
                         TextView startrecordcontent = (TextView) findViewById(R.id.startrecordcontent);
                         ImageView recordicon = (ImageView) findViewById(R.id.recordicon);
 
@@ -3795,7 +3942,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             case R.id.setting2:
                 menu_linearlayout.setVisibility(View.GONE);
                 menu.setImageResource(R.drawable.icon_menu);
-                findViewById(R.id.settingll2).setVisibility(View.VISIBLE);
+//                findViewById(R.id.settingll2).setVisibility(View.VISIBLE);
                 break;
             case R.id.settingllback2:
                 findViewById(R.id.settingll2).setVisibility(View.GONE);
@@ -6183,7 +6330,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         mBigRecycler.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_AUTO);
         //加入频道
         if (isMeetingStarted) {
-            worker().joinChannel(meetingId.toUpperCase(), config().mUid);
+//            worker().joinChannel(meetingId.toUpperCase(), config().mUid);
+
         }
 
     }
@@ -6250,7 +6398,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     }
 
     private void closeAlbum() {
-        worker().getRtcEngine().disableAudio();
+//        worker().getRtcEngine().disableAudio();
         worker().getRtcEngine().enableLocalVideo(false);
     }
 
@@ -6265,12 +6413,11 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     private void doConfigEngine(int cRole) {
         int vProfile = Constants.VIDEO_PROFILE_480P;
         worker().configEngine(cRole, vProfile);
-        worker().getRtcEngine().enableAudioVolumeIndication(200, 3);
+//        worker().getRtcEngine().enableAudioVolumeIndication(200, 3);
         worker().getRtcEngine().enableWebSdkInteroperability(true);
         currentTime = System.currentTimeMillis();
         Log.e("onAudioVolumeIndication", currentTime + ":");
     }
-
 
     @Override
     protected void deInitUIandEvent() {
@@ -6487,7 +6634,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         } else {
             isClose = true;
             bindUserVoiceText.setText("Voice from " + userName+": off");
-            worker().getRtcEngine().muteRemoteAudioStream(bindUid, true);
+//            worker().getRtcEngine().muteRemoteAudioStream(bindUid, true);
+            worker().getRtcEngine().muteRemoteAudioStream(bindUid, false);
         }
     }
 
@@ -6972,17 +7120,49 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     }
 
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-//        Toast.makeText(this,"Synccroom dispatchKeyEvent:" + event.getKeyCode(),Toast.LENGTH_SHORT).show();
+    public boolean dispatchKeyEvent(final KeyEvent event) {
+
         int keyCode = event.getKeyCode();
-        if (isMeetingStarted) {
-            return false;
-        }
+//        if (isMeetingStarted) {
+//            return false;
+//        }
+
         if (event.getAction() != KeyEvent.ACTION_DOWN) {
             return super.dispatchKeyEvent(event);
         }
 
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            onKeyboardMenuClicked();
+            return false;
+        }
+
+
+        if(audioChannelPopup != null && audioChannelLayout.getVisibility() == View.VISIBLE){
+            if(keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
+                    keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
+                Log.e("dispatchKeyEvent","audioChannelPopup receiver key event");
+                audioChannelPopup.getKeyboardSupporter().setKeyboardEventDispatherListener(this);
+                return audioChannelPopup.getKeyboardSupporter().onKeyEventReceive(event);
+            }
+
+        }
+
+
+        if(menu_linearlayout.getVisibility() == View.VISIBLE){
+            Log.e("dispatchKeyEvent","menu_linearlayout receiver key event");
+            if(keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
+                    keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
+                keyboardSupporter.setKeyboardEventDispatherListener(this);
+                return keyboardSupporter.onKeyEventReceive(event);
+            }
+        }
+
+
         if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            if(audioChannelLayout.getVisibility() == View.VISIBLE){
+                audioChannelLayout.setVisibility(View.GONE);
+                audioChannelPopup = null;
+            }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
             _scrollUp();
@@ -7005,12 +7185,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 //            }
             return false;
 
-        } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
-            return false;
-        } else if (keyCode == KeyEvent.KEYCODE_MENU) {
-
-            return false;
-        } else {
+        } else  {
             return super.dispatchKeyEvent(event);
         }
     }
@@ -7081,6 +7256,20 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         }
     }
 
+    private void onKeyboardCloseClicked(){
+        requestNotFollow();
+    }
+
+    private void onKeyboardFileClicked(){
+        documentPopupWindow.showAtLocation(wv_show, Gravity.BOTTOM, 0, 0);
+//        menu_linearlayout.setVisibility(View.GONE);
+//        menu.setImageResource(R.drawable.icon_menu);
+        getServiceDetail();
+        findViewById(R.id.bottomrl).setVisibility(View.GONE);
+
+    }
+
+
     private void requestNotFollow() {
 //        ServiceInterfaceTools.getinstance().tvNotFollow(AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/change_bind_tv_status?status=0", TV_NOT_FOLLOW);
 //        JSONObject responsedata = com.ub.techexcel.service.ConnectService.submitDataByJson(
@@ -7110,6 +7299,33 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         editor.putInt("voice_type",voiceType);
         editor.commit();
     }
+
+    private void onKeyboardMenuClicked(){
+        if (menu_linearlayout.getVisibility() == View.VISIBLE) {
+            keyboardMenu.setBackground(null);
+            menu_linearlayout.setVisibility(View.GONE);
+            menu.setImageResource(R.drawable.icon_menu);
+        } else if (menu_linearlayout.getVisibility() == View.GONE) {
+            keyboardMenu.setBackgroundResource(R.drawable.circle_keybord_selected);
+
+            if (isHavePresenter()) {
+                displayrecord.setVisibility(View.GONE);
+                TextView startrecordcontent = (TextView) findViewById(R.id.startrecordcontent);
+                ImageView recordicon = (ImageView) findViewById(R.id.recordicon);
+
+            } else {
+                displayrecord.setVisibility(View.GONE);
+            }
+            menu_linearlayout.setVisibility(View.VISIBLE);
+            findViewById(R.id.hiddenwalkview).setVisibility(View.VISIBLE);
+            menu.setImageResource(R.drawable.icon_menu_active);
+            activte_linearlayout.setVisibility(View.GONE);
+            command_active.setImageResource(R.drawable.icon_command);
+//            keyboardSupporter.init();
+        }
+    }
+
+
 
 
 }

@@ -470,4 +470,6 @@ Please input the cell phone number to add the contact
     <string name="satOff">Turn Off</string>
     <string name="satOk">Ok</string>
 
+    <string name="downloading">downloading...</string>
+
 </resources>

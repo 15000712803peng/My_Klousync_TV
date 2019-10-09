@@ -5,8 +5,11 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.support.multidex.MultiDex;
+import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.pgyersdk.Pgyer;
+import com.pgyersdk.PgyerActivityManager;
 import com.pgyersdk.crash.PgyCrashManager;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.dialog.message.ChangeItemMessage;
@@ -42,6 +45,8 @@ public class App extends Application {
         Fresco.initialize(this);
 
         mCrashHandler = CrashHandler.getInstance();
+        PgyerActivityManager.set(App.this);
+        Pgyer.setAppId("8bf80b7244c3865d513295949bdb40bd");
         mCrashHandler.init(this);
 		
 		PgyCrashManager.register(this);
@@ -101,6 +106,7 @@ public class App extends Application {
         mWorkerThread = null;
 
     }
+
 
 
     /**

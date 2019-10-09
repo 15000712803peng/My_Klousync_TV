@@ -1,12 +1,15 @@
 package com.ub.service.activity;
 
+import android.app.ActivityManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -38,6 +41,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -182,8 +186,15 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
     @Override
     public void onMessage(String message) {
         String msg = Tools.getFromBase64(message);
-        Log.e("socket服务器返回结果", msg);
+        Log.e("SocketService", "onMessage:" + msg);
         String actionString = getRetCodeByReturnData2("action", msg);
+        if(isAppInBackground(getApplicationContext())){
+            Log.e("SocketService","app in background");
+            return;
+        }else {
+            Log.e("SocketService","app in foreground");
+        }
+
         if (TextUtils.isEmpty(actionString)) {
             return;
         }
@@ -460,11 +471,8 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
             intent.putExtra("device_type",deviceType);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Log.e("SocketService", "start activity");
-
             startActivity(intent);
-            if (QrCodeActivity.instance != null && !QrCodeActivity.instance.isFinishing()) {
-                QrCodeActivity.instance.ShowGone();
-            }
+
         } else {
             intent.putExtra("enter", false);
             intent.putExtra("meetingId", meetingId);
@@ -473,9 +481,6 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Log.e("SocketService", "start activity");
             startActivity(intent);
-            if (QrCodeActivity.instance != null && !QrCodeActivity.instance.isFinishing()) {
-                QrCodeActivity.instance.ShowGone();
-            }
 
         }
     }
@@ -542,67 +547,69 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
     }
 
     private void handleHeartMessage(String msg) {
-        String action = Tools.getFromBase64(getRetCodeByReturnData2("data", msg));
-        Log.e("SocketService", "heart beart response" + action);
-//        if (WatchCourseActivity3.isMeetingStarted) {
-//            //TV已经在会议里面
-//            return;
+          Intent heartBeatIntent = new Intent("com.kloudsync.techexcel2.HeartBeatMessage");
+          heartBeatIntent.putExtra("message",msg);
+          sendBroadcast(heartBeatIntent);
+//        String action = Tools.getFromBase64(getRetCodeByReturnData2("data", msg));
+////        if (WatchCourseActivity3.isMeetingStarted) {
+////            //TV已经在会议里面
+////            return;
+////        }
+//
+//        if (!TextUtils.isEmpty(action)) {
+//            try {
+//                String meetingId = null;
+//                int meetingType = 0;
+//                JSONObject actionJson = new JSONObject(action);
+//
+//                if(actionJson.has("tvBindUserId")){
+//                    updateBindUser(actionJson.getInt("tvBindUserId")+"");
+//                }else {
+//                    updateBindUser("");
+//                }
+//
+//                if (actionJson.has("hasOwner")) {
+//                    //绑定了某台设备，或者web
+//                    boolean hasOwner = actionJson.getBoolean("hasOwner");
+//
+//                    if (hasOwner) {
+//                        if (actionJson.has("tvOwnerMeetingId")) {
+//                            meetingId = actionJson.getString("tvOwnerMeetingId");
+//                        }else {
+//                            meetingId = "0";
+//                        }
+//                        if (actionJson.has("tvOwnerMeetingType")) {
+//                            meetingType = actionJson.getInt("tvOwnerMeetingType");
+//                        }
+//
+//                        if(actionJson.has("tvOwnerDeviceType")){
+//                            sendBindStatusMessage(actionJson.getInt("tvOwnerDeviceType"));
+//                        }
+//
+//                        if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
+//                            //已经在Meeting或者Document,或者SyncRoom里面
+//                            Log.e("BeartHeart","inside,and heart beat meeting id:" + meetingId);
+//                            if(TextUtils.isEmpty(meetingId) || meetingId.equals("0")){
+//                                sendEndMeetingMessage();
+//                                return;
+//                            }
+//                        } else {
+//                            //不在，跳进去
+//                            if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
+//                                followUser(meetingId,meetingType);
+//                                Log.e("BeartHeart","enter again");
+//                            }
+//                        }
+//                    }else {
+//                        sendBindStatusMessage(-1);
+//                    }
+//                }
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }else {
+//            sendBindStatusMessage(-1);
 //        }
-
-        if (!TextUtils.isEmpty(action)) {
-            try {
-                String meetingId = null;
-                int meetingType = 0;
-                JSONObject actionJson = new JSONObject(action);
-
-                if(actionJson.has("tvBindUserId")){
-                    updateBindUser(actionJson.getInt("tvBindUserId")+"");
-                }else {
-                    updateBindUser("");
-                }
-
-                if (actionJson.has("hasOwner")) {
-                    //绑定了某台设备，或者web
-                    boolean hasOwner = actionJson.getBoolean("hasOwner");
-
-                    if (hasOwner) {
-                        if (actionJson.has("tvOwnerMeetingId")) {
-                            meetingId = actionJson.getString("tvOwnerMeetingId");
-                        }else {
-                            meetingId = "0";
-                        }
-                        if (actionJson.has("tvOwnerMeetingType")) {
-                            meetingType = actionJson.getInt("tvOwnerMeetingType");
-                        }
-
-                        if(actionJson.has("tvOwnerDeviceType")){
-                            sendBindStatusMessage(actionJson.getInt("tvOwnerDeviceType"));
-                        }
-
-                        if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
-                            //已经在Meeting或者Document,或者SyncRoom里面
-                            Log.e("BeartHeart","inside,and heart beat meeting id:" + meetingId);
-                            if(TextUtils.isEmpty(meetingId) || meetingId.equals("0")){
-                                sendEndMeetingMessage();
-                                return;
-                            }
-                        } else {
-                            //不在，跳进去
-                            if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
-                                followUser(meetingId,meetingType);
-                                Log.e("BeartHeart","enter again");
-                            }
-                        }
-                    }else {
-                        sendBindStatusMessage(-1);
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }else {
-            sendBindStatusMessage(-1);
-        }
 
     }
 
@@ -661,6 +668,32 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
 
     private void delayOption(Runnable option){
         new Handler(getMainLooper()).postDelayed(option,700);
+    }
+
+    private boolean isAppInBackground(Context context) {
+
+        boolean isInBackground = true;
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT_WATCH) {
+            List<ActivityManager.RunningAppProcessInfo> runningProcesses = am.getRunningAppProcesses();
+            for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+                //前台程序
+                if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                    for (String activeProcess : processInfo.pkgList) {
+                        if (activeProcess.equals(context.getPackageName())) {
+                            isInBackground = false;
+                        }
+                    }
+                }
+            }
+        } else {
+            List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+            ComponentName componentInfo = taskInfo.get(0).topActivity;
+            if (componentInfo.getPackageName().equals(context.getPackageName())) {
+                isInBackground = false;
+            }
+        }
+        return isInBackground;
     }
 
 

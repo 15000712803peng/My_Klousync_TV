@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="160dp"
+    android:background="@color/lightgray"
+    android:layout_height="160dp">
+
+
+
+    <ImageView
+
+        android:layout_above="@+id/image_direction_enter"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/image_direction_up"
+        android:src="@drawable/direction_top"
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
+
+
+
+    <ImageView
+        android:layout_margin="16dp"
+        android:id="@+id/image_direction_enter"
+        android:layout_centerInParent="true"
+        android:src="@drawable/direction_enter"
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
+
+
+    <ImageView
+
+        android:layout_below="@id/image_direction_enter"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/image_direction_down"
+        android:src="@drawable/direction_bottom"
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
+
+    <ImageView
+
+        android:layout_toLeftOf="@id/image_direction_enter"
+        android:layout_centerVertical="true"
+        android:id="@+id/image_direction_left"
+        android:src="@drawable/direction_left"
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
+
+    <ImageView
+
+        android:layout_toRightOf="@id/image_direction_enter"
+        android:layout_centerVertical="true"
+        android:id="@+id/image_direction_right"
+        android:src="@drawable/direction_right"
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
+
+    <ImageView
+        android:scaleType="fitCenter"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:id="@+id/image_direction_menu"
+        android:src="@drawable/icon_menu"
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
+
+
+
+
+</RelativeLayout>

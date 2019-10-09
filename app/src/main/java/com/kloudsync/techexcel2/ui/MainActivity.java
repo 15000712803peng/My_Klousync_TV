@@ -29,9 +29,6 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
-import com.pgyersdk.javabean.AppBean;
-import com.pgyersdk.update.PgyUpdateManager;
-import com.pgyersdk.update.UpdateManagerListener;
 import com.ub.service.activity.SocketService;
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.config.AppConfig;
@@ -206,48 +203,48 @@ public class MainActivity extends FragmentActivity {
     }
 
 
-    private void initUpdate() {
-        // TODO Auto-generated method stub
-        PgyUpdateManager.register(MainActivity.this,
-                new UpdateManagerListener() {
-
-                    @Override
-                    public void onUpdateAvailable(final String result) {
-                        Log.e("onUpdateAvailable", result + ":");
-
-                        // 将新版本信息封装到AppBean中
-                        final AppBean appBean = getAppBeanFromString(result);
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setTitle(getResources().getString(R.string.update))
-                                .setMessage(getResources().getString(R.string.update_message))
-                                .setPositiveButton(getResources().getString(R.string.No), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        // TODO Auto-generated method stub
-                                        dialog.dismiss();
-                                    }
-                                })
-                                .setNegativeButton(
-                                        getResources().getString(R.string.update),
-                                        new DialogInterface.OnClickListener() {
-
-                                            @Override
-                                            public void onClick(
-                                                    DialogInterface dialog,
-                                                    int which) {
-                                                startDownloadTask(
-                                                        MainActivity.this,
-                                                        appBean.getDownloadURL());
-                                            }
-                                        }).show();
-                    }
-
-                    @Override
-                    public void onNoUpdateAvailable() {
-                    }
-                });
-    }
+//    private void initUpdate() {
+//        // TODO Auto-generated method stub
+//        PgyUpdateManager.register(MainActivity.this,
+//                new UpdateManagerListener() {
+//
+//                    @Override
+//                    public void onUpdateAvailable(final String result) {
+//                        Log.e("onUpdateAvailable", result + ":");
+//
+//                        // 将新版本信息封装到AppBean中
+//                        final AppBean appBean = getAppBeanFromString(result);
+//                        new AlertDialog.Builder(MainActivity.this)
+//                                .setTitle(getResources().getString(R.string.update))
+//                                .setMessage(getResources().getString(R.string.update_message))
+//                                .setPositiveButton(getResources().getString(R.string.No), new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog,
+//                                                        int which) {
+//                                        // TODO Auto-generated method stub
+//                                        dialog.dismiss();
+//                                    }
+//                                })
+//                                .setNegativeButton(
+//                                        getResources().getString(R.string.update),
+//                                        new DialogInterface.OnClickListener() {
+//
+//                                            @Override
+//                                            public void onClick(
+//                                                    DialogInterface dialog,
+//                                                    int which) {
+//                                                startDownloadTask(
+//                                                        MainActivity.this,
+//                                                        appBean.getDownloadURL());
+//                                            }
+//                                        }).show();
+//                    }
+//
+//                    @Override
+//                    public void onNoUpdateAvailable() {
+//                    }
+//                });
+//    }
 
     private void initView() {
         DisplayMetrics dm = new DisplayMetrics();
