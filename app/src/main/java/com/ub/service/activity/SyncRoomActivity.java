@@ -1081,6 +1081,11 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             JSONObject retdata = jsonObject.getJSONObject("retData");
             JSONArray jsonArray = retdata.getJSONArray("usersList");
             lessonId = retdata.getString("lessonId");
+            if(TextUtils.isEmpty(lessonId) || lessonId.equals("0")){
+                Log.e("SyncRoomActivity","lession id is illegal,lession id:" + lessonId);
+                sendJoinMeetingMessage(meetingId);
+                return;
+            }
             List<Customer> joinlist = Tools.getUserListByJoinMeeting(jsonArray);
             msg = retdata.toString();
             String currentLine2 = getRetCodeByReturnData2("currentLine", msg);
@@ -1538,6 +1543,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             //老师 结束课程  所有人离开
             if (msg_action.equals("END_MEETING")) {
                 if (getRetCodeByReturnData2("retCode", msg).equals("1")) {
+                    sendLeaveMeetingMessage();
                     finish();
                     if (isHavePresenter()) {
                     } else {
@@ -1546,6 +1552,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 }
             }
             if (msg_action.equals("DISABLE_TV_FOLLOW")) {
+                sendLeaveMeetingMessage();
                 finish();
             }
 
@@ -5502,7 +5509,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 e.printStackTrace();
             }
         }
-        finish();
+
     }
 
 
@@ -7218,19 +7225,22 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
 //                AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/change_bind_tv_status?status=0",
 //                new JSONObject());
 //        Log.e("not_follow_respose", responsedata.toString() + "");
-
+        sendLeaveMeetingMessage();
+        getSharedPreferences(AppConfig.LOGININFO,
+                MODE_PRIVATE).edit().putString("tv_bind_user","").commit();
+        AppConfig.BINDUSERID = "";
         new Thread(new Runnable() {
             @Override
             public void run() {
-                getSharedPreferences(AppConfig.LOGININFO,
-                        MODE_PRIVATE).edit().putString("tv_bind_user","").commit();
-                AppConfig.BINDUSERID = "";
+
                 JSONObject responsedata = com.ub.techexcel.service.ConnectService.submitDataByJson(
                         AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/logout",
                         new JSONObject());
+                finish();
 
             }
         }).start();
+
     }
 
     BroadcastReceiver refeshMeetingBroadcast = new BroadcastReceiver() {
@@ -7266,6 +7276,18 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 e.printStackTrace();
             }
         }
+    }
+
+    private void sendLeaveMeetingMessage() {
+        try {
+            JSONObject message = new JSONObject();
+            message.put("action", "LEAVE_MEETING");
+            message.put("sessionId", AppConfig.UserToken);
+            SpliteSocket.sendMesageBySocket(message.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

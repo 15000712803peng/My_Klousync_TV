@@ -38,6 +38,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.bean.EventUserName;
 import com.kloudsync.techexcel2.config.AppConfig;
+import com.kloudsync.techexcel2.help.ApiTask;
 import com.kloudsync.techexcel2.info.Customer;
 import com.kloudsync.techexcel2.service.ConnectService;
 import com.kloudsync.techexcel2.start.LoginActivity;
@@ -53,6 +54,8 @@ import com.ub.techexcel.tools.SpliteSocket;
 import com.ub.techexcel.tools.Tools;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -131,8 +134,8 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                         ii.putExtra("lessionId", lessionid + "");
                         ii.putExtra("isInstantMeeting", 1);
                         ii.putExtra("teacherid", teacherid + "");
-                        ii.putExtra("meeting_type",0);
-                        ii.putExtra("is_meeting",true);
+                        ii.putExtra("meeting_type", 0);
+                        ii.putExtra("is_meeting", true);
                         if (!WatchCourseActivity3.watch3instance) {
                             startActivity(ii);
                             new Handler().postDelayed(new Runnable() {
@@ -222,19 +225,19 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     LinearLayout startMeetingLayout;
     LinearLayout openSyncroomLayout;
     SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notify);
-        Log.e("NotifyActivity","on create");
+        Log.e("NotifyActivity", "on create");
         instance = this;
         sharedPreferences = getSharedPreferences(AppConfig.LOGININFO,
                 MODE_PRIVATE);
         initView();
-        registerHeartBeatMessage();
+        registerReceiver();
+        EventBus.getDefault().register(this);
     }
-
-
 
 
     Intent service;
@@ -243,9 +246,18 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         @Override
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
-            if(!TextUtils.isEmpty(message)){
+            if (!TextUtils.isEmpty(message)) {
                 handleHeartMessage(message);
             }
+
+        }
+    };
+
+    BroadcastReceiver bindMsgReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+             deviceType = intent.getIntExtra("device_type",-1);
+             setDeviceType(deviceType);
 
         }
     };
@@ -272,26 +284,26 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     }
 
 
-    private void sendEndMeetingMessage(){
-        Log.e("SocketService","sendEndMeetingMessage");
+    private void sendEndMeetingMessage() {
+        Log.e("SocketService", "sendEndMeetingMessage");
         Intent intent = new Intent();
         intent.setAction("com.cn.socket");
         intent.putExtra("message", "END_MEETING");
         sendBroadcast(intent);
     }
 
-    private void updateBindUser(String bindUser){
-        if(sharedPreferences !=  null){
-            sharedPreferences.edit().putString("tv_bind_user",bindUser).commit();
-            Log.e("tv_bind_user",sharedPreferences.getString("tv_bind_user",""));
+    private void updateBindUser(String bindUser) {
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putString("tv_bind_user", bindUser).commit();
+            Log.e("tv_bind_user", sharedPreferences.getString("tv_bind_user", ""));
             AppConfig.BINDUSERID = bindUser;
             getBindUserInfo();
         }
     }
 
-    private void sendBindStatusMessage(int deviceType){
+    private void sendBindStatusMessage(int deviceType) {
         Intent intent = new Intent("com.kloudsync.techexcel2.BIND_STATUS");
-        intent.putExtra("device_type",deviceType);
+        intent.putExtra("device_type", deviceType);
         sendBroadcast(intent);
     }
 
@@ -302,82 +314,89 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
 //            //TV已经在会议里面
 //            return;
 //        }
-        if(TextUtils.isEmpty(data)){
+        if (TextUtils.isEmpty(data)) {
             goToQrcodeActivity();
             return;
         }
 
 
         try {
-                String meetingId = null;
-                int meetingType = 0;
-                JSONObject messageJson = new JSONObject(data);
+            String meetingId = null;
+            int meetingType = 0;
+            JSONObject messageJson = new JSONObject(data);
 
-                if(messageJson.has("tvBindUserId")){
-                    updateBindUser(messageJson.getInt("tvBindUserId")+"");
-                }else {
-                    goToQrcodeActivity();
-                    return;
-                }
+            if (messageJson.has("tvBindUserId")) {
+                updateBindUser(messageJson.getInt("tvBindUserId") + "");
+            } else {
+                goToQrcodeActivity();
+                return;
+            }
 
-                if (messageJson.has("hasOwner")) {
-                    //绑定了某台设备，或者web
-                    boolean hasOwner = messageJson.getBoolean("hasOwner");
+            if (messageJson.has("tvOwnerDeviceType")) {
+                deviceType = messageJson.getInt("tvOwnerDeviceType");
+                setDeviceType(deviceType);
+            }
 
-                    if (hasOwner) {
 
-                        if(messageJson.has("tvOwnerDeviceType")){
-                            setDeviceType(messageJson.getInt("tvOwnerDeviceType"));
-                        }
+            if (messageJson.has("hasOwner")) {
+                //绑定了某台设备，或者web
+                boolean hasOwner = messageJson.getBoolean("hasOwner");
 
-                        if (messageJson.has("tvOwnerMeetingId")) {
-                            meetingId = messageJson.getString("tvOwnerMeetingId");
-                        }else {
-                            meetingId = "0";
-                        }
+                if (hasOwner) {
 
-                        roomid = meetingId;
-                        if(TextUtils.isEmpty(roomid) || roomid.equals("0")){
-                            // 心跳里面没有meeting的信息
+
+                    if (messageJson.has("tvOwnerMeetingId")) {
+                        meetingId = messageJson.getString("tvOwnerMeetingId");
+                    } else {
+                        meetingId = "0";
+                    }
+
+                    roomid = meetingId;
+                    if (TextUtils.isEmpty(roomid) || roomid.equals("0")) {
+                        // 心跳里面没有meeting的信息
+                        return;
+                    }
+                    if (messageJson.has("tvOwnerMeetingType")) {
+                        meetingType = messageJson.getInt("tvOwnerMeetingType");
+                    }
+
+                    type = meetingType;
+
+
+                    if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
+                        //已经在Meeting或者Document,或者SyncRoom里面
+                        Log.e("BeartHeart", "inside,and heart beat meeting id:" + meetingId);
+                        if (TextUtils.isEmpty(meetingId) || meetingId.equals("0")) {
+                            sendEndMeetingMessage();
                             return;
                         }
-                        if (messageJson.has("tvOwnerMeetingType")) {
-                            meetingType = messageJson.getInt("tvOwnerMeetingType");
-                        }
-
-                        type = meetingType;
-
-
-
-                        if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
-                            //已经在Meeting或者Document,或者SyncRoom里面
-                            Log.e("BeartHeart","inside,and heart beat meeting id:" + meetingId);
-                            if(TextUtils.isEmpty(meetingId) || meetingId.equals("0")){
-                                sendEndMeetingMessage();
-                                return;
-                            }
-                        } else {
-                            //不在，跳进去
-                            if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
-                                followUser();
-                                Log.e("BeartHeart","enter again");
-                            }
+                    } else {
+                        //不在，跳进去
+                        if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
+                            followUser();
+                            Log.e("BeartHeart", "enter again");
                         }
                     }
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
 
 
-
-    private void registerHeartBeatMessage(){
+    private void registerReceiver() {
         IntentFilter filter = new IntentFilter("com.kloudsync.techexcel2.HeartBeatMessage");
-        registerReceiver(heartBeatMsgReceiver,filter);
-    }
+        registerReceiver(heartBeatMsgReceiver, filter);
 
+        IntentFilter filter1 = new IntentFilter("com.kloudsync.techexcel2.bind_message");
+        registerReceiver(bindMsgReceiver,filter1);
+
+        IntentFilter filter2 = new IntentFilter("com.kloudsync.techexcel2.logout");
+        registerReceiver(logoutReceiver,filter2);
+
+    }
 
 
     private void initView() {
@@ -408,10 +427,10 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         recyclerView.setLayoutManager(linearLayoutManager);
         openDocumentCard = (ImageView) findViewById(R.id.img1);
         openDucumentLayout = (LinearLayout) findViewById(R.id.layout_card1);
-        startMeetingCard = (ImageView)findViewById(R.id.img2);
-        startMeetingLayout = (LinearLayout)findViewById(R.id.layout_card2);
-        openSyncroomCard = (ImageView)findViewById(R.id.img3);
-        openSyncroomLayout = (LinearLayout)findViewById(R.id.layout_card3);
+        startMeetingCard = (ImageView) findViewById(R.id.img2);
+        startMeetingLayout = (LinearLayout) findViewById(R.id.layout_card2);
+        openSyncroomCard = (ImageView) findViewById(R.id.img3);
+        openSyncroomLayout = (LinearLayout) findViewById(R.id.layout_card3);
         openSyncroomCard.setOnClickListener(this);
         openDocumentCard.setOnClickListener(this);
         startMeetingCard.setOnClickListener(this);
@@ -425,11 +444,13 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         SoftInputUtils.hideSoftInput(NotifyActivity.this);
         flag_enter = getIntent().getBooleanExtra("enter", false);
         roomid = getIntent().getStringExtra("meetingId");
+        deviceType = getIntent().getIntExtra("device_type", -1);
+        setDeviceType(deviceType);
         if (flag_enter && !TextUtils.isEmpty(roomid)) {
 
             attachmentId = getIntent().getStringExtra("attachmentId");
             type = getIntent().getIntExtra("type", 0);
-            Log.e("NotifyActivity","on create follow user");
+            Log.e("NotifyActivity", "on create follow user");
             followUser();
         } else {
 //            roomet.setFocusable(true);
@@ -501,23 +522,27 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         super.onResume();
 
         String user = getSharedPreferences(AppConfig.LOGININFO,
-                MODE_PRIVATE).getString("tv_bind_user","");
-        Log.e("NotifyActivity","bind user id:" + user);
-        if(TextUtils.isEmpty(user)|| user.equals("0")){
+                MODE_PRIVATE).getString("tv_bind_user", "");
+        Log.e("NotifyActivity", "bind user id:" + user);
+        if (TextUtils.isEmpty(user) || user.equals("0")) {
             goToQrcodeActivity();
         }
     }
+
+    int deviceType = -1;
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         flag_enter = intent.getBooleanExtra("enter", false);
         roomid = intent.getStringExtra("meetingId");
+        deviceType = intent.getIntExtra("device_type", -1);
+        setDeviceType(deviceType);
         if (flag_enter && !TextUtils.isEmpty(roomid)) {
-            Log.e("Test_Meeting"," onNewIntent meeting id:" + roomid);
+            Log.e("Test_Meeting", " onNewIntent meeting id:" + roomid);
             attachmentId = intent.getStringExtra("attachmentId");
             type = intent.getIntExtra("type", -1);
-            Log.e("NotifyActivity","on create follow user");
+            Log.e("NotifyActivity", "on create follow user");
             followUser();
         } else {
 //            roomet.setFocusable(true);
@@ -529,8 +554,8 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
 
     private void followUser() {
         if (!TextUtils.isEmpty(roomid) && !TextUtils.isEmpty(AppConfig.BINDUSERID)) {
-            Log.e("NotifyActivity","follow user,meeting type:" + type + ",meeting id" + roomid);
-            if(type == 1 || type == 2){
+            Log.e("NotifyActivity", "follow user,meeting type:" + type + ",meeting id" + roomid);
+            if (type == 1 || type == 2) {
 
                 Intent intent = (type == 2) ? new Intent(NotifyActivity.this, WatchCourseActivity3.class) :
                         new Intent(NotifyActivity.this, SyncRoomActivity.class);
@@ -546,10 +571,10 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                 intent.putExtra("teacherid", AppConfig.BINDUSERID.replace("-", ""));
                 intent.putExtra("isStartCourse", false);
                 startActivity(intent);
-            }else if(type == 0){
+            } else if (type == 0) {
 //                checkClassRoomExist(roomid);
-                Log.e("NotifyActivity","start meeting");
-                Intent intent =  new Intent(NotifyActivity.this, WatchCourseActivity3.class);
+                Log.e("NotifyActivity", "start meeting");
+                Intent intent = new Intent(NotifyActivity.this, WatchCourseActivity3.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("userid", AppConfig.BINDUSERID);
                 intent.putExtra("meetingId", roomid);
@@ -616,29 +641,62 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     }
 
     private void getBindUserInfo() {
-        LoginGet lg = new LoginGet();
-        lg.setDetailGetListener(new LoginGet.DetailGetListener() {
+//        LoginGet lg = new LoginGet();
+//        lg.setDetailGetListener(new LoginGet.DetailGetListener() {
+//            @Override
+//            public void getUser(Customer user) {
+//                tv_name.setText(user.getName());
+//                Intent data = new Intent("com.kloudsync.techexcel2.username_receive");
+//                data.putExtra("user_name",user.getName());
+//                sendBroadcast(data);
+//                String url = user.getUrl();
+//                if (!TextUtils.isEmpty(url)) {
+//                    Uri imageUri = Uri.parse(url);
+//                    img_head.setImageURI(imageUri);
+//                }else {
+//                    img_head.setImageResource(R.drawable.hello);
+//
+//                }
+//            }
+//
+//            @Override
+//            public void getMember(Customer member) {
+//                // TODO Auto-generated method stub
+//
+//            }
+//        });
+//        lg.CustomerDetailRequest(getApplicationContext(), AppConfig.BINDUSERID);
+
+        new ApiTask(new Runnable() {
             @Override
-            public void getUser(Customer user) {
-                tv_name.setText(user.getName());
-                Intent data = new Intent("com.kloudsync.techexcel2.username_receive");
-                data.putExtra("user_name",user.getName());
-                Log.e("user_name_test","send user name:" + user.getName());
-                sendBroadcast(data);
-                String url = user.getUrl();
-                if (!TextUtils.isEmpty(url)) {
-                    Uri imageUri = Uri.parse(url);
-                    img_head.setImageURI(imageUri);
+            public void run() {
+                JSONObject jsonObject = ConnectService.getIncidentbyHttpGet(AppConfig.URL_PUBLIC + "User/UserListBasicInfo?userIds=" + AppConfig.BINDUSERID);
+                if (jsonObject != null) {
+                    if (jsonObject.has("RetData")) {
+                        try {
+                            JSONArray jsonArray = jsonObject.getJSONArray("RetData");
+                            if (jsonArray != null) {
+                                JSONObject userInfoObj = jsonArray.getJSONObject(0);
+                                if (userInfoObj != null) {
+                                    String avator = userInfoObj.getString("AvatarUrl");
+                                    String name = userInfoObj.getString("UserName");
+                                    SingleUserInfo userInfo = new SingleUserInfo();
+                                    userInfo.avatarUrl = avator;
+                                    userInfo.bindUserName = name;
+                                    EventBus.getDefault().post(userInfo);
+                                }
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
                 }
             }
+        }).start(ThreadManager.getManager());
 
-            @Override
-            public void getMember(Customer member) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-        lg.CustomerDetailRequest(getApplicationContext(), AppConfig.BINDUSERID);
 
     }
 
@@ -781,7 +839,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                 JoinRoom2();
                 break;
             case R.id.img1:
-                Intent selectDocumentIntent = new Intent(this,SelectDocumentActivity.class);
+                Intent selectDocumentIntent = new Intent(this, SelectDocumentActivity.class);
                 startActivity(selectDocumentIntent);
                 break;
             default:
@@ -864,6 +922,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
 
     //右键点击判断
     private boolean flag_right;
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) {
@@ -952,15 +1011,15 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                     InputConfirmation();
                 } else if (2 == flag_t) {
                     LogoutRoom();
-                }else if(0 == flag_t){
+                } else if (0 == flag_t) {
                     roomet.setFocusable(true);
                 }
             }
             return false;
 
-        } else if(keyCode == KeyEvent.KEYCODE_MENU){
+        } else if (keyCode == KeyEvent.KEYCODE_MENU) {
             return false;
-        }else {
+        } else {
             return super.onKeyDown(keyCode, event);
         }
 
@@ -1034,38 +1093,66 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
-        Log.e("NotifyActivity","on Destroy");
+        Log.e("NotifyActivity", "on Destroy");
         Fmhaha();
-        if(heartBeatMsgReceiver != null){
+        if (heartBeatMsgReceiver != null) {
             unregisterReceiver(heartBeatMsgReceiver);
         }
+        if(bindMsgReceiver != null){
+            unregisterReceiver(bindMsgReceiver);
+        }
+        if(logoutReceiver != null){
+            unregisterReceiver(logoutReceiver);
+        }
+        EventBus.getDefault().unregister(this);
 
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setUserInfo(SingleUserInfo user) {
+        tv_name.setText(user.bindUserName);
+        Intent data = new Intent("com.kloudsync.techexcel2.username_receive");
+        data.putExtra("user_name", user.bindUserName);
+        sendBroadcast(data);
+        String url = user.avatarUrl;
+        if (!TextUtils.isEmpty(url)) {
+            Uri imageUri = Uri.parse(url);
+            img_head.setImageURI(imageUri);
+        } else {
+            img_head.setImageResource(R.drawable.hello);
 
-    private void setDeviceType(int deviceType){
-        if(deviceTypeText == null){
+        }
+    }
+
+    class SingleUserInfo {
+        public String avatarUrl;
+        public String bindUserName;
+    }
+
+
+    private void setDeviceType(int deviceType) {
+        if (deviceTypeText == null) {
             return;
         }
-        Log.e("NotifyActivity","setBindStatus:" + deviceType);
-        if(deviceType >= 0){
+        Log.e("NotifyActivity", "setBindStatus:" + deviceType);
+        if (deviceType >= 0) {
             deviceTypeText.setVisibility(View.VISIBLE);
-            if(deviceType == 0){
+            if (deviceType == 0) {
                 deviceTypeText.setText(" AutoSync is on with web");
-            }else if(deviceType == 1 || deviceType == 2){
+            } else if (deviceType == 1 || deviceType == 2) {
                 deviceTypeText.setText(" AutoSync is on with phone");
             }
-        }else {
+        } else {
             deviceTypeText.setText(" AutoSync is off");
             deviceTypeText.setVisibility(View.INVISIBLE);
         }
     }
 
-    private void goToQrcodeActivity(){
+    private void goToQrcodeActivity() {
         getSharedPreferences(AppConfig.LOGININFO,
-                MODE_PRIVATE).edit().putString("tv_bind_user","").commit();
+                MODE_PRIVATE).edit().putString("tv_bind_user", "").commit();
         AppConfig.BINDUSERID = "";
-        Intent intent = new Intent(this,QrCodeActivity.class);
+        Intent intent = new Intent(this, QrCodeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         overridePendingTransition(R.anim.tran_in7, R.anim.tran_out7);
         startActivity(intent);
@@ -1074,8 +1161,17 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
             public void run() {
                 finish();
             }
-        },500);
+        }, 500);
     }
+
+    BroadcastReceiver logoutReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            LogoutRoom();
+        }
+    };
+
+
 }
 
 

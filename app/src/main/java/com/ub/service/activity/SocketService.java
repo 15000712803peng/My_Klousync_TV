@@ -84,7 +84,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         AppConfig.DEVICE_ID = sharedPreferences.getString("DeviceId", null);
         try {
             kloudWebClientManager = KloudWebClientManager.getDefault(this, new URI(AppConfig.COURSE_SOCKET + "/" + AppConfig.UserToken + "/" + 3 + "/" + AppConfig.DEVICE_ID));
-            kloudWebClientManager.setOnMessageArrivedListener(this);
+            kloudWebClientManager.addOnMessageArrivedListener(this);
             kloudWebClientManager.connect();
             kloudWebClientManager.startHeartBeat();
             AppConfig.webSocketClient = kloudWebClientManager.getKloudWebClient();
@@ -183,6 +183,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         }
     }
 
+
     @Override
     public void onMessage(String message) {
         String msg = Tools.getFromBase64(message);
@@ -236,6 +237,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
                 break;
             case "LEAVE_MEETING":
                 break;
+
 
         }
 
@@ -291,6 +293,17 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
 
+    }
+
+    private void followUser(final String meetingId, final int type,int deviceType) {
+        Log.e("SocketService","follow user");
+        Intent intent = new Intent(getBaseContext(), NotifyActivity.class);
+        intent.putExtra("meetingId", meetingId);
+        intent.putExtra("enter", true);
+        intent.putExtra("type", type);
+        intent.putExtra("device_type", deviceType);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
 
     }
 
@@ -371,6 +384,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
 //            sendLeaveMeetingMessage();
             Log.e("SocketService","refresh meeting in handleEnableTvFollow");
+
             refreshMeeting(msg);
         }else {
             if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
@@ -386,15 +400,14 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
                     if (d.has("type")) {
                         type = d.getInt("type");
                     }
-                    if(d.has("tvOwnerDeviceType")){
-                        deviceType = d.getInt("tvOwnerDeviceType");
+                    if(d.has("deviceType")){
+                        deviceType = d.getInt("deviceType");
                     }
-                    sendBindStatusMessage(deviceType);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                followUser(meetingId,type);
+                followUser(meetingId,type,deviceType);
 
             }
         }
@@ -410,8 +423,14 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
             try {
                 JSONObject jsonObject = new JSONObject(msg);
                 JSONObject d = jsonObject.getJSONObject("retData");
+                if(d.has("deviceType")){
+                    sendbindMessage(d.getInt("deviceType"));
+                }
                 if(d.has("meetingId")){
                     meetingId = d.getString("meetingId");
+                }else {
+                    sendEndMeetingMessage();
+                    return;
                 }
                 if (d.has("type")) {
                     type = d.getInt("type");
@@ -489,7 +508,8 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         String d = getRetCodeByReturnData2("data", msg);
         try {
             final JSONObject jsonObject = new JSONObject(Tools.getFromBase64(d));
-            if (jsonObject.getInt("actionType") == 1 || jsonObject.getInt("actionType") == 3) { // 旧的课程 邀请学生上课
+            int actionType = jsonObject.getInt("actionType");
+            if (actionType == 1 || actionType == 3) { // 旧的课程 邀请学生上课
                 if ((!WatchCourseActivity2.watch2instance) && (!WatchCourseActivity3.watch3instance)) {
                     Intent intent = new Intent(SocketService.this, AlertDialogActivity.class);
                     intent.putExtra("jsonObject", jsonObject.toString());
@@ -497,7 +517,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }
-            } else if (jsonObject.getInt("actionType") == 10) { // 新的课程
+            } else if (actionType == 10) { // 新的课程
                 if ((!WatchCourseActivity2.watch2instance) && (!WatchCourseActivity3.watch3instance)) {
                     Intent intent = new Intent(SocketService.this, AlertDialogActivity.class);
                     intent.putExtra("jsonObject", jsonObject.toString());
@@ -505,7 +525,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }
-            } else if (jsonObject.getInt("actionType") == 4) { //语音
+            } else if (actionType == 4) { //语音
                 Customer cus = new Customer();
                 cus.setUserID(jsonObject.getString("sourceUserId"));
                 cus.setName(jsonObject.getString("sourceUserName"));
@@ -517,7 +537,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.setPackage(getApplication().getPackageName());
                 startActivity(intent);
-            } else if (jsonObject.getInt("actionType") == 5) { //视频音
+            } else if (actionType == 5) { //视频音
                 Customer cus = new Customer();
                 cus.setUserID(jsonObject.getString("sourceUserId"));
                 cus.setName(jsonObject.getString("sourceUserName"));
@@ -530,20 +550,30 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.setPackage(getApplication().getPackageName());
                 startActivity(intent);
-            } else if (jsonObject.getInt("actionType") == 6 && jsonObject.getInt("mediaType") == 1) {
+            } else if (actionType == 6 && actionType == 1) {
                 Intent intent = new Intent();
                 intent.setAction(getString(R.string.Receive_Spectator));
                 sendBroadcast(intent);
-            } else if (jsonObject.getInt("actionType") == 6 && jsonObject.getInt("mediaType") == 2) { // 视频音
+            } else if (actionType == 6 && actionType == 2) { // 视频音
 
-            } else if (jsonObject.getInt("actionType") == 7) {
+            } else if (actionType == 7) {
                 if (SingleCallActivity2.instance != null) {
                     SingleCallActivity2.instance.finish();
                 }
+            }else if(actionType == 27){
+                sendEndMeetingMessage();
+                logout();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void logout(){
+        Log.e("SocketService","logout");
+        Intent logout = new Intent("com.kloudsync.techexcel2.logout");
+        sendBroadcast(logout);
+
     }
 
     private void handleHeartMessage(String msg) {
@@ -632,8 +662,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         intent.setAction("com.cn.socket");
         intent.putExtra("message", leaveJson.toString());
         sendBroadcast(intent);
-        Log.e("send bind stutus","-1,in send leave meeting message");
-        sendBindStatusMessage(-1);
+        sendbindMessage(-1);
     }
 
     private void sendEndMeetingMessage(){
@@ -645,8 +674,8 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
     }
 
 
-    private void sendBindStatusMessage(int deviceType){
-        Intent intent = new Intent("com.kloudsync.techexcel2.BIND_STATUS");
+    private void sendbindMessage(int deviceType){
+        Intent intent = new Intent("com.kloudsync.techexcel2.bind_message");
         intent.putExtra("device_type",deviceType);
         sendBroadcast(intent);
     }

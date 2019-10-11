@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Binder;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.kloudsync.techexcel2.dialog.message.GroupMessage;
@@ -273,6 +274,27 @@ public class Tools {
             return -1;
         }
         return -1;
+    }
+
+    public static String getActionInMessage(String str, String returnData) {
+        if (!TextUtils.isEmpty(returnData)) {
+            try {
+                JSONObject jsonObject = new JSONObject(returnData);
+                if (jsonObject.has(str)) {
+                    return jsonObject.getString(str) + "";
+                } else {
+                    return "";
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return "";
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "";
+            }
+        } else {
+            return "";
+        }
     }
 
 

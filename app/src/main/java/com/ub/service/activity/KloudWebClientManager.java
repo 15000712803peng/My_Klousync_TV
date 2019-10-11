@@ -14,6 +14,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,10 +31,10 @@ public class KloudWebClientManager implements KloudWebClient.OnClientEventListen
         void onMessage(String message);
     }
 
-    private OnMessageArrivedListener onMessageArrivedListener;
+    private List<OnMessageArrivedListener> onMessageArrivedListeners = new ArrayList<>();
 
-    public void setOnMessageArrivedListener(OnMessageArrivedListener onMessageArrivedListener) {
-        this.onMessageArrivedListener = onMessageArrivedListener;
+    public void addOnMessageArrivedListener(OnMessageArrivedListener onMessageArrivedListener) {
+        this.onMessageArrivedListeners.add(onMessageArrivedListener);
     }
 
     public KloudWebClient getKloudWebClient() {
@@ -50,6 +52,9 @@ public class KloudWebClientManager implements KloudWebClient.OnClientEventListen
         return instance;
     }
 
+    public static KloudWebClientManager getDefault() {
+        return instance;
+    }
 
     private KloudWebClientManager(Context context, URI uri) {
         this.context = context;
@@ -63,7 +68,6 @@ public class KloudWebClientManager implements KloudWebClient.OnClientEventListen
             try{
                 kloudWebClient.connect();
             }catch (Exception e){
-                sendSocketInfo("excetion:" + e.getMessage());
                 reconnect();
             }
 
@@ -83,7 +87,7 @@ public class KloudWebClientManager implements KloudWebClient.OnClientEventListen
                 kloudWebClient.connect();
             } catch (URISyntaxException e) {
                 e.printStackTrace();
-                sendSocketInfo("exception:" +e.getMessage());
+
             }
         }
 
@@ -91,17 +95,20 @@ public class KloudWebClientManager implements KloudWebClient.OnClientEventListen
 
     @Override
     public void onMessage(String message) {
-        if(this.onMessageArrivedListener != null){
-            this.onMessageArrivedListener.onMessage(message);
+        if(this.onMessageArrivedListeners != null && this.onMessageArrivedListeners.size() > 0){
+            for(OnMessageArrivedListener onMessageArrivedListener: this.onMessageArrivedListeners){
+                if(onMessageArrivedListener != null){
+                    onMessageArrivedListener.onMessage(message);
+                }
+
+            }
         }
-        sendSocketInfo(Tools.getFromBase64(message));
+
     }
 
     @Override
     public synchronized void onReconnect() {
         reconnect();
-        sendSocketInfo("onReconnect:");
-
     }
 
 
@@ -158,10 +165,11 @@ public class KloudWebClientManager implements KloudWebClient.OnClientEventListen
         }
     }
 
-    private void sendSocketInfo(String info){
-//        Log.e("KloudWebClientManager","sendSocketInfo");
-//        Intent intent = new Intent("socket_info");
-//        intent.putExtra("socket_info",info + "\n url:" + AppConfig.COURSE_SOCKET + "/" + AppConfig.UserToken + "/" + 3 + "/" +AppConfig.DEVICE_ID);
-//        this.context.sendBroadcast(intent);
+    public void removeMessageArrivedLinster(OnMessageArrivedListener onMessageArrivedListener){
+        if(this.onMessageArrivedListeners != null){
+            this.onMessageArrivedListeners.remove(onMessageArrivedListener);
+        }
     }
+
+
 }

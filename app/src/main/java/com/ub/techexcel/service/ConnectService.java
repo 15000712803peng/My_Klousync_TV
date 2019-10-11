@@ -108,7 +108,7 @@ public class ConnectService {
      * @return
      */
     public static JSONObject getIncidentbyHttpGet(String path) {
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = null;
         try {
             URL url = new URL(path);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -119,7 +119,6 @@ public class ConnectService {
             if (conn.getResponseCode() == 200) {
                 InputStream is = conn.getInputStream();
                 String json = StringUtils.inputStreamTString(is);
-
                 jsonObject = new JSONObject(json);
                 is.close();
                 conn.disconnect();

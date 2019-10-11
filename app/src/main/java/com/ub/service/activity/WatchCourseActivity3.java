@@ -448,223 +448,229 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         @Override
         public void handleMessage(Message msg) {
             final WatchCourseActivity3 activity3 = watchCourseActivity3WeakReference.get();
-            if (activity3 != null) {
-                switch (msg.what) {
-                    case 0x1109:
-                        if (activity3.isWebViewLoadFinish) {
-                            final String m = (String) msg.obj;
-                            activity3.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(m);
-                                        String actionType;
-                                        try {
-                                            actionType = jsonObject.getString("actionType");
-                                        } catch (JSONException e) {
-                                            actionType = "";
-                                            e.printStackTrace();
-                                        }
-                                        Log.e("WatchCourseActivity3", "handleMessage msg:" + m);
-                                        if (actionType.equals("8")) {
-                                            String attachmentid = jsonObject.getString("itemId");
-                                            String pagenumber = jsonObject.getString("pageNumber");
-                                            if (activity3.currentAttachmentId.equals(attachmentid)) {  //同一文档
-                                                if (pagenumber.equals(activity3.currentAttachmentPage)) {
-                                                } else {
-                                                    activity3.currentAttachmentPage = pagenumber;
-                                                    String changpage = "{\"type\":2,\"page\":" + activity3.currentAttachmentPage + "}";
-                                                    activity3.wv_show.load("javascript:PlayActionByTxt('" + changpage + "','" + 1 + "')", null);
+            if (activity3 != null){
+                try {
+                    {
+                        switch (msg.what) {
+                            case 0x1109:
+                                if (activity3.isWebViewLoadFinish) {
+                                    final String m = (String) msg.obj;
+                                    activity3.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                JSONObject jsonObject = new JSONObject(m);
+                                                String actionType;
+                                                try {
+                                                    actionType = jsonObject.getString("actionType");
+                                                } catch (JSONException e) {
+                                                    actionType = "";
+                                                    e.printStackTrace();
                                                 }
-                                            } else {
-                                                for (int i = 0; i < activity3.documentList.size(); i++) {
-                                                    LineItem lineItem2 = activity3.documentList.get(i);
-                                                    if ((attachmentid).equals(lineItem2.getAttachmentID())) {
-                                                        activity3.lineItem = lineItem2;
-                                                        activity3.currentAttachmentPage = pagenumber;
-                                                        break;
+                                                Log.e("WatchCourseActivity3", "handleMessage msg:" + m);
+                                                if (actionType.equals("8")) {
+                                                    String attachmentid = jsonObject.getString("itemId");
+                                                    String pagenumber = jsonObject.getString("pageNumber");
+                                                    if (activity3.currentAttachmentId.equals(attachmentid)) {  //同一文档
+                                                        if (pagenumber.equals(activity3.currentAttachmentPage)) {
+                                                        } else {
+                                                            activity3.currentAttachmentPage = pagenumber;
+                                                            String changpage = "{\"type\":2,\"page\":" + activity3.currentAttachmentPage + "}";
+                                                            activity3.wv_show.load("javascript:PlayActionByTxt('" + changpage + "','" + 1 + "')", null);
+                                                        }
+                                                    } else {
+                                                        for (int i = 0; i < activity3.documentList.size(); i++) {
+                                                            LineItem lineItem2 = activity3.documentList.get(i);
+                                                            if ((attachmentid).equals(lineItem2.getAttachmentID())) {
+                                                                activity3.lineItem = lineItem2;
+                                                                activity3.currentAttachmentPage = pagenumber;
+                                                                break;
+                                                            }
+                                                        }
+                                                        Log.e("WatchCourseActivity3", "不同文档");
+                                                        activity3.changedocumentlabel(activity3.lineItem);
+                                                    }
+                                                } else {
+                                                    Log.e("WatchCourseActivity3", "正常");
+                                                    int type = 34;  //鼠标移动接受的消息
+                                                    try {
+                                                        type = jsonObject.getInt("type");
+                                                    } catch (JSONException e) {
+                                                        type = 34;
+                                                        e.printStackTrace();
+                                                    }
+                                                    if (type != 34) {
+                                                        activity3.wv_show.load("javascript:PlayActionByTxt('" + m + "','" + 1 + "')", null);
+                                                        activity3.zoomInfo = null;
                                                     }
                                                 }
-                                                Log.e("WatchCourseActivity3", "不同文档");
-                                                activity3.changedocumentlabel(activity3.lineItem);
-                                            }
-                                        } else {
-                                            Log.e("WatchCourseActivity3", "正常");
-                                            int type = 34;  //鼠标移动接受的消息
-                                            try {
-                                                type = jsonObject.getInt("type");
                                             } catch (JSONException e) {
-                                                type = 34;
                                                 e.printStackTrace();
                                             }
-                                            if (type != 34) {
-                                                activity3.wv_show.load("javascript:PlayActionByTxt('" + m + "','" + 1 + "')", null);
-                                                activity3.zoomInfo = null;
+                                        }
+                                    });
+                                }
+                                break;
+                            case 0x1120:
+                                final String m = (String) msg.obj;
+                                Log.e("WatchCourseActivity3", activity3.currentAttachmentId + "   " + activity3.currentAttachmentPage + "   " + activity3.currentMode + "  " + m);
+                                if (!m.equals(activity3.currentMode)) {
+                                    activity3.currentMode = m;
+                                    activity3.switchMode();
+                                }
+                                break;
+                            case AppConfig.SUCCESS:
+                                activity3.mProgressBar.setVisibility(View.GONE);
+                                activity3.getAllData((List<Customer>) msg.obj);
+                                activity3.getServiceDetail();
+                                activity3.getVideoList();
+                                break;
+                            case 0x3102:
+                                activity3.mProgressBar.setVisibility(View.GONE);
+                                activity3.getAllData((List<Customer>) msg.obj);
+                                break;
+                            case AppConfig.SUCCESS2:
+                                activity3.mProgressBar.setVisibility(View.GONE);
+                                activity3.getAllData((List<Customer>) msg.obj);
+                                break;
+                            case 0x1110:  //收到改变presenter的socket
+                                for (int i = 0; i < activity3.teacorstudentList.size(); i++) {
+                                    Customer customer = activity3.teacorstudentList.get(i);
+                                    //判断当前的presenter
+                                    if (customer.getUserID().equals(activity3.currentPresenterId)) {
+                                        customer.setPresenter(true);
+                                        activity3.studentCustomer = customer;
+                                    } else {
+                                        customer.setPresenter(false);
+                                    }
+                                }
+                                if (isHavePresenter()) {
+                                    if(wv_show != null){
+                                        wv_show.load("javascript:ShowToolbar(" + true + ")", null);
+                                        wv_show.load("javascript:Record()", null);
+                                    }
+
+                                } else {
+                                    if(wv_show != null){
+                                        wv_show.load("javascript:ShowToolbar(" + false + ")", null);
+                                        wv_show.load("javascript:StopRecord()", null);
+                                    }
+
+                                }
+
+                                activity3.teacherRecyclerAdapter.Update(activity3.teacorstudentList);
+                                activity3.videoPopuP.setPresenter(activity3.identity,
+                                        activity3.currentPresenterId,
+                                        activity3.studentCustomer, activity3.teacherCustomer);
+                                if (activity3.isHavePresenter()) {
+                                    activity3.setting.setVisibility(View.VISIBLE);
+                                    activity3.findViewById(R.id.videoline).setVisibility(View.VISIBLE);
+                                } else {
+                                    activity3.setting.setVisibility(View.GONE);
+                                    activity3.findViewById(R.id.videoline).setVisibility(View.GONE);
+                                }
+                                break;
+                            case 0x1111: //离开
+                                activity3.changeAllVisible(activity3.leaveUserid);
+                                break;
+                            case 0x1121:  //invate  to  meeting
+                                List<String> ll = (List<String>) msg.obj;
+                                activity3.getDetailInfo(ll, 1);
+                                break;
+                            case 0x1203: // 学生或其他旁听者  收到的  旁听者信息 invate  to  meeting
+                                activity3.setDefaultAuditor((List<Customer>) msg.obj);
+                                break;
+                            case 0x1204: //join  meeting  返回的未进入meeting的人
+                                activity3.setDefaultAuditor2((List<Customer>) msg.obj);
+                                break;
+                            case 0x1301: // 提升旁听者为学生
+//                        activity3.promoteAuditor((String) (msg.obj));
+                                break;
+
+                            case 0x1205:
+                                activity3.lineItem = (LineItem) msg.obj;
+                                activity3.changedocumentlabel(activity3.lineItem);
+                                break;
+                            case 0x4010:
+                                final String ddd = (String) msg.obj;
+                                activity3.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (activity3.wv_show != null) {
+                                            if (!TextUtil.isEmpty(ddd)) {
+                                                activity3.wv_show.load("javascript:PlayActionByArray(" + ddd + "," + 0 + ")", null);
                                             }
                                         }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                    }
+                                });
+                                break;
+                            case 0x2101:    // addBlankPageFunction
+                                String pageid = (String) msg.obj;
+                                for (int i = 0; i < activity3.documentList.size(); i++) {
+                                    LineItem lineItem = activity3.documentList.get(i);
+                                    if ((lineItem.getAttachmentID()).equals(activity3.currentAttachmentId)) {
+                                        String blankPageNumber = lineItem.getBlankPageNumber();
+                                        if (TextUtils.isEmpty(blankPageNumber)) {
+                                            activity3.currentBlankPageNumber = pageid;
+                                        } else {
+                                            activity3.currentBlankPageNumber = blankPageNumber + "," + pageid;
+                                        }
+                                        lineItem.setBlankPageNumber(activity3.currentBlankPageNumber);
+                                        break;
                                     }
                                 }
-                            });
-                        }
-                        break;
-                    case 0x1120:
-                        final String m = (String) msg.obj;
-                        Log.e("WatchCourseActivity3", activity3.currentAttachmentId + "   " + activity3.currentAttachmentPage + "   " + activity3.currentMode + "  " + m);
-                        if (!m.equals(activity3.currentMode)) {
-                            activity3.currentMode = m;
-                            activity3.switchMode();
-                        }
-                        break;
-                    case AppConfig.SUCCESS:
-                        activity3.mProgressBar.setVisibility(View.GONE);
-                        activity3.getAllData((List<Customer>) msg.obj);
-                        activity3.getServiceDetail();
-                        activity3.getVideoList();
-                        break;
-                    case 0x3102:
-                        activity3.mProgressBar.setVisibility(View.GONE);
-                        activity3.getAllData((List<Customer>) msg.obj);
-                        break;
-                    case AppConfig.SUCCESS2:
-                        activity3.mProgressBar.setVisibility(View.GONE);
-                        activity3.getAllData((List<Customer>) msg.obj);
-                        break;
-                    case 0x1110:  //收到改变presenter的socket
-                        for (int i = 0; i < activity3.teacorstudentList.size(); i++) {
-                            Customer customer = activity3.teacorstudentList.get(i);
-                            //判断当前的presenter
-                            if (customer.getUserID().equals(activity3.currentPresenterId)) {
-                                customer.setPresenter(true);
-                                activity3.studentCustomer = customer;
-                            } else {
-                                customer.setPresenter(false);
-                            }
-                        }
-                        if (isHavePresenter()) {
-                            if(wv_show != null){
-                                wv_show.load("javascript:ShowToolbar(" + true + ")", null);
-                                wv_show.load("javascript:Record()", null);
-                            }
-
-                        } else {
-                            if(wv_show != null){
-                                wv_show.load("javascript:ShowToolbar(" + false + ")", null);
-                                wv_show.load("javascript:StopRecord()", null);
-                            }
-
-                        }
-
-                        activity3.teacherRecyclerAdapter.Update(activity3.teacorstudentList);
-                        activity3.videoPopuP.setPresenter(activity3.identity,
-                                activity3.currentPresenterId,
-                                activity3.studentCustomer, activity3.teacherCustomer);
-                        if (activity3.isHavePresenter()) {
-                            activity3.setting.setVisibility(View.VISIBLE);
-                            activity3.findViewById(R.id.videoline).setVisibility(View.VISIBLE);
-                        } else {
-                            activity3.setting.setVisibility(View.GONE);
-                            activity3.findViewById(R.id.videoline).setVisibility(View.GONE);
-                        }
-                        break;
-                    case 0x1111: //离开
-                        activity3.changeAllVisible(activity3.leaveUserid);
-                        break;
-                    case 0x1121:  //invate  to  meeting
-                        List<String> ll = (List<String>) msg.obj;
-                        activity3.getDetailInfo(ll, 1);
-                        break;
-                    case 0x1203: // 学生或其他旁听者  收到的  旁听者信息 invate  to  meeting
-                        activity3.setDefaultAuditor((List<Customer>) msg.obj);
-                        break;
-                    case 0x1204: //join  meeting  返回的未进入meeting的人
-                        activity3.setDefaultAuditor2((List<Customer>) msg.obj);
-                        break;
-                    case 0x1301: // 提升旁听者为学生
-//                        activity3.promoteAuditor((String) (msg.obj));
-                        break;
-
-                    case 0x1205:
-                        activity3.lineItem = (LineItem) msg.obj;
-                        activity3.changedocumentlabel(activity3.lineItem);
-                        break;
-                    case 0x4010:
-                        final String ddd = (String) msg.obj;
-                        activity3.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (activity3.wv_show != null) {
-                                    if (!TextUtil.isEmpty(ddd)) {
-                                        activity3.wv_show.load("javascript:PlayActionByArray(" + ddd + "," + 0 + ")", null);
-                                    }
+                                break;
+                            case 0x3121:
+                                int lineId = (int) msg.obj;
+                                switch (lineId) {
+                                    case 0:    //打开声网
+                                        activity3.showAgora();
+                                        break;
+                                    case 2:    //打开kc
+                                        activity3.showKloudCall();
+                                        break;
+                                    case 4:
+                                        activity3.showExterNoAudio();
+                                        break;
                                 }
-                            }
-                        });
-                        break;
-                    case 0x2101:    // addBlankPageFunction
-                        String pageid = (String) msg.obj;
-                        for (int i = 0; i < activity3.documentList.size(); i++) {
-                            LineItem lineItem = activity3.documentList.get(i);
-                            if ((lineItem.getAttachmentID()).equals(activity3.currentAttachmentId)) {
-                                String blankPageNumber = lineItem.getBlankPageNumber();
-                                if (TextUtils.isEmpty(blankPageNumber)) {
-                                    activity3.currentBlankPageNumber = pageid;
-                                } else {
-                                    activity3.currentBlankPageNumber = blankPageNumber + "," + pageid;
+                                break;
+                            case 0x4001:
+                                String prepareMode = (String) msg.obj;
+                                int pre = Integer.parseInt(prepareMode);
+                                if (pre == 1) {
+                                    activity3.llpre.setVisibility(View.VISIBLE);
+                                } else if (pre == 0) {
+                                    activity3.llpre.setVisibility(View.GONE);
                                 }
-                                lineItem.setBlankPageNumber(activity3.currentBlankPageNumber);
                                 break;
-                            }
-                        }
-                        break;
-                    case 0x3121:
-                        int lineId = (int) msg.obj;
-                        switch (lineId) {
-                            case 0:    //打开声网
-                                activity3.showAgora();
+                            case 0x4113:
+                                String retcode = (String) msg.obj;
+                                if (retcode.equals("-2002")) {
+                                    Toast.makeText(activity3, "用户没有kloud call账号", Toast.LENGTH_LONG).show();
+                                } else if (retcode.equals("-2301")) {
+                                    Toast.makeText(activity3, "用户kloud call账号余额不足", Toast.LENGTH_LONG).show();
+                                }
                                 break;
-                            case 2:    //打开kc
-                                activity3.showKloudCall();
+                            case 0x1190:
+                                activity3.detectPopwindow((int) msg.obj);
                                 break;
-                            case 4:
-                                activity3.showExterNoAudio();
+                            case 0x2105:  //join meeting 走进来的
+                                activity3.videoPopuP.setVideoList(activity3.videoList);
+                                if (activity3.currentMode.equals(4 + "")) {
+                                    activity3.startOrPauseVideo(activity3.videoStatus, 0.0f, activity3.videoFileId, "", 0);
+                                }
+                                break;
+                            case 0x6115: //copy file finish
+                                String s = (String) msg.obj;
+                                activity3.wv_show.load(s, null);
+                                activity3.wv_show.load("javascript:Record()", null);
                                 break;
                         }
-                        break;
-                    case 0x4001:
-                        String prepareMode = (String) msg.obj;
-                        int pre = Integer.parseInt(prepareMode);
-                        if (pre == 1) {
-                            activity3.llpre.setVisibility(View.VISIBLE);
-                        } else if (pre == 0) {
-                            activity3.llpre.setVisibility(View.GONE);
-                        }
-                        break;
-                    case 0x4113:
-                        String retcode = (String) msg.obj;
-                        if (retcode.equals("-2002")) {
-                            Toast.makeText(activity3, "用户没有kloud call账号", Toast.LENGTH_LONG).show();
-                        } else if (retcode.equals("-2301")) {
-                            Toast.makeText(activity3, "用户kloud call账号余额不足", Toast.LENGTH_LONG).show();
-                        }
-                        break;
-                    case 0x1190:
-                        activity3.detectPopwindow((int) msg.obj);
-                        break;
-                    case 0x2105:  //join meeting 走进来的
-                        activity3.videoPopuP.setVideoList(activity3.videoList);
-                        if (activity3.currentMode.equals(4 + "")) {
-                            activity3.startOrPauseVideo(activity3.videoStatus, 0.0f, activity3.videoFileId, "", 0);
-                        }
-                        break;
-                    case 0x6115: //copy file finish
-                        String s = (String) msg.obj;
-                        activity3.wv_show.load(s, null);
-                        activity3.wv_show.load("javascript:Record()", null);
-                        break;
+                        super.handleMessage(msg);
+                    }
+                }catch (Exception e){
+
                 }
-                super.handleMessage(msg);
             }
         }
     }
@@ -750,6 +756,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             if(wv_show == null){
                 wv_show = findViewById(R.id.wv_show);
             }
+
             wv_show.load("file:///android_asset/index.html", null);
             if (isHavePresenter()) {
 //                notifySwitchDocumentSocket(lineItem, "1");
@@ -1134,6 +1141,12 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             JSONObject retdata = jsonObject.getJSONObject("retData");
             JSONArray jsonArray = retdata.getJSONArray("usersList");
             lessonId = retdata.getString("lessonId");
+            Log.e("WatchCourseActivity3","check_lessonId:" + lessonId);
+            if(TextUtils.isEmpty(lessonId) || lessonId.equals("0")){
+                Log.e("WatchCourseActivity3","lession id is illegal,lession id:" + lessonId);
+                sendJoinMeetingMessage(meetingId);
+                return;
+            }
             if(retdata.has("type")){
                 meetingType = retdata.getInt("type");
             }
@@ -1308,14 +1321,15 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 gotoMeeting();
             }
             if(message.equals("END_MEETING")){
+                sendLeaveMeetingMessage();
                 finish();
+                return;
             }
             String msg = Tools.getFromBase64(message);
             String msg_action = getRetCodeByReturnData2("action", msg);
             if (msg_action.equals("JOIN_MEETING")) {
 
                 if (getRetCodeByReturnData2("retCode", msg).equals("0")) {
-
                     doJOIN_MEETING(msg);
                 } else if (getRetCodeByReturnData2("retCode", msg).equals("-1")) {
                     initdefault();  //重新 JOIN_MEETING
@@ -1465,7 +1479,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                             @Override
                             public void run() {
                                 Log.e("WatchCourseActivity3", "mediaplayer，stat:" + stat + ":   mediaPlayer == null:" + (mediaPlayer == null));
-                                if (stat == 1) {  // 开始播放
+                                if (stat == 1) { // 开始播放
                                     int vid2 = 0;
                                     if (!TextUtils.isEmpty(soundtrackID)) {
                                         vid2 = Integer.parseInt(soundtrackID);
@@ -2450,20 +2464,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     Uploadao uploadao = new Uploadao();
 
-    /**
-     * 加载PDF
-     */
-    @org.xwalk.core.JavascriptInterface
-    public void afterLoadPageFunction() {
-        crpage = (int) Float.parseFloat(currentAttachmentPage);
-        Log.e("WatchCourseActivity3", "afterLoadPageFunction,url:  " + targetUrl + "        " + crpage + "      newpath:  " + newPath);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                JsonDown();
-            }
-        });
-    }
 
 
     private void JsonDown() {
@@ -2681,53 +2681,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     private RelativeLayout preparedownprogress;
 
-    @org.xwalk.core.JavascriptInterface
-    public void preLoadFileFunction(final String url, final int currentpageNum, final boolean showLoading) {
-        Log.e("WatchCourseActivity3", "preLoadFileFunction,url:"+ url + "     currentpageNum : " + currentpageNum + "   showLoading :   " + showLoading);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (showLoading) {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            preparedownprogress.setVisibility(View.VISIBLE);
-                        }
-                    }, 500);
-                    if (isTemporary) {  //  isTemporary=true
-                        ServiceInterfaceTools.getinstance().queryDocument(AppConfig.URL_LIVEDOC + "queryDocument", ServiceInterfaceTools.QUERYDOCUMENT,
-                                newPath, new ServiceInterfaceListener() {
-                                    @Override
-                                    public void getServiceReturnData(Object object) {
-                                        String jsonstring = (String) object;
-                                        Uploadao ud = transfering2(jsonstring);
-                                        if (ud != null) {
-                                            uploadao = ud;
-                                            String filename = targetUrl.substring(targetUrl.lastIndexOf("/") + 1);
-                                            if (1 == uploadao.getServiceProviderId()) {
-                                                targetUrl = "https://s3." + uploadao.getRegionName() + ".amazonaws.com/" + uploadao.getBucketName() + "/" + newPath + "/" + filename;
-                                            } else if (2 == uploadao.getServiceProviderId()) {
-                                                targetUrl = "https://" + uploadao.getBucketName() + "." + uploadao.getRegionName() + "." + "aliyuncs.com" + "/" + newPath + "/" + filename;
-                                            }
-                                            prefixPdf = targetUrl.substring(0, targetUrl.lastIndexOf("<"));
-                                        }
-                                    }
-                                });
-                    }
-                    DownloadUtil.get().cancelAll();
-                    downEveryOnePdf(url, currentpageNum);
-                } else {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            preparedownprogress.setVisibility(View.GONE);
-                        }
-                    }, 500);
-                    downEveryOnePdf(url, currentpageNum);
-                }
-            }
-        });
-    }
+
 
 
     private void downEveryOnePdf(final String url, final int currentpageNum) {
@@ -2797,27 +2751,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         }
     }
 
-    @org.xwalk.core.JavascriptInterface
-    public void showErrorFunction(final String error) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    JSONObject jsonObject = new JSONObject(error);
-                    int code = jsonObject.getInt("Code");
-                    if (code == 1) {
-                        Toast.makeText(WatchCourseActivity3.this, "Not Current Page", Toast.LENGTH_LONG).show();
-                    } else if (code == 2) {
-                        Toast.makeText(WatchCourseActivity3.this, "Not Support", Toast.LENGTH_LONG).show();
-                    } else if (code == 3) {
-                        Toast.makeText(WatchCourseActivity3.this, "Not Current Document ", Toast.LENGTH_LONG).show();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+
 
 
     private void afterDownloadFile(final String url, final int currentpageNum) {
@@ -2831,60 +2765,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         });
     }
 
-    /**
-     * 每一页加载完后，金宝会调用这个方法
-     */
-    @org.xwalk.core.JavascriptInterface
-    public void afterChangePageFunction(final String pageNum, int type) {
-        // 1:play,2:showdocument,3:next,4:prev,5:topage,  0 :未知
-        currentAttachmentPage = pageNum + "";
-        AppConfig.currentPageNumber = currentAttachmentPage;
-        String url;
-        if (!isMeetingStarted) {
-            url = AppConfig.URL_PUBLIC + "PageObject/GetPageObjects?lessonID=0"
-                    + "&itemID=0"
-                    + "&pageNumber=" + pageNum
-                    + "&attachmentID=" + currentAttachmentId
-                    + "&soundtrackID=0";
-        } else {
-            url = AppConfig.URL_PUBLIC + "PageObject/GetPageObjects?lessonID=" + lessonId + "&itemID=" + currentItemId +
-                    "&pageNumber=" + pageNum;
-        }
-        Log.e("WatchCourseActivity3", "afterChangePageFunction,url:" + url);
-        MeetingServiceTools.getInstance().getGetPageObjects(url, MeetingServiceTools.GETGETPAGEOBJECTS, new ServiceInterfaceListener() {
-            @Override
-            public void getServiceReturnData(Object object) {
-                final String ddd = (String) object;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (wv_show != null) {
-                            if (!TextUtil.isEmpty(ddd)) {
-                                wv_show.load("javascript:PlayActionByArray(" + ddd + "," + 0 + ")", null);
-                            }
-                            if (audiosyncll != null) {
-                                if (audiosyncll.getVisibility() == (View.VISIBLE)) {
-                                    wv_show.load("javascript:ClearPageAndAction()", null);
-                                }
-                            }
 
-                        }
-                    }
-                });
-            }
-        });
-
-        if (isChangePageNumber) {
-            isChangePageNumber = false;
-//            getLineAction(currentAttachmentPage, !isPause);
-            Message msg = Message.obtain();
-            msg.what = 0x4010;
-            msg.obj = actions;
-            handler.sendMessage(msg);
-        }
-
-
-    }
 
 
     private void getLineAction(final String pageNum, final boolean isPlaying) {
@@ -2941,32 +2822,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     }
 
 
-    /**
-     * @param pageid
-     */
-    @org.xwalk.core.JavascriptInterface
-    public void addBlankPageFunction(final String pageid) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                JSONObject js = new JSONObject();
-                try {
-                    js.put("attachmentID", currentAttachmentId);
-                    js.put("pageNumber", pageid);
-                    JSONObject json = ConnectService.submitDataByJson(AppConfig.URL_PUBLIC + "EventAttachment/AddBlankPage?attachmentID=" + currentAttachmentId + "&pageNumber=" + pageid, js);
-                    Log.e("WatchCourseActivity3", "addBlankPageFunction," + AppConfig.URL_PUBLIC + "EventAttachment/AddBlankPage?attachmentID=" + currentAttachmentId + "&pageNumber=" + pageid + "   ");
-                    if (json.getInt("RetCode") == 0) {
-                        Message msg = Message.obtain();
-                        msg.obj = pageid;
-                        msg.what = 0x2101;
-                        handler.sendMessage(msg);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
+
 
     public String EncoderByMd5(String str) {
         try {
@@ -2985,6 +2841,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     }
 
     private static HttpUtils client;
+
+    private boolean isWebViewLoadFinish = true;
 
     /**
      * 单例模式获得HttpUtils对象
@@ -3007,209 +2865,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         return client;
     }
 
-    @org.xwalk.core.JavascriptInterface
-    public void reflect(String result) {
-        Log.e("watchCourseActivity", "reflect,result:" + result);
-        if(isHavePresenter()){
-            String newresult = Tools.getBase64(result).replaceAll("[\\s*\t\n\r]", "");
-            try {
-                JSONObject loginjson = new JSONObject();
-                loginjson.put("action", "ACT_FRAME");
-                loginjson.put("sessionId", AppConfig.UserToken);
-                loginjson.put("retCode", 1);
-                loginjson.put("data", newresult);
-                loginjson.put("itemId", currentItemId);
-                loginjson.put("sequenceNumber", "3837");
-                loginjson.put("ideaType", "document");
-                String ss = loginjson.toString();
-                SpliteSocket.sendMesageBySocket(ss);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
 
-//        if (identity == 1) { // 学生
-//            String f = AppConfig.UserID.replaceAll("-", "").toString();
-//            Log.e("duang", (studentCustomer.getUserID() == null) + ":" + (f == null));
-//            if (TextUtils.isEmpty(studentCustomer.getUserID())) {
-//                return;
-//            } else {
-//                if (studentCustomer.getUserID().equals(f)) {
-//                    Log.e("webview-reflect", "学生");
-//                    String newresult = Tools.getBase64(result).replaceAll("[\\s*\t\n\r]", "");
-//                    try {
-//                        JSONObject loginjson = new JSONObject();
-//                        loginjson.put("action", "ACT_FRAME");
-//                        loginjson.put("sessionId", studentCustomer.getUsertoken());
-//                        loginjson.put("retCode", 1);
-//                        loginjson.put("data", newresult);
-//                        loginjson.put("itemId", currentItemId);
-//                        loginjson.put("sequenceNumber", "3837");
-//                        loginjson.put("ideaType", "document");
-//                        String ss = loginjson.toString();
-//                        SpliteSocket.sendMesageBySocket(ss);
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        }
-//        else if (identity == 2) { //老师端 绘制
-//            if (currentPresenterId.equals(teacherCustomer.getUserID())) {
-//                Log.e("webview-reflect", "老师");
-//                String newresult = Tools.getBase64(result).replaceAll("[\\s*\t\n\r]", "");
-//                try {
-//                    JSONObject loginjson = new JSONObject();
-//                    loginjson.put("action", "ACT_FRAME");
-//                    loginjson.put("sessionId", teacherCustomer.getUsertoken());
-//                    loginjson.put("retCode", 1);
-//                    loginjson.put("data", newresult);
-//                    loginjson.put("itemId", currentItemId);
-//                    loginjson.put("sequenceNumber", "3837");
-//                    loginjson.put("ideaType", "document");
-//                    String ss = loginjson.toString();
-//                    SpliteSocket.sendMesageBySocket(ss);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-    }
-
-
-    private boolean isWebViewLoadFinish = true;
-
-    /**
-     * pdf 加载完成
-     */
-    @org.xwalk.core.JavascriptInterface
-    public void afterLoadFileFunction() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.e("WatchCourseActivity3", "afterLoadFileFunction");
-                wv_show.load("javascript:CheckZoom()", null);
-                if (!TextUtils.isEmpty(zoomInfo)) {
-                    Message msg3 = Message.obtain();
-                    msg3.obj = zoomInfo;
-                    msg3.what = 0x1109;
-                    handler.sendMessage(msg3);
-                }
-                if (isHavePresenter()) {
-                    if(wv_show != null){
-                        wv_show.load("javascript:ShowToolbar(" + true + ")", null);
-                        wv_show.load("javascript:Record()", null);
-                    }
-
-                } else {
-                    if(wv_show != null){
-                        wv_show.load("javascript:ShowToolbar(" + false + ")", null);
-                        wv_show.load("javascript:StopRecord()", null);
-                    }
-
-                }
-                isWebViewLoadFinish = true;
-            }
-        });
-    }
-
-    /**
-     * 切换文档
-     *
-     * @param diff
-     */
-    @org.xwalk.core.JavascriptInterface
-    public void autoChangeFileFunction(int diff) {
-        Log.e("WatchCourseActivity3", "webview-autoChangeFile,diff:" + diff);
-        if (documentList.size() == 0) {
-            return;
-        }
-        if (isHavePresenter()) {
-            for (int i = 0; i < documentList.size(); i++) {
-                LineItem line = documentList.get(i);
-                if (line.getAttachmentID().equals(lineItem.getAttachmentID())) { //当前文档
-                    if (diff == 1) {  // 往后一页
-                        if (i == documentList.size() - 1) {  // 切换到首页
-                            line.setSelect(false);
-                            lineItem = documentList.get(0);
-                        } else {
-                            line.setSelect(false);
-                            lineItem = documentList.get(i + 1);
-                        }
-                    } else if (diff == -1) {  //往前一页
-                        if (i == 0) {
-                            line.setSelect(false);
-                            lineItem = documentList.get(documentList.size() - 1);  //切换到最后一页
-                        } else {
-                            line.setSelect(false);
-                            lineItem = documentList.get(i - 1);
-                        }
-                    }
-                    break;
-                }
-            }
-            lineItem.setSelect(true);
-            myRecyclerAdapter2.notifyDataSetChanged();
-            currentAttachmentId = lineItem.getAttachmentID();
-            currentItemId = lineItem.getItemId();
-            targetUrl = lineItem.getUrl();
-            newPath = lineItem.getNewPath();
-            currentBlankPageNumber = lineItem.getBlankPageNumber();
-            if (diff == 1) {
-                currentAttachmentPage = "1";
-                notifySwitchDocumentSocket(lineItem, "1");
-            } else if (diff == -1) {
-                if (!TextUtils.isEmpty(lineItem.getUrl())) {
-                    currentAttachmentPage = getPdfCount(lineItem.getUrl()) + "";
-                    notifySwitchDocumentSocket(lineItem, currentAttachmentPage);
-                }
-            }
-            AppConfig.currentPageNumber = currentAttachmentPage;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    wv_show.load("file:///android_asset/index.html", null);
-                }
-            });
-        }
-    }
-
-    // 播放视频
-    @org.xwalk.core.JavascriptInterface
-    public void videoPlayFunction(final int vid) {
-        Log.e("WatchCourseActivity3", "videoPlayFunction,vid:" + vid);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                webVideoPlay(vid, false, 0);
-            }
-        });
-    }
-
-    //打开
-    @org.xwalk.core.JavascriptInterface
-    public void videoSelectFunction(String s) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (favoritePopup != null) {
-                    favoritePopup.StartPop(findViewById(R.id.layout));
-                    favoritePopup.setData(2, false);
-                }
-            }
-        });
-    }
-
-    // 录制
-    @org.xwalk.core.JavascriptInterface
-    public void audioSyncFunction(final int id, final int isRecording) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                webVideoPlay(id, true, isRecording);  //录音和录action
-            }
-        });
-    }
 
     /**
      * 显示老师学生  信息的列表
@@ -3770,6 +3426,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     public void onClick(View view) {
         int id = view.getId();
@@ -5381,6 +5038,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         if (lessonId.equals("-1")) {
             return;
         }
+
         String url = AppConfig.URL_PUBLIC + "Lesson/Item?lessonID=" + lessonId;
         MeetingServiceTools.getInstance().getPdfList(url, MeetingServiceTools.GETPDFLIST, new ServiceInterfaceListener() {
             @Override
@@ -7277,12 +6935,15 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 //                new JSONObject());
 //        Log.e("not_follow_respose", responsedata.toString() + "");
 
+        sendLeaveMeetingMessage();
+        getSharedPreferences(AppConfig.LOGININFO,
+                MODE_PRIVATE).edit().putString("tv_bind_user","").commit();
+        AppConfig.BINDUSERID = "";
+
         new Thread(new Runnable() {
             @Override
             public void run() {
-                getSharedPreferences(AppConfig.LOGININFO,
-                        MODE_PRIVATE).edit().putString("tv_bind_user","").commit();
-                AppConfig.BINDUSERID = "";
+
                 JSONObject responsedata = com.ub.techexcel.service.ConnectService.submitDataByJson(
                         AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/logout",
                         new JSONObject());
@@ -7326,6 +6987,394 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     }
 
 
+    // --------xwalk interface ---------
+
+    @org.xwalk.core.JavascriptInterface
+    public void reflect(String result) {
+        Log.e("JavascriptInterface", "reflect-->result:" + result + ",thread:" + Thread.currentThread());
+        if(isHavePresenter()){
+            String newresult = Tools.getBase64(result).replaceAll("[\\s*\t\n\r]", "");
+            try {
+                JSONObject loginjson = new JSONObject();
+                loginjson.put("action", "ACT_FRAME");
+                loginjson.put("sessionId", AppConfig.UserToken);
+                loginjson.put("retCode", 1);
+                loginjson.put("data", newresult);
+                loginjson.put("itemId", currentItemId);
+                loginjson.put("sequenceNumber", "3837");
+                loginjson.put("ideaType", "document");
+                String ss = loginjson.toString();
+                SpliteSocket.sendMesageBySocket(ss);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+//        if (identity == 1) { // 学生
+//            String f = AppConfig.UserID.replaceAll("-", "").toString();
+//            Log.e("duang", (studentCustomer.getUserID() == null) + ":" + (f == null));
+//            if (TextUtils.isEmpty(studentCustomer.getUserID())) {
+//                return;
+//            } else {
+//                if (studentCustomer.getUserID().equals(f)) {
+//                    Log.e("webview-reflect", "学生");
+//                    String newresult = Tools.getBase64(result).replaceAll("[\\s*\t\n\r]", "");
+//                    try {
+//                        JSONObject loginjson = new JSONObject();
+//                        loginjson.put("action", "ACT_FRAME");
+//                        loginjson.put("sessionId", studentCustomer.getUsertoken());
+//                        loginjson.put("retCode", 1);
+//                        loginjson.put("data", newresult);
+//                        loginjson.put("itemId", currentItemId);
+//                        loginjson.put("sequenceNumber", "3837");
+//                        loginjson.put("ideaType", "document");
+//                        String ss = loginjson.toString();
+//                        SpliteSocket.sendMesageBySocket(ss);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
+//        else if (identity == 2) { //老师端 绘制
+//            if (currentPresenterId.equals(teacherCustomer.getUserID())) {
+//                Log.e("webview-reflect", "老师");
+//                String newresult = Tools.getBase64(result).replaceAll("[\\s*\t\n\r]", "");
+//                try {
+//                    JSONObject loginjson = new JSONObject();
+//                    loginjson.put("action", "ACT_FRAME");
+//                    loginjson.put("sessionId", teacherCustomer.getUsertoken());
+//                    loginjson.put("retCode", 1);
+//                    loginjson.put("data", newresult);
+//                    loginjson.put("itemId", currentItemId);
+//                    loginjson.put("sequenceNumber", "3837");
+//                    loginjson.put("ideaType", "document");
+//                    String ss = loginjson.toString();
+//                    SpliteSocket.sendMesageBySocket(ss);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+    }
+
+    /**
+     * pdf 加载完成
+     */
+    @org.xwalk.core.JavascriptInterface
+    public void afterLoadFileFunction() {
+        Log.e("JavascriptInterface", "afterLoadFileFunction-->"+",thread:" + Thread.currentThread());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.e("WatchCourseActivity3", "afterLoadFileFunction");
+                wv_show.load("javascript:CheckZoom()", null);
+                if (!TextUtils.isEmpty(zoomInfo)) {
+                    Message msg3 = Message.obtain();
+                    msg3.obj = zoomInfo;
+                    msg3.what = 0x1109;
+                    handler.sendMessage(msg3);
+                }
+                if (isHavePresenter()) {
+                    if(wv_show != null){
+                        wv_show.load("javascript:ShowToolbar(" + true + ")", null);
+                        wv_show.load("javascript:Record()", null);
+                    }
+
+                } else {
+                    if(wv_show != null){
+                        wv_show.load("javascript:ShowToolbar(" + false + ")", null);
+                        wv_show.load("javascript:StopRecord()", null);
+                    }
+
+                }
+                isWebViewLoadFinish = true;
+            }
+        });
+    }
+
+    /**
+     * 切换文档
+     *
+     * @param diff
+     */
+    @org.xwalk.core.JavascriptInterface
+    public void autoChangeFileFunction(int diff) {
+        Log.e("JavascriptInterface", "autoChangeFileFunction-->diff:" + diff+",thread:" + Thread.currentThread());
+        if (documentList.size() == 0) {
+            return;
+        }
+
+        if (isHavePresenter()) {
+            for (int i = 0; i < documentList.size(); i++) {
+                LineItem line = documentList.get(i);
+                if (line.getAttachmentID().equals(lineItem.getAttachmentID())) { //当前文档
+                    if (diff == 1) {  // 往后一页
+                        if (i == documentList.size() - 1) {  // 切换到首页
+                            line.setSelect(false);
+                            lineItem = documentList.get(0);
+                        } else {
+                            line.setSelect(false);
+                            lineItem = documentList.get(i + 1);
+                        }
+                    } else if (diff == -1) {  //往前一页
+                        if (i == 0) {
+                            line.setSelect(false);
+                            lineItem = documentList.get(documentList.size() - 1);  //切换到最后一页
+                        } else {
+                            line.setSelect(false);
+                            lineItem = documentList.get(i - 1);
+                        }
+                    }
+                    break;
+                }
+            }
+            lineItem.setSelect(true);
+            myRecyclerAdapter2.notifyDataSetChanged();
+            currentAttachmentId = lineItem.getAttachmentID();
+            currentItemId = lineItem.getItemId();
+            targetUrl = lineItem.getUrl();
+            newPath = lineItem.getNewPath();
+            currentBlankPageNumber = lineItem.getBlankPageNumber();
+            if (diff == 1) {
+                currentAttachmentPage = "1";
+                notifySwitchDocumentSocket(lineItem, "1");
+            } else if (diff == -1) {
+                if (!TextUtils.isEmpty(lineItem.getUrl())) {
+                    currentAttachmentPage = getPdfCount(lineItem.getUrl()) + "";
+                    notifySwitchDocumentSocket(lineItem, currentAttachmentPage);
+                }
+            }
+            AppConfig.currentPageNumber = currentAttachmentPage;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    wv_show.load("file:///android_asset/index.html", null);
+                }
+            });
+        }
+    }
+
+    // 播放视频
+    @org.xwalk.core.JavascriptInterface
+    public void videoPlayFunction(final int vid) {
+        Log.e("JavascriptInterface", "videoPlayFunction-->vid:" + vid+",thread:" + Thread.currentThread());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                webVideoPlay(vid, false, 0);
+            }
+        });
+    }
+
+    //打开
+    @org.xwalk.core.JavascriptInterface
+    public void videoSelectFunction(String s) {
+        Log.e("JavascriptInterface", "videoSelectFunction-->s:" + s+",thread:" + Thread.currentThread());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (favoritePopup != null) {
+                    favoritePopup.StartPop(findViewById(R.id.layout));
+                    favoritePopup.setData(2, false);
+                }
+            }
+        });
+    }
+
+    // 录制
+    @org.xwalk.core.JavascriptInterface
+    public void audioSyncFunction(final int id, final int isRecording) {
+        Log.e("JavascriptInterface", "audioSyncFunction-->id:" + id+",isRecording:" + isRecording+",thread:" + Thread.currentThread());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                webVideoPlay(id, true, isRecording);  //录音和录action
+            }
+        });
+    }
+
+    /**
+     * 加载PDF
+     */
+    @org.xwalk.core.JavascriptInterface
+    public void afterLoadPageFunction() {
+        Log.e("JavascriptInterface", "afterLoadPageFunction-->"+",thread:" + Thread.currentThread());
+        crpage = (int) Float.parseFloat(currentAttachmentPage);
+        Log.e("WatchCourseActivity3", "afterLoadPageFunction,url:  " + targetUrl + "        " + crpage + "      newpath:  " + newPath);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                JsonDown();
+            }
+        });
+    }
+
+    @org.xwalk.core.JavascriptInterface
+    public void preLoadFileFunction(final String url, final int currentpageNum, final boolean showLoading) {
+        Log.e("JavascriptInterface", "preLoadFileFunction-->url:" + url + ",currentpageNum:" + currentpageNum +",showLoading:" + showLoading+",thread:" + Thread.currentThread());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (showLoading) {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            preparedownprogress.setVisibility(View.VISIBLE);
+                        }
+                    }, 500);
+                    if (isTemporary) {  //  isTemporary=true
+                        ServiceInterfaceTools.getinstance().queryDocument(AppConfig.URL_LIVEDOC + "queryDocument", ServiceInterfaceTools.QUERYDOCUMENT,
+                                newPath, new ServiceInterfaceListener() {
+                                    @Override
+                                    public void getServiceReturnData(Object object) {
+                                        String jsonstring = (String) object;
+                                        Uploadao ud = transfering2(jsonstring);
+                                        if (ud != null) {
+                                            uploadao = ud;
+                                            String filename = targetUrl.substring(targetUrl.lastIndexOf("/") + 1);
+                                            if (1 == uploadao.getServiceProviderId()) {
+                                                targetUrl = "https://s3." + uploadao.getRegionName() + ".amazonaws.com/" + uploadao.getBucketName() + "/" + newPath + "/" + filename;
+                                            } else if (2 == uploadao.getServiceProviderId()) {
+                                                targetUrl = "https://" + uploadao.getBucketName() + "." + uploadao.getRegionName() + "." + "aliyuncs.com" + "/" + newPath + "/" + filename;
+                                            }
+                                            prefixPdf = targetUrl.substring(0, targetUrl.lastIndexOf("<"));
+                                        }
+                                    }
+                                });
+                    }
+                    DownloadUtil.get().cancelAll();
+                    downEveryOnePdf(url, currentpageNum);
+                } else {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            preparedownprogress.setVisibility(View.GONE);
+                        }
+                    }, 500);
+                    downEveryOnePdf(url, currentpageNum);
+                }
+            }
+        });
+    }
+
+    @org.xwalk.core.JavascriptInterface
+    public void showErrorFunction(final String error) {
+        Log.e("JavascriptInterface", "showErrorFunction-->error:" + error+",thread:" + Thread.currentThread());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject jsonObject = new JSONObject(error);
+                    int code = jsonObject.getInt("Code");
+                    if (code == 1) {
+                        Toast.makeText(WatchCourseActivity3.this, "Not Current Page", Toast.LENGTH_LONG).show();
+                    } else if (code == 2) {
+                        Toast.makeText(WatchCourseActivity3.this, "Not Support", Toast.LENGTH_LONG).show();
+                    } else if (code == 3) {
+                        Toast.makeText(WatchCourseActivity3.this, "Not Current Document ", Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * @param pageid
+     */
+    @org.xwalk.core.JavascriptInterface
+    public void addBlankPageFunction(final String pageid) {
+        Log.e("JavascriptInterface", "addBlankPageFunction-->pageid:" + pageid+",thread:" + Thread.currentThread());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject js = new JSONObject();
+                try {
+                    js.put("attachmentID", currentAttachmentId);
+                    js.put("pageNumber", pageid);
+                    JSONObject json = ConnectService.submitDataByJson(AppConfig.URL_PUBLIC + "EventAttachment/AddBlankPage?attachmentID=" + currentAttachmentId + "&pageNumber=" + pageid, js);
+                    Log.e("WatchCourseActivity3", "addBlankPageFunction," + AppConfig.URL_PUBLIC + "EventAttachment/AddBlankPage?attachmentID=" + currentAttachmentId + "&pageNumber=" + pageid + "   ");
+                    if (json.getInt("RetCode") == 0) {
+                        Message msg = Message.obtain();
+                        msg.obj = pageid;
+                        msg.what = 0x2101;
+                        handler.sendMessage(msg);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * 每一页加载完后，金宝会调用这个方法
+     */
+    @org.xwalk.core.JavascriptInterface
+    public void afterChangePageFunction(final String pageNum, int type) {
+        // 1:play,2:showdocument,3:next,4:prev,5:topage,  0 :未知
+        Log.e("JavascriptInterface", "afterChangePageFunction-->pageNum:" + pageNum+",thread:" + Thread.currentThread());
+        currentAttachmentPage = pageNum + "";
+        AppConfig.currentPageNumber = currentAttachmentPage;
+        String url;
+        if (!isMeetingStarted) {
+            url = AppConfig.URL_PUBLIC + "PageObject/GetPageObjects?lessonID=0"
+                    + "&itemID=0"
+                    + "&pageNumber=" + pageNum
+                    + "&attachmentID=" + currentAttachmentId
+                    + "&soundtrackID=0";
+        } else {
+            url = AppConfig.URL_PUBLIC + "PageObject/GetPageObjects?lessonID=" + lessonId + "&itemID=" + currentItemId +
+                    "&pageNumber=" + pageNum;
+        }
+        Log.e("WatchCourseActivity3", "afterChangePageFunction,url:" + url);
+        MeetingServiceTools.getInstance().getGetPageObjects(url, MeetingServiceTools.GETGETPAGEOBJECTS, new ServiceInterfaceListener() {
+            @Override
+            public void getServiceReturnData(Object object) {
+                final String ddd = (String) object;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (wv_show != null) {
+                            if (!TextUtil.isEmpty(ddd)) {
+                                wv_show.load("javascript:PlayActionByArray(" + ddd + "," + 0 + ")", null);
+                            }
+                            if (audiosyncll != null) {
+                                if (audiosyncll.getVisibility() == (View.VISIBLE)) {
+                                    wv_show.load("javascript:ClearPageAndAction()", null);
+                                }
+                            }
+
+                        }
+                    }
+                });
+            }
+        });
+
+        if (isChangePageNumber) {
+            isChangePageNumber = false;
+//            getLineAction(currentAttachmentPage, !isPause);
+            Message msg = Message.obtain();
+            msg.what = 0x4010;
+            msg.obj = actions;
+            handler.sendMessage(msg);
+        }
+
+    }
+
+    private void sendLeaveMeetingMessage() {
+        try {
+            JSONObject message = new JSONObject();
+            message.put("action", "LEAVE_MEETING");
+            message.put("sessionId", AppConfig.UserToken);
+            SpliteSocket.sendMesageBySocket(message.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 
 }

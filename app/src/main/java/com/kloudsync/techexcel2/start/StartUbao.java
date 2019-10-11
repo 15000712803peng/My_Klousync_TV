@@ -83,10 +83,11 @@ public class StartUbao extends Activity {
                 intent = new Intent(getApplicationContext(),
                         QrCodeActivity.class);
             }else {
+                startWBService();
                 intent = new Intent(this, NotifyActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             }
-            startWBService();
+
         }
         startActivity(intent);
         finish();
