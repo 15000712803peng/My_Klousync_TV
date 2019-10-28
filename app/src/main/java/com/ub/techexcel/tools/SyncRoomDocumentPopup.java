@@ -283,6 +283,24 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
                 }
                 holder.img_url.setImageURI(imageUri);
             }
+
+            if(lineItem.isSelect()){
+                holder.ll.setBackgroundColor(mContext.getResources().getColor(R.color.lightgrey));
+            }else {
+                holder.ll.setBackgroundColor(mContext.getResources().getColor(R.color.white));
+
+            }
+        }
+
+        public void setSelectedFile(int index){
+            for(int i = 0 ; i < list.size(); ++i){
+                if(index == i){
+                    list.get(i).setSelect(true);
+                }else {
+                    list.get(i).setSelect(false);
+                }
+            }
+            notifyDataSetChanged();
         }
 
         @Override
@@ -309,6 +327,17 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
             }
         }
     }
+
+    public void changeSelectedPostion(int position){
+        if(syncRoomTeamAdapter != null){
+            syncRoomTeamAdapter.setSelectedFile(position);
+            if(recycleview != null){
+                recycleview.scrollToPosition(position);
+            }
+        }
+    }
+
+
 
 
 }

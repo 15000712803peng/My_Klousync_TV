@@ -28,6 +28,7 @@ public class FileUtils {
      */
     private final static String FOLDER_NAME = "/.ubao";
     private final static String FOLDER_NAME2 = "/.ubao2";
+    private final static String FOLDER_KLOUDTV = "/kloudtv";
 
     /**
      * getCacheDir()方法用于获取/data/data//cache目录
@@ -38,6 +39,24 @@ public class FileUtils {
      */
     public FileUtils(Context context) {
         mDataRootPath = context.getCacheDir().getPath();
+    }
+
+    private static String baseDir;
+
+    public static boolean createFileSaveDir(Context context){
+        mDataRootPath = context.getCacheDir().getPath();
+        baseDir = Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED) ?  mSdRootPath :  mDataRootPath;
+        File file = new File(baseDir + FOLDER_KLOUDTV);
+        if(file.exists()){
+            return true;
+        }else {
+            return file.mkdirs();
+        }
+    }
+
+    public static String getBaseDir(){
+        return  baseDir + FOLDER_KLOUDTV +"/";
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.ub.techexcel.tools;
 
 
+import com.kloudsync.techexcel2.bean.SyncBook;
+import com.kloudsync.techexcel2.resp.NetworkResponse;
 import com.kloudsync.techexcel2.resp.TeamsResponse;
 
 import io.reactivex.Observable;
@@ -44,6 +46,9 @@ public interface TempleteCourse_interface {
 
     @GET("TeamSpace/List")
     Call<TeamsResponse> getCompanyTeams(@Header("UserToken") String userToken, @Query("type") int type, @Query("companyID") String companyID);
+
+    @GET("SyncRoom/GetSyncBookOutline")
+    Call<NetworkResponse<SyncBook>> getSyncbookOutline(@Header("UserToken") String userToken, @Query("syncroomID") String syncroomID);
 
 
 

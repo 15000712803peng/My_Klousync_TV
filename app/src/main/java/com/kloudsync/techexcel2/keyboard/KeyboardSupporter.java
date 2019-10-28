@@ -4,9 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Toast;
 
-import com.kloudsync.techexcel2.R;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,6 @@ public class KeyboardSupporter implements KeyboardEventReceiveListener {
     private Context context;
 
     private KeyboardEventDispatherListener keyboardEventDispatherListener;
-
 
     public void setKeyboardEventDispatherListener(KeyboardEventDispatherListener keyboardEventDispatherListener) {
         this.keyboardEventDispatherListener = keyboardEventDispatherListener;
@@ -29,11 +27,7 @@ public class KeyboardSupporter implements KeyboardEventReceiveListener {
             return false;
         }
 
-
-
         KeyboardView currentSelectedView = getSelectedView();
-
-
 
         switch (keyCode){
             case KeyEvent.KEYCODE_BACK:
@@ -117,7 +111,6 @@ public class KeyboardSupporter implements KeyboardEventReceiveListener {
     }
 
     public void init(){
-
         setCurrentSelectedKeyboardView(getSelectedView());
 //        currentSelectedView.getTargeview().setBackground(currentSelectedView.getSelectedBackgroud());
     }

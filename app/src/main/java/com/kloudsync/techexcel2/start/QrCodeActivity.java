@@ -375,8 +375,7 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
                                         dialog.dismiss();
                                     }
                                 })
-                                .setNegativeButton(
-                                        getResources().getString(R.string.update),
+                                .setNegativeButton(getResources().getString(R.string.update),
                                         new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(

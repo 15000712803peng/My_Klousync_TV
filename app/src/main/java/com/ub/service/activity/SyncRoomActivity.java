@@ -334,7 +334,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void getServiceReturnData(Object object) {
 //                new CenterToast.Builder(WatchCourseActivity2.this).setSuccess(true).setMessage("operate success").create().show();
-                getServiceDetail();
+                getSyncRoomDetail();
             }
         });
     }
@@ -344,7 +344,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         TeamSpaceInterfaceTools.getinstance().uploadFromSpace(AppConfig.URL_PUBLIC + "TopicAttachment/UploadFromSpace?TopicID=" + lessonId + "&itemIDs=" + docId, TeamSpaceInterfaceTools.UPLOADFROMSPACE, new TeamSpaceInterfaceListener() {
             @Override
             public void getServiceReturnData(Object object) {
-                getServiceDetail();
+                getSyncRoomDetail();
             }
         });
     }
@@ -436,7 +436,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                     case AppConfig.SUCCESS:
                         mProgressBar.setVisibility(View.GONE);
                         getAllData((List<Customer>) msg.obj);
-                        getServiceDetail();
+                        getSyncRoomDetail();
                         getVideoList();
                         break;
                     case 0x3102:
@@ -900,7 +900,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         IntentFilter intentFilter3 = new IntentFilter();
         intentFilter3.addAction("com.kloudsync.techexcel2.refresh_meeting");
         registerReceiver(refeshMeetingBroadcast, intentFilter3);
-        sendJoinMeetingMessage(meetingId);
+        sendJoinMeetingMessage(meetingId,1);
     }
 
     private void initScreenLock() {
@@ -908,7 +908,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     }
 
 
-    private void sendJoinMeetingMessage(String meetingId) {
+    private void sendJoinMeetingMessage(String meetingId,int type) {
         mWebSocketClient = AppConfig.webSocketClient;
         if (mWebSocketClient == null) {
             return;
@@ -917,7 +917,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             return;
         }
         if (mWebSocketClient.getReadyState() == WebSocket.READYSTATE.OPEN) {
-            sendStringBySocket2("JOIN_MEETING", AppConfig.UserToken, "", meetingId, "", true, "v20140605.0", false, identity, isInstantMeeting);
+            sendStringBySocket2("JOIN_MEETING", AppConfig.UserToken, "", meetingId, "", true, "v20140605.0", false, identity, isInstantMeeting,type);
         }
     }
 
@@ -1083,7 +1083,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             lessonId = retdata.getString("lessonId");
             if(TextUtils.isEmpty(lessonId) || lessonId.equals("0")){
                 Log.e("SyncRoomActivity","lession id is illegal,lession id:" + lessonId);
-                sendJoinMeetingMessage(meetingId);
+                sendJoinMeetingMessage(meetingId,1);
                 return;
             }
             List<Customer> joinlist = Tools.getUserListByJoinMeeting(jsonArray);
@@ -1191,7 +1191,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         menu_linearlayout.setVisibility(View.GONE);
         displayFile.setVisibility(View.VISIBLE);
         meetingId = lessonId;
-        sendJoinMeetingMessage(meetingId);
+        sendJoinMeetingMessage(meetingId,0);
         isTeamspace = false;
         worker().joinChannel(meetingId.toUpperCase(), config().mUid);
     }
@@ -1215,7 +1215,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 if (getRetCodeByReturnData2("retCode", msg).equals("0")) {
                     doJOIN_MEETING(msg);
                 } else if (getRetCodeByReturnData2("retCode", msg).equals("-1")) {
-                    sendJoinMeetingMessage(meetingId);  //重新 JOIN_MEETING
+                    sendJoinMeetingMessage(meetingId,1);  //重新 JOIN_MEETING
                 }
             }
             if (msg_action.equals("OFFLINE_MODE") || msg_action.equals("ONLINE_MODE")) {
@@ -1307,10 +1307,11 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         Log.e("切换文档", "currentAttachmentPage:" + currentAttachmentPage);
                         AppConfig.currentPageNumber = jsonObject.getString("pageNumber");
 
-                        Message documentMsg = Message.obtain();
-                        documentMsg.obj = lineitem;
-                        documentMsg.what = 0x1205;
-                        handler.sendMessage(documentMsg);
+//                        Message documentMsg = Message.obtain();
+//                        documentMsg.obj = lineitem;
+//                        documentMsg.what = 0x1205;
+//                        handler.sendMessage(documentMsg);
+                          followChangeFile(lineitem);
                     } else if (jsonObject.getInt("actionType") == 9) { // 直播视频大小切换
                         Log.e("dddddddddddd", currentMode);
                         if (currentMode.equals("4")) {
@@ -1354,7 +1355,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         });
                     } else if (jsonObject.getInt("actionType") == 11) {
                         lessonId = jsonObject.getString("incidentID");
-                        getServiceDetail();
+                        getSyncRoomDetail();
                     } else if (jsonObject.getInt("actionType") == 23) {
                         Log.e("mediaplayer-----", jsonObject.toString());
                         final int stat = jsonObject.getInt("stat");
@@ -1462,6 +1463,23 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                                 }
                             }
                         });
+                    }else if(jsonObject.getInt("actionType") == 1803){
+                        if (jsonObject.getInt("stat") == 0) {
+                            if(syncRoomDocumentPopup != null){
+                                syncRoomDocumentPopup.dismiss();
+                            }
+                        } else if (jsonObject.getInt("stat") == 1) {
+                            openDocumentPopup();
+
+                        }
+                    }else if(jsonObject.getInt("actionType") == 1804){
+                        // file list 切换position
+                        if(jsonObject.has("position")){
+                            int position = jsonObject.getInt("position");
+                            if(syncRoomDocumentPopup != null && syncRoomDocumentPopup.isShowing()){
+                                syncRoomDocumentPopup.changeSelectedPostion(position);
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1507,7 +1525,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             }
             //通知上传文档了
             if (msg_action.equals("ATTACHMENT_UPLOADED")) {
-                getServiceDetail();
+                getSyncRoomDetail();
                 getVideoList();
             }
             if (msg_action.equals("UPDATE_CURRENT_DOCUMENT_ID")) {
@@ -1666,7 +1684,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void sendStringBySocket2(String action, String sessionId, String username, String meetingId2,
-                                     String itemId, boolean isPresenter, String clientVersion, boolean isLogin, int role, int isInstantMeeting) {
+                                     String itemId, boolean isPresenter, String clientVersion, boolean isLogin, int role, int isInstantMeeting,int type) {
         try {
             JSONObject loginjson = new JSONObject();
             loginjson.put("action", action);
@@ -1675,7 +1693,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             loginjson.put("meetingPassword", "");
             loginjson.put("clientVersion", clientVersion);
             loginjson.put("role", role);
-            loginjson.put("type", 1);
+            loginjson.put("type", type);
             loginjson.put("isInstantMeeting", isInstantMeeting);
             loginjson.put("lessonId", lessonId);
             if (isInClassroom) {
@@ -2339,40 +2357,51 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             newPath = targetUrl.substring(targetUrl.indexOf(".com") + 5, targetUrl.lastIndexOf("/"));
         }
 
-        ServiceInterfaceTools.getinstance().queryDocument(AppConfig.URL_LIVEDOC + "queryDocument", ServiceInterfaceTools.QUERYDOCUMENT,
-                newPath, new ServiceInterfaceListener() {
-                    @Override
-                    public void getServiceReturnData(Object object) {
-                        String jsonstring = (String) object;
-                        Log.e("当前文档信息", jsonstring);
-                        uploadao = transfering2(jsonstring);
-                        if (uploadao == null) {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    JsonDown();
-                                }
-                            }, 1000);
-                        } else {
-                            String filename = targetUrl.substring(targetUrl.lastIndexOf("/") + 1);
-                            if (1 == uploadao.getServiceProviderId()) {
-                                targetUrl = "https://s3." + uploadao.getRegionName() + ".amazonaws.com/" + uploadao.getBucketName() + "/" + newPath + "/" + filename;
-                                Log.e("check_url", "two,targetUrl:" + targetUrl + ", new path:" + newPath + ",currentAttachmentId:" + currentAttachmentId);
-                            } else if (2 == uploadao.getServiceProviderId()) {
-                                targetUrl = "https://" + uploadao.getBucketName() + "." + uploadao.getRegionName() + "." + "aliyuncs.com" + "/" + newPath + "/" + filename;
-                                Log.e("check_url", "three,targetUrl:" + targetUrl + ", new path:" + newPath + ",currentAttachmentId:" + currentAttachmentId);
-                            }
-                            //https://peertime.oss-cn-shanghai.aliyuncs.com/P49/Attachment/D24893/3fffe932-5e52-4dbb-8376-9436a2de4dbe_1_2K.jpg
-                            Log.e("当前文档信息", "url  " + targetUrl);
-                            if (crpage == 0) {
-                                downloadPdf(targetUrl, 1);
+        if(TextUtils.isEmpty(targetUrl)){
+            ServiceInterfaceTools.getinstance().queryDocument(AppConfig.URL_LIVEDOC + "queryDocument", ServiceInterfaceTools.QUERYDOCUMENT,
+                    newPath, new ServiceInterfaceListener() {
+                        @Override
+                        public void getServiceReturnData(Object object) {
+                            String jsonstring = (String) object;
+                            Log.e("当前文档信息", jsonstring);
+                            uploadao = transfering2(jsonstring);
+                            if (uploadao == null) {
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        JsonDown();
+                                    }
+                                }, 1000);
                             } else {
-                                downloadPdf(targetUrl, crpage);
-                                crpage = 0;
+                                String filename = targetUrl.substring(targetUrl.lastIndexOf("/") + 1);
+                                if (1 == uploadao.getServiceProviderId()) {
+                                    targetUrl = "https://s3." + uploadao.getRegionName() + ".amazonaws.com/" + uploadao.getBucketName() + "/" + newPath + "/" + filename;
+                                    Log.e("check_url", "two,targetUrl:" + targetUrl + ", new path:" + newPath + ",currentAttachmentId:" + currentAttachmentId);
+                                } else if (2 == uploadao.getServiceProviderId()) {
+                                    targetUrl = "https://" + uploadao.getBucketName() + "." + uploadao.getRegionName() + "." + "aliyuncs.com" + "/" + newPath + "/" + filename;
+                                    Log.e("check_url", "three,targetUrl:" + targetUrl + ", new path:" + newPath + ",currentAttachmentId:" + currentAttachmentId);
+                                }
+                                //https://peertime.oss-cn-shanghai.aliyuncs.com/P49/Attachment/D24893/3fffe932-5e52-4dbb-8376-9436a2de4dbe_1_2K.jpg
+                                Log.e("当前文档信息", "url  " + targetUrl);
+                                if (crpage == 0) {
+                                    downloadPdf(targetUrl, 1);
+                                } else {
+                                    downloadPdf(targetUrl, crpage);
+                                    crpage = 0;
+                                }
                             }
                         }
-                    }
-                });
+                    });
+        }else {
+            if (crpage == 0) {
+                downloadPdf(targetUrl, 1);
+            } else {
+                downloadPdf(targetUrl, crpage);
+                crpage = 0;
+            }
+        }
+
+
 
     }
 
@@ -2763,6 +2792,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                             if (!TextUtil.isEmpty(ddd)) {
                                 wv_show.load("javascript:PlayActionByArray(" + ddd + "," + 0 + ")", null);
                             }
+
                             if (audiosyncll != null) {
                                 if (audiosyncll.getVisibility() == (View.VISIBLE)) {
                                     wv_show.load("javascript:ClearPageAndAction()", null);
@@ -3765,7 +3795,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 menu_linearlayout.setVisibility(View.GONE);
                 menu.setImageResource(R.drawable.icon_menu);
                 findViewById(R.id.bottomrl).setVisibility(View.GONE);
-                getServiceDetail();
+                getSyncRoomDetail();
                 break;
             case R.id.prepareclose:
                 finish();
@@ -4021,7 +4051,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private SyncRoomDocumentPopup syncRoomDocumentPopup;
 
     private void openDocumentPopup() {
-
         syncRoomDocumentPopup = new SyncRoomDocumentPopup();
         syncRoomDocumentPopup.getPopwindow(this);
         syncRoomDocumentPopup.setWebCamPopupListener(new SyncRoomDocumentPopup.WebCamPopupListener() {
@@ -5408,18 +5437,18 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     /**
      * 获得PDF文档
      */
-    private void getServiceDetail() {
+    private void getSyncRoomDetail() {
         if (lessonId.equals("-1")) {
             return;
         }
-        String url = AppConfig.URL_PUBLIC + "TopicAttachment/List?topicID=" + lessonId + "&type=0&searchText=";
-        MeetingServiceTools.getInstance().getTopicAttachment(url, MeetingServiceTools.GETTOPICATTACHMENT, new ServiceInterfaceListener() {
+        String url = AppConfig.URL_PUBLIC + "SyncRoom/Item?itemID=" + lessonId;
+        MeetingServiceTools.getInstance().getSyncroomDetail(url, MeetingServiceTools.GETTOPICATTACHMENT, new ServiceInterfaceListener() {
             @Override
             public void getServiceReturnData(Object object) {
                 List<LineItem> list = (List<LineItem>) object;
                 documentList.clear();
                 documentList.addAll(list);
-                initpdfdata(documentList, currentItemId);
+                initpdfdata(documentList,currentItemId);
             }
         });
     }
@@ -5608,7 +5637,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                             JSONObject responsedata = (JSONObject) object;
                             String retcode = responsedata.getString("RetCode");
                             if (retcode.equals(AppConfig.RIGHT_RETCODE)) {  //刷新
-                                getServiceDetail();
+                                getSyncRoomDetail();
                             } else if (retcode.equals(AppConfig.Upload_NoExist + "")) { // 添加
                                 JSONObject jsonObject = responsedata.getJSONObject("RetData");
                                 targetFolderKey = jsonObject.getString("Path");
@@ -5857,7 +5886,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         @Override
                         public void getServiceReturnData(Object object) {
                             Log.e("hhh", "uploadNewFileuploadNewFileuploadNewFile");
-                            getServiceDetail();
+                            getSyncRoomDetail();
                             Toast.makeText(SyncRoomActivity.this, "upload success", Toast.LENGTH_LONG).show();
                         }
                     }
@@ -6257,6 +6286,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
                     send_message("SEND_MESSAGE", AppConfig.UserToken, 1, user.getuId() + "", Tools.getBase64(json.toString()).replaceAll("[\\s*\t\n\r]", ""));
                 }
             }
@@ -6310,9 +6340,11 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             if (TextUtils.isEmpty(studentCustomer.getUserID())) {
                 return true;
             }
+
             if (studentCustomer.getUserID().equals(AppConfig.UserID.replace("-", ""))) {
                 return true;
             }
+
         } else if (identity == 2) {
             if (currentPresenterId.equals(teacherCustomer.getUserID())) {
                 return true;
@@ -7243,23 +7275,61 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
 
     }
 
+    private void followChangeFile(LineItem lineItem) {
+        Log.e("dddddd", documentList.size() + "");
+        if (documentList.size() > 0) {
+            if (lineItem == null || TextUtils.isEmpty(lineItem.getItemId()) || lineItem.getItemId().equals("0")) {
+                lineItem = documentList.get(0);
+                lineItem.setSelect(true);
+            } else {
+                for (int i = 0; i < documentList.size(); i++) {
+                    LineItem lineItem1 = documentList.get(i);
+                    if (lineItem.getItemId().equals(lineItem1.getItemId())) {
+                        lineItem1.setSelect(true);
+                        lineItem = lineItem1;
+                    } else {
+                        lineItem1.setSelect(false);
+                    }
+                }
+            }
+            currentAttachmentId = lineItem.getAttachmentID();
+            currentItemId = lineItem.getItemId();
+            targetUrl = lineItem.getUrl();
+            newPath = lineItem.getNewPath();
+            Log.e("dddddd", currentAttachmentId + "  " + currentItemId + "  " + targetUrl + "  " + newPath);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (wv_show == null) {
+                        return;
+                    }
+                    wv_show.load("file:///android_asset/index.html", null);
+                }
+            });
+
+        }
+
+    }
+
+
     BroadcastReceiver refeshMeetingBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String meetingId = intent.getStringExtra("meeting_id");
             Log.e("refeshMeetingBroadcast", "meeting_id:" + meetingId);
-            refreshMeeting(meetingId);
+            int meetingType = intent.getIntExtra("meeting_type",1);
+            refreshMeeting(meetingId,meetingType);
 
         }
     };
 
-    public void refreshMeeting(String newMeetingId) {
+    public void refreshMeeting(String newMeetingId,int type) {
         meetingId = newMeetingId;
         if (meetingId.contains(",")) {
             lessonId = meetingId.substring(0, meetingId.lastIndexOf(","));
         }
         isLoadPdfAgain = true;
-        sendJoinMeetingMessage(meetingId);
+        sendJoinMeetingMessage(meetingId,type);
     }
 
     private void handleFollowMovePage(String message){

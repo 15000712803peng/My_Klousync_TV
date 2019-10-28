@@ -34,13 +34,24 @@ public class AppConfig {
 
     //正式
     public static String URL_PUBLIC = "https://api.peertime.cn/peertime/V1/";
+    public static String COURSE_SOCKET = "wss://wss.peertime.cn:8443/MeetingServer/websocket";
+    public static String liveToken = "02912174-3dcb-49eb-b9fa-6d90b390d495";
+
+
     //测试
 //    public static String URL_PUBLIC = "https://testapi.peertime.cn/peertime/V1/";
+//    public static String COURSE_SOCKET = "ws://testwss.peertime.cn:8443/MeetingServer/websocket";
+//    public static String liveToken = "01427aa4-396e-44b7-82ab-84d802099bb0";
+
+
+
+    //测试
+//    public static String COURSE_SOCKET = "ws://testwss.peertime.cn:8080/MeetingServer/websocket";
+    public static String URL_WSS_SERVER = "https://wss.peertime.cn";
+
 
 //    public static String URL_PUBLIC = "https://peertime.cn/peertime/V1/";
 //    public static String URL_PUBLIC = "https://klassroom.kloud.com/peertime/V1/";
-
-    public static String URL_WSS_SERVER = "https://wss.peertime.cn";
 
 
     public static String URL_IMAGE = "http://ub.servicewise.net.cn/CWKnowledgeWise/ImagePreview.aspx?ProjectID=49&FileID=";
@@ -49,12 +60,6 @@ public class AppConfig {
     //	public static String COURSE_SOCKET = "ub.servicewise.net.cn";
 //      public static String COURSE_SOCKET = "ws://123.127.97.142:9733/MeetingServer/websocket";
 
-    //正式
-    public static String COURSE_SOCKET = "wss://wss.peertime.cn:8443/MeetingServer/websocket";
-//    public static String COURSE_SOCKET = "ws://wss.peertime.cn:8080/MeetingServer/websocket";
-
-    //测试
-//    public static String COURSE_SOCKET = "ws://testwss.peertime.cn:8080/MeetingServer/websocket";
 //  public static String COURSE_SOCKET = "wss://testwss.peertime.cn:8443/MeetingServer/websocket";
 
     public static String COURSE_SOCKET2 = "ws://wss.peertime.cn:8080/MeetingServer/websocket";
@@ -76,7 +81,7 @@ public class AppConfig {
     public static String COMMONUSEDINFO = "COMMONUSEDINFO";
     public static String Name = "UBAO小博士";
     //正式liveToken
-    public static String liveToken = "02912174-3dcb-49eb-b9fa-6d90b390d495";
+
 //    public static String liveToken = "01427aa4-396e-44b7-82ab-84d802099bb0";
     public static String SACN_USER_TOKEN;
     public static String RongUserID;

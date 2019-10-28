@@ -8,10 +8,12 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.kloudsync.techexcel2.bean.SyncBook;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.info.ConvertingResult;
 import com.kloudsync.techexcel2.info.Favorite;
 import com.kloudsync.techexcel2.info.Uploadao;
+import com.kloudsync.techexcel2.resp.NetworkResponse;
 import com.kloudsync.techexcel2.resp.TeamsResponse;
 import com.ub.techexcel.bean.AudioActionBean;
 import com.ub.techexcel.bean.PageActionBean;
@@ -758,6 +760,22 @@ public class ServiceInterfaceTools {
         }
     }
 
+    public JSONObject syncQueryDocument(final String url, final String newPath) {
+        try {
+            final JSONObject jsonObject = new JSONObject();
+            JSONObject keyJson = new JSONObject();
+            keyJson.put("Option", 1);
+            keyJson.put("Key", newPath);
+            jsonObject.put("Key", keyJson);
+            JSONObject returnjson = ConnectService.submitDataByJsonLive(url, jsonObject);
+            return returnjson;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public void tvNotFollow(final String url,final int code){
         try {
             final JSONObject jsonObject = new JSONObject();
@@ -782,5 +800,9 @@ public class ServiceInterfaceTools {
 
     public Call<TeamsResponse> getCompanyTeams(String companyID) {
         return request.getCompanyTeams(AppConfig.SACN_USER_TOKEN, 1, companyID);
+    }
+
+    public Call<NetworkResponse<SyncBook>> getSyncbookOutline(String syncroomId){
+        return request.getSyncbookOutline(AppConfig.UserToken,syncroomId);
     }
 }

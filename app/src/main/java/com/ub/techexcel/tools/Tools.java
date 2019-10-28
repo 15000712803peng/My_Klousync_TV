@@ -276,7 +276,7 @@ public class Tools {
         return -1;
     }
 
-    public static String getActionInMessage(String str, String returnData) {
+    public static String getDataInMessage(String str, String returnData) {
         if (!TextUtils.isEmpty(returnData)) {
             try {
                 JSONObject jsonObject = new JSONObject(returnData);

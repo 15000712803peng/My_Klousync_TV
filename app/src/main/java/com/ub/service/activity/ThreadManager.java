@@ -14,7 +14,7 @@ public class ThreadManager {
     }
 
     private ThreadManager() {
-        threadPool = Executors.newFixedThreadPool(3);
+        threadPool = Executors.newFixedThreadPool(5);
     }
 
     public static ThreadManager getManager() {

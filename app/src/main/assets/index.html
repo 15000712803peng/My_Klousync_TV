@@ -5,6 +5,7 @@
     <meta id="viewport" name="viewport" content="width=device-width,height=device-height,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
     <title>PeerTime</title>
     <link rel="stylesheet" href="style/iconfont.css" />
+    <link rel="stylesheet" href="style/static/iconfont.css" />
     <link rel="stylesheet" href="style/whiteboard.css" />
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/Common.js"></script>
@@ -38,6 +39,10 @@
         var CanScroll = true;
         var IsInlineWihteBoardShow = false;
         var PDFMAP = new JsMap();
+        var FLAG=true;
+        var BOOKEDITID = "";
+        var BOOKEDITCALLBACK = null;
+        var IsShowPageInfo = false;
        
 
         function BodyOnload()
@@ -53,9 +58,11 @@
 
             InitPage();
             initializeControlWindow();
+            toolBarCheck();
             window.onresize = function onresize()
             {
-                //CheckZoom();
+                CheckZoom();
+                toolBarCheck();
             };
            
             if (location.href.toLowerCase().indexOf("http") == 0)
@@ -165,7 +172,14 @@
             whiteboard.OnSettingChange(function(set){
                  UserSettingChange(set);
              });
-
+            whiteboard.OnBookNoteEdit(function (id, info, afterEditBookNote) {
+                BOOKEDITID = id;
+                BOOKEDITCALLBACK = afterEditBookNote;
+                EditBookNote(info);
+            });
+            whiteboard.OnBookNoteView(function (id, info) {               
+                ViewBookNote(info);
+            });
         }
         function initializeControlWindow() {
             $("#div_btn_pointer").click(function (e) {
@@ -183,7 +197,7 @@
                 CanScroll = false;
                 //docview.ShowDocument("test url");
                 ResetTools($("#div_btn_drawline"));
-                CloseTools();
+                CloseToolsEx();
                 return false;
             });
             $("#div_btn_drawbrush").click(function (e) {
@@ -196,7 +210,7 @@
                 whiteboard.SetDrawTool("ToolBrush");
                 CanScroll = false;
                 ResetTools($("#div_btn_drawbrush"));
-                CloseTools();
+                CloseToolsEx();
                 return false;
             });
             $("#div_btn_drawrect").click(function (e) {
@@ -208,7 +222,7 @@
                 whiteboard.SetDrawTool("ToolLine");
                 CanScroll = false;
                 ResetTools($("#div_btn_drawrect"));
-                CloseTools();
+                CloseToolsEx();
                 return false;
             });
             $("#div_btn_text").click(function (e) {
@@ -225,26 +239,42 @@
                 whiteboard.SetDrawTool("ToolText");
                 CanScroll = false;
                 ResetTools($("#div_btn_text"));
-                CloseTools();
+                CloseToolsEx();
                 return false;
             });
-            $("#div_btn_drawrectangle").click(function (e) {      
+            $("#div_btn_drawrectangle").click(function (e) {
+                ResetTools($("#div_btn_drawrectangle"));
+                    if($(".addText").css("display")=="none"){
+                        $(".addText").show()
+                        $(".video-choose").hide();
+                    }else{
+                        $(".addText").hide();
+                    }
+ 
+            });
+            $("#stickyNote").click(function(e){
                 if(whiteboard.ShowSelectToolSetting("ToolNote"))
                 {
                     _cancelBubble(e);
                     _cancelDefault(e);
                     return false;
                 }
-                if ($("#div_btn_drawrectangle").hasClass("selected")) {
-                    whiteboard.ShowSetting(true);
-                    return;
-                }
+                // if ($("#div_btn_drawrectangle").hasClass("selected")) {
+                //     whiteboard.ShowSetting(true);
+                //     return;
+                // }
                 whiteboard.SetDrawTool("ToolNote");
                 CanScroll = false;
                 ResetTools($("#div_btn_drawrectangle"));
-                CloseTools();
+                CloseToolsEx();
                 return false;
-            });
+            })
+            $("#myNote").click(function(e){
+                whiteboard.SetDrawTool("ToolBooksNote");
+                ResetTools($("#myNote"));
+                CloseToolsEx();
+                return false;
+            })
             $("#liveActionDraw").click(function (e) {
                 _activeButton("#liveActionDraw");
                 //DrawInlineBoard();
@@ -255,16 +285,19 @@
                 whiteboard.SetDrawTool("ToolBoard");
                 CanScroll = false;
                 ResetTools($("#div_btn_whiteboard"));
-                CloseTools();
+                CloseToolsEx();
                 return false;
             });
             $("#div_btn_video").click(function (e) {
-                
-                whiteboard.SetDrawTool("ToolVideo");
-                CanScroll = false;
                 ResetTools($("#div_btn_video"));
-                CloseTools();
-                return false;
+                    if($(".video-choose").css('display')=='none'){
+                        $(".video-choose").show();
+                        $(".addText").hide();
+                    }else{
+                        $(".video-choose").hide();
+                    }
+             
+                
             });
             $("#liveActionAddPage").click(function (e) {
                 _activeButton("#liveActionAddPage");
@@ -289,6 +322,41 @@
                 whiteboard.Redo();
                 return false;
             });           
+            $("#addSync").click(function(e){
+                CloseToolsEx();
+                whiteboard.SetDrawTool("ToolSync");
+                CanScroll = false;
+                ResetTools($("#div_btn_video"));
+                return false;
+            })
+            $("#addLocalVideo").click(function(e){
+                CloseToolsEx();
+                whiteboard.SetDrawTool("ToolVideo");
+                CanScroll = false;
+                ResetTools($("#div_btn_video"));
+                return false;
+            })
+            $("#addWebVideo").click(function(e){
+                CloseToolsEx();
+                whiteboard.SetDrawTool("ToolVideoLink");
+                CanScroll = false;
+                ResetTools($("#div_btn_video"));
+                return false;
+            })
+        }
+        function toolBarCheck(){
+            let _height=$(document).height();
+            let count=parseInt((_height-12)/11);
+            if(count<20){
+                count=20
+            }
+            if(count>46){
+                count=46
+            }
+            $('.navigatelist .tool').height(count)
+        }
+        function getNoteId(id){
+
         }
         function Record_view() {
             whiteboard.TriggerViewChange();
@@ -498,7 +566,7 @@
         }
         function Record()
         {
-            CloseTools();
+            CloseToolsEx();
             //$("#li_record").hide();
             //$("#li_playrecord").hide();
             //$("#li_stoprecord").show();
@@ -572,6 +640,53 @@
                 }
             }
             catch (ex) { }
+        }
+        function ViewBookNote(info)
+        {
+            console.log("ViewBookNote:" + JSON.stringify(info));
+            if (ISPC)
+            {
+                
+                return;
+            }
+            try
+            {
+                if (ISANDROID)
+                {
+                    window.AnalyticsWebInterface.viewBookNoteFunction(JSON.stringify(info));
+                }
+                else
+                {
+                    window.webkit.messageHandlers.ViewBookNoteFunction.postMessage(info);
+                }
+            }
+            catch (ex) { }
+        }
+        function EditBookNote(info)
+        {
+            console.log("EditBookNote:" + JSON.stringify(info));
+            if (ISPC)
+            {
+                
+                return;
+            }
+            try
+            {
+                if (ISANDROID)
+                {
+                    window.AnalyticsWebInterface.editBookNoteFunction(JSON.stringify(info));
+                }
+                else
+                {
+                    window.webkit.messageHandlers.EditBookNoteFunction.postMessage(info);
+                }
+            }
+            catch (ex) { }
+        }
+        function AfterEditBookNote(info) {
+            if (BOOKEDITCALLBACK && BOOKEDITID) {
+                BOOKEDITCALLBACK(BOOKEDITID,info);
+            }
         }
         function UserSettingChange(opt)
         {
@@ -714,6 +829,7 @@
             {
                 whiteboard.Play(info);
             }
+            IsShowPageInfo = false;
         }
         function getContainerWidth()
         {
@@ -859,7 +975,7 @@
         function ToPointer(evt)
         {
             //console.log("ToPointer");            
-            CloseTools();
+            CloseToolsEx();
             ClearTools();
             ResetTools($("#div_btn_pointer"));
             UnbindMainTouch();
@@ -968,7 +1084,7 @@
         {
             whiteboard.Clear();
             
-            CloseTools();
+            CloseToolsEx();
         }
         function ClearTools()
         {
@@ -1047,7 +1163,7 @@
                 ShowMsg(log);
             }
         }
-        function CloseToolSetting()
+        function CloseToolsExetting()
         {
             $("#main").css({ "margin-bottom": "0px" });
             $("#toolssetting").css({ "visibility": "hidden" });
@@ -1056,27 +1172,16 @@
         {
             //console.log("CloseToolsEx");
             //$('#maintools').panel('close');
-            $("#maintools").stop().animate({ right: '-36px', opacity: 0 }, 100, 'swing', function ()
+            $("#div_btn_toobar").animate({right:"0px"},100)
+            $("#maintools").stop().animate({ right: '-46px'}, 100, 'swing', function ()
             {
+                FLAG=true;
                 $("#maintools").hide();
+                $(".video-choose").hide();
+                $(".addText").hide();
                 //$("#div_btn_toobar").css("opacity", '0').show().animate({ opacity: 1 }, 500);
-                $("#div_btn_toobar").show();
             });
 
-        }
-        function CloseTools()
-        {
-            //console.log("CloseTools");
-            $("#maintools").hide();
-            if (!IsToolBarShow || !IsToolBarShowOnly)
-            {
-                $("#div_btn_toobar").hide();
-            }
-            else
-            {                
-                $("#div_btn_toobar").show();
-                //ToPointer();
-            }
         }
         function AfterLoadPDF(pageNum)
         {
@@ -1103,11 +1208,15 @@
             {
                 setTimeout(function () { $("#div_btn_log").removeClass("selected"); }, 500);
             }
-            //CloseTools();
+            //CloseToolsEx();
         }
         function CheckZoom()
         {
-            return;
+            //console.log("CheckZoom");
+            //whiteboard.RefreshDocument(()=>{
+            //    whiteboard.TriggerViewChange();
+            //});
+            //return;
             var container = GetPageContainer(PageNumber);
             var ow = parseInt(container.attr("CW"));
             var cw = getViewWidth() * CurrentScale;
@@ -1116,7 +1225,7 @@
             {
                 return;
             }
-            ShowLog("CheckZoom");
+            //ShowLog("CheckZoom");
             $("#main").css({ "width": getViewWidth(), "height": getViewHeight() });
 
             if (IsPPT)
@@ -1129,8 +1238,8 @@
             else
             {
                 //IsLoadingPage = true;
-                var info = GetPageInfo(PageNumber);
-                $("#svg" + PageNumber).empty();
+                
+                var info = GetPageInfo(PageNumber);                                
                 var newW = getViewWidth() * CurrentScale;
                 $("#pageContainer" + PageNumber).css({ "width": newW }).attr("CW", newW);
                 $("#canvas" + PageNumber).width(newW);
@@ -1138,12 +1247,20 @@
                 //$("#main").height($("#img_" + PageNumber).height());
                 setTimeout(function ()
                 {
+                    if (IsShowPageInfo) {
+                        return
+                    }
+                    IsShowPageInfo = true;
+                    $("#svg" + PageNumber).empty();
                     ShowPageInfo(PageNumber, info);
                 }, 300);
                 
                 DrawTarget = null;
                 ToPointer();
             }
+        }
+        function ResizeDocument() {
+
         }
 
         function PlayActionByTxt(txt, needCheckID)
@@ -1248,13 +1365,13 @@
             IsToolBarShow = isshow;
             if (isshow)
             {
-                $("#div_btn_toobar").show();
+                // $("#div_btn_toobar").show();
                 
             }
             else
             {                
                 ToPointer();
-                $("#div_btn_toobar").hide();
+                // $("#div_btn_toobar").hide();
             }
             $("#liveMouse").hide();            
             whiteboard.SetCanEdit(isshow);
@@ -1264,14 +1381,14 @@
             IsToolBarShowOnly = isshow;
             if (isshow)
             {
-                $("#div_btn_toobar").show();
+                // $("#div_btn_toobar").show();
                 
             }
             else
             {
-                $("#div_btn_toobar").hide();
+                // $("#div_btn_toobar").hide();
                 //ToPointer();
-                setTimeout(function () {$("#div_btn_toobar").hide(); },500);
+                // setTimeout(function () {$("#div_btn_toobar").hide(); },500);
             }
         }
         function GetCurrentPageNumber() {
@@ -1397,16 +1514,23 @@
             //    PlayActionByTxt('{"type":32,"page":1,"CW":308,"CH":398,"VW":1393,"VH":503,"ST":0,"SL":0}');
             //}, 5000);
             //return
+        if(FLAG){
+            $("#div_btn_toobar").animate({right:"46px"},100)
             _cancelBubble(evt);
-            $("#div_btn_toobar").hide();
-            $("#maintools").stop().show().animate({ right: '0px', opacity: 1 }, 100);
+            $("#maintools").stop().show().animate({ right: '0px' }, 100,function(){
+                FLAG=false;
+            });
+        } else{
+            CloseToolsEx()
+        }
+
         }
         function FullScreen()
         {
             //debugger;
             //PlayActionByTxt('{"type":2,"page":' + (PageNumber+1)+'}')
             //return;
-            CloseTools();
+            CloseToolsEx();
             try
             {
                 if (ISANDROID)
@@ -1425,7 +1549,7 @@
         }
         function RotateScreen()
         {
-            CloseTools();
+            CloseToolsEx();
             try
             {
                 window.webkit.messageHandlers.RotationFunction.postMessage(null);
@@ -1437,14 +1561,13 @@
             whiteboard.SetRecord(false);
             if (IsRecord)
             {
-                CloseTools();
+                CloseToolsEx();
                 IsRecord = false;
                 //$("#li_record").show();
                 //$("#li_playrecord").show();
                 ShowMsg("Stop Record!");
             }
         }
-
     </script>
     <style>
         body {
@@ -1502,11 +1625,6 @@
             position:relative;
         }
 
-        .toolspanel > div:first-child {
-            padding: 0px;
-            height: 100%;
-        }
-
         .toolspanel h4 {
             padding: 0px;
         }
@@ -1519,15 +1637,15 @@
                 width: 20%;
             }
 
-        .navigatelist {
+        .navigatelist li{
+            min-height: 20px;
+            max-height: 46px;
         }
-
-            .navigatelist li {
-                padding: 0px 8px 0px 0px;
-            }
-
                 .navigatelist li div {
-                    margin: 0.1em 0;
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
 
         .editnotemenu {
@@ -1655,8 +1773,8 @@
         }
 
         .btn-icon-container {
-            height: 29px;
-            width: 36px;
+            height:100%;
+            width: 100%;
             padding: 0px;
             border: 0px;
         }
@@ -1677,161 +1795,7 @@
         {
             padding-left:80px;
         }
-        .live-video-tool-container {
-            position: absolute;
-            border: 1px solid rgba(0,0,0,0);
-            border-radius: 50%;
-            width: 100px;
-            height: 100px;
-        }
 
-        .live-video-tool-icon {
-            border: 1px solid #e2e2e2;
-            margin-left: 34px;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            background-color: #f6a925;
-            text-align: center;
-            margin-top: 35px;
-            padding-top: 6px;
-            display: inline-block;
-            cursor: pointer;
-            box-sizing: border-box;
-        }
-
-        .live-video-tool-edit {
-            position: relative;
-            top: -35px;
-            right: 0px;
-            border: 1px solid #e2e2e2;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            background-color: #4592e0;
-            text-align: center;
-            margin-top: 35px;
-            padding-top: 4px;
-            display: inline-block;
-            visibility: hidden;
-            cursor: pointer;
-            box-sizing: border-box;
-        }
-
-        .live-video-tool-play {
-            position: relative;
-            bottom: 30px;
-            border: 1px solid #e2e2e2;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            background-color: #f6a925;
-            text-align: center;
-            margin-top: 35px;
-            padding-top: 3px;
-            display: inline-block;
-            visibility: hidden;
-            cursor: pointer;
-            box-sizing: border-box;
-        }
-
-        .live-video-tool-container.selected {
-            border: 1px solid #e2e2e2;
-        }
-
-            .live-video-tool-container.selected .live-video-tool-play {
-                visibility: visible;
-            }
-
-            .live-video-tool-container.selected .live-video-tool-edit {
-                visibility: visible;
-            }
-
-        .live-video-tool-editvideo {
-            position: absolute;
-            border: solid 1px #d3d3d3;
-            width: 300px;
-            height: 202px;
-            padding: 8px;
-            background-color: white;
-            box-sizing: border-box;
-        }
-
-        .live-video-tool-edit-top {
-            height: 30px;
-            text-align: left;
-            border-bottom: solid 1px #d3d3d3;
-        }
-
-        .live-video-tool-edit-bottom {
-            height: 30px;
-            border-top: solid 1px #d3d3d3;
-            text-align: center;
-            line-height: 30px;
-            vertical-align: middle;
-        }
-
-        .live-video-tool-edit-selectvideo {
-            display: inline-block;
-            background-color: #007eae;
-            color: white;
-            border-radius: 5px;
-            padding: 5px 20px;
-            cursor: pointer;
-        }
-
-        .live-video-tool-edit-cancel {
-            padding: 2px;
-            display: inline-block;
-            width: 130px;
-            cursor: pointer;
-        }
-
-        .live-video-tool-edit-save {
-            border-left: solid 1px #d3d3d3;
-            padding: 2px;
-            display: inline-block;
-            margin-top: 2px;
-            width: 130px;
-            cursor: pointer;
-        }
-        .live-video-tool-edit-sync {
-            background-color: #007eae;
-            color: white;
-            border-radius: 5px;
-            padding: 5px 20px;
-            cursor: pointer;
-        }
-
-        .live-video-tool-edit-del {
-            float: right;
-            cursor: pointer;
-        }
-
-        .live-video-tool-edit-listcontainer {
-            height: 65px;
-            overflow: auto;
-        }
-
-            .live-video-tool-edit-listcontainer ul {
-                list-style: none;
-                padding: 0px;
-                margin: 0px;
-            }
-
-            .live-video-tool-edit-listcontainer li {
-                float: left;
-            }
-
-        .live-video-tool-edit-selectcontainer {
-            clear: both;
-            text-align: center;
-        }
-
-        .live-video-tool-edit-changecontainer {
-            clear: both;
-            bottom: 0px;
-        }
     </style>
 </head>
 <body onload="BodyOnload();" onresize="BodyChange();">
@@ -1855,75 +1819,90 @@
                 <img src="img/right_blue.svg" style="width:50px;height:50px;" />
             </div>
         </div>
-        <div style="z-index:2; position:fixed; top:3px; right:3px; " id="div_btn_toobar">
-            <div style="border:1px solid #b2b2b2; border-radius:50%; cursor:pointer;padding:2px 3px 2px; margin:0px; background-color:#efefef;">
-                <span class="icon icon-leftarrow" onclick="ShowToolBarItem(event);return false;" ontouchstart="ShowToolBarItem(event);return false;"></span>
-            </div>
+        <div onclick="ShowToolBarItem(event);return false;" style="z-index:99;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50px 0 0 50px;background-image: linear-gradient(rgb(75,150,249),rgb(147,192,251));position:fixed;right:0;top:20px;box-shadow:0 4px 10px rgba(4, 42, 128, 0.2)   " id="div_btn_toobar">
+            <span class="icon icon-gongju1"  style="color:white;font-size: 20px"></span> 
         </div>
         <div style="z-index:2; position:fixed; top:0px; right:70px;display:none;">
             <div class="ui-input-btn ui-btn ui-icon-fullscreen ui-btn-icon-notext ui-corner-all">
                 <input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="FullScreen();">
             </div>
         </div>
-        <div id="maintools" data-role="panel" data-position="right" data-position-fixed="true" data-display="overlay" data-theme="a" class="toolspanel" style="z-index:3; width:36px; right:-36px; padding:0px; position:fixed;display:none;box-shadow: -3px 0px 3px rgb(218, 216, 216); border-left:#ccc solid 1px; top:0px; height:100%; background-color:white;" onclick="">
-            <ul class="navigatelist" style="list-style: none; padding: 0px 0px; margin: 0px; float:left; margin:0px; text-align:center; width:100%;">
-                <li id="li_btn_closetools" style="">
-                    <div id="div_btn_closetools" class="btn-icon-container" isdraw="0" style="text-align:center;">
-                        <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="CloseTools();">-->
-                        <span class="icon icon-rightarrow" onclick="CloseToolsEx();return false;"></span>
-                    </div>
-                </li>
-              
-                <li id="li_pointer">
+        <div id="maintools" data-role="panel" data-position="right" data-position-fixed="true" data-display="overlay" data-theme="a" class="toolspanel" style="color:white;background-color:#44444f; border-radius:6px 0 0 6px;z-index:3; width:46px; right:-46px; padding:0px; position:fixed;box-shadow: -3px 0px 10px rgba(218, 216, 216,.3);  top:0px; height:100%; " onclick="">
+           
+            <ul class="navigatelist" style="list-style: none; padding: 6px 0px; margin: 0px; float:left; margin:0px; text-align:center; width:100%;">
+                <li id="li_pointer" class="tool">
                     <div id="div_btn_pointer" class="btn-icon-container selected" style="text-align:center;">
                         <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="ToPointer();">-->
-                        <span class="icon icon-hand" onclick="ToHand(event);"></span>
+                        <span class="icon icon-shubiao" onclick="ToHand(event);"></span>
                     </div>
                 </li>
-                <li id="li_rotatescreen" style="display:none;">
+                <li id="li_rotatescreen" style="display:none;" class="tool">
                     <div id="div_btn_rotatescreen" class="ui-input-btn ui-btn ui-btn-inline ui-icon-rotateright ui-btn-icon-notext ui-corner-all" style="text-align:center;">
                         <input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="RotateScreen();">
                     </div>
                 </li>
-                <li id="li_btn_drawline">
+                <li id="li_btn_drawline" class="tool">
                     <div id="div_btn_drawline" class="btn-icon-container" isdraw="0" style="text-align:center;">
                         <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="DrawLine();">-->
-                        <span class="icon icon-pencil"></span>
+                        <span class="icon icon-huabi"></span>
                     </div>
                 </li>
-                <li id="li_btn_drawrect">
+                <li id="li_btn_drawrect" class="tool">
                     <div id="div_btn_drawrect" class="btn-icon-container" isdraw="0" style="text-align:center;">
                         <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="DrawRect();">-->
-                        <span class="icon icon-Line"></span>
+                        <span class="icon icon-zhixian"></span>
                     </div>
                 </li>
-                <li id="li_btn_drawbrush">
+                <li id="li_btn_drawbrush" class="tool">
                     <div id="div_btn_drawbrush" class="btn-icon-container" isdraw="0" style="text-align:center;">
                         <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="DrawBrush();">-->
-                        <span class="icon icon-mark" ></span>
+                        <span class="icon icon-jihaobi" ></span>
                     </div>
                 </li>
-                <li id="li_btn_text">
+                <li id="li_btn_text" class="tool">
                     <div id="div_btn_text" class="btn-icon-container" isdraw="0" style="text-align:center;">
                         <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="DrawText();">-->
-                        <span class="icon icon-text"></span>
+                        <span class="icon icon-wenben"></span>
                     </div>
                 </li>
-                <li id="li_btn_drawrectangle">
+                <li id="li_btn_drawrectangle" style="position: relative" class="tool">
                     <div id="div_btn_drawrectangle" class="btn-icon-container" isdraw="0" style="text-align:center;">
                         <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="DrawRectangle();">-->
-                        <span class="icon icon-tips" ></span>
+                        <span class="icon icon-pizhu" ></span>
+                    </div>
+                    <div class="addText" style="display: none; box-shadow:-3px 3px 20px rgba(98, 114, 148, 0.14);width:44px;background-color:white;border-radius:6px;position:absolute;right:50px;top:50%;transform:translateY(-50%)">
+                        <ul style="padding:10px 0;margin:0">
+                            <li id="stickyNote" style="display:flex;align-items:center;justify-content: center;margin:0 auto;width: 30px;height:30px;border-radius:10px;background-color:#3D78FA">
+                                <span class="icon icon-pizhu"></span>
+                            </li>
+                            <li id="myNote" style="display:flex;align-items:center;justify-content: center;margin:7px auto 0;width: 30px;height:30px;border-radius:10px;background-color:#5553CE">
+                                <span class="icon icon-Notebook" style="font-size:18px;"></span>
+                            </li>
+                        </ul>
                     </div>
                 </li>
-                <li id="li_btn_whiteboard">
+                <li id="li_btn_whiteboard" class="tool">
                     <div id="div_btn_whiteboard" class="btn-icon-container" isdraw="0" style="text-align:center;">
                         <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="DrawWhiteBoard();">-->
-                        <span class="icon icon-board" ></span>
+                        <span class="icon icon-baiban" ></span>
                     </div>
                 </li>
-                <li id="li_btn_video">
+                <li id="li_btn_video" style="position: relative" class="tool">
                     <div id="div_btn_video" class="btn-icon-container" isdraw="0" style="text-align:center;">
-                        <span class="icon icon-insertVideo"></span>
+                        <span class="icon icon-meiti"></span>
+                    </div>
+                    <div class="video-choose"  style="display: none; box-shadow:-3px 3px 20px rgba(98, 114, 148, 0.14);width:44px;background-color:white;border-radius:6px;position:absolute;right:50px;top:50%;transform: translateY(-50%)">
+                        <ul style="padding:10px 0;margin:0">
+                            <li id="addSync" style="display:flex;align-items:center;justify-content: center;margin:0 auto;width: 30px;height:30px;border-radius:10px;background-color:#3D78FA">
+                                <span class="icon icon-yinxiang1"></span>
+                            </li>
+                            <li id="addLocalVideo" style="display:flex;align-items:center;justify-content: center;margin:7px auto;width: 30px;height:30px;border-radius:10px;background-color:#5553CE">
+                                <span class="icon icon-shipin"></span>
+                            </li>
+                            <li id="addWebVideo" style="display:flex;align-items:center;justify-content: center;margin:0 auto;width: 30px;height:30px;border-radius:10px;background-color:#53CEB6">
+                                <span class="icon icon-shipinlink"></span>
+                            </li>
+                        </ul>
                     </div>
                 </li>
                 <!--<li id="li_btn_addpage">
@@ -1931,30 +1910,30 @@
                     <input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="DrawAddPage();">
                 </div>
             </li>-->
-                <li id="li_btn_clear">
-                    <div id="div_btn_clear" class="btn-icon-container" isdraw="0" style="text-align:center;">
-                        <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="ClearPath();">-->
-                        <span class="icon icon-clearall" ></span>
-                    </div>
-                </li>
-                <li id="li_btn_undo">
+
+                <li id="li_btn_undo" class="tool">
                     <div id="div_btn_undo" class="btn-icon-container" isdraw="0" style="text-align:center;">
                         <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="ClearPath();">-->
-                        <span class="icon icon-undo" ></span>
+                        <span class="icon icon-chehui" ></span>
                     </div>
                 </li>
-                <li id="li_btn_redo">
+                <li id="li_btn_redo" class="tool">
                     <div id="div_btn_redo" class="btn-icon-container" isdraw="0" style="text-align:center;">
                         <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="ClearPath();">-->
-                        <span class="icon icon-redo" ></span>
+                        <span class="icon icon-huifu" ></span>
                     </div>
                 </li>
-                <li id="li_btn_log" style="display:none;">
+                <li id="li_btn_log" style="display:none;" class="tool">
                     <div id="div_btn_log" class="ui-input-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext ui-corner-all" isdraw="0" style="text-align:center;">
                         <input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="SetShowLog();">
                     </div>
                 </li>
-
+                <li id="li_btn_clear" class="tool">
+                    <div id="div_btn_clear" class="btn-icon-container" isdraw="0" style="text-align:center;">
+                        <!--<input type="button" data-enhanced="true" value="Enhanced - Icon only" onclick="ClearPath();">-->
+                        <span class="icon icon-shanchu1" ></span>
+                    </div>
+                </li>
             </ul>
         </div>
         <DIV ID="oErrorLog" style="z-index:1000; position:absolute;  top:0px;left:0px; color:red;">

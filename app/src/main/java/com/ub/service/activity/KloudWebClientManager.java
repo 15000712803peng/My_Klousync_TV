@@ -166,6 +166,7 @@ public class KloudWebClientManager implements KloudWebClient.OnClientEventListen
     }
 
     public void removeMessageArrivedLinster(OnMessageArrivedListener onMessageArrivedListener){
+        Log.e("KloudWebClientManager","removeMessageArrivedLinster");
         if(this.onMessageArrivedListeners != null){
             this.onMessageArrivedListeners.remove(onMessageArrivedListener);
         }

@@ -3,6 +3,8 @@ package com.ub.techexcel.tools;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.kloudsync.techexcel2.meeting.model.MeetingPage;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,11 +18,10 @@ import okhttp3.Response;
 
 public class DownloadUtil {
 
-
     private static DownloadUtil downloadUtil;
-    private final OkHttpClient okHttpClient;
+    private final static OkHttpClient okHttpClient = new OkHttpClient();
 
-    public static DownloadUtil get() {
+    public static synchronized DownloadUtil get() {
         if (downloadUtil == null) {
             downloadUtil = new DownloadUtil();
         }
@@ -28,7 +29,7 @@ public class DownloadUtil {
     }
 
     private DownloadUtil() {
-        okHttpClient = new OkHttpClient();
+
     }
 
     /**
@@ -36,7 +37,7 @@ public class DownloadUtil {
      * @param saveDir 储存下载文件的SDCard目录
      * @param listener 下载监听
      */
-    public void download(final String url, final String saveDir, final OnDownloadListener listener) {
+    public  void download(final String url, final String saveDir, final OnDownloadListener listener) {
         Request request = new Request.Builder().get().url(url).build();
         Log.e("dddddddd",url+"   "+saveDir);
         okHttpClient.newCall(request).enqueue(new Callback() {
@@ -87,6 +88,8 @@ public class DownloadUtil {
             }
         });
     }
+
+
     public void cancelAll() {
         Log.e("cancel","取消所有下载");
         for (Call call : okHttpClient.dispatcher().queuedCalls()) {
@@ -139,4 +142,51 @@ public class DownloadUtil {
          */
         void onDownloadFailed();
     }
+
+
+    public void syncDownload(MeetingPage page, final OnDownloadListener listener) {
+        Request request = new Request.Builder().get().url(page.getPageUrl()).build();
+        InputStream is = null;
+        FileOutputStream fos = null;
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            if(response.isSuccessful() && response.body() != null){
+
+                byte[] buf = new byte[2048];
+                int len = 0;
+                is = response.body().byteStream();
+                long total = response.body().contentLength();
+                File file = new File(page.getSavedLocalPath());
+                fos = new FileOutputStream(file);
+                long sum = 0;
+                while ((len = is.read(buf)) != -1) {
+                    fos.write(buf, 0, len);
+                    sum += len;
+                    int progress = (int) (sum * 1.0f / total * 100);
+                    // 下载中
+                    listener.onDownloading(progress);
+                }
+                fos.flush();
+                // 下载完成
+                listener.onDownloadSuccess(response.code());
+            }else {
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if (is != null)
+                    is.close();
+            } catch (IOException e) {
+            }
+            try {
+                if (fos != null)
+                    fos.close();
+            } catch (IOException e) {
+            }
+        }
+
+    }
+
 }

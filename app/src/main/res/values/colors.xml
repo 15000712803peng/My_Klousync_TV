@@ -110,4 +110,6 @@
     <color name="back_main">#35a936</color>
     <color name="txt_color1">#3e3f42</color>
     <color name="blue1">#108EE9</color>
+
+    <color name="divider">#d3d3d3</color>
 </resources>

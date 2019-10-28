@@ -217,7 +217,7 @@ public class ConnectService {
 
     // 利用http发送数据到服务器（addincident）
     public static JSONObject submitDataByJsonLive(String path, JSONObject jsonObject) {
-        JSONObject responsejson = new JSONObject();
+        JSONObject responsejson = null;
 
         try {
             URL url2 = new URL(path);

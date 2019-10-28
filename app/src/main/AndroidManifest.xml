@@ -463,14 +463,14 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
             android:screenOrientation="landscape"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:name="com.ub.service.activity.WatchCourseActivity3"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
             android:screenOrientation="landscape"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="stateHidden|adjustPan" />
 
         <activity
@@ -485,7 +485,15 @@
             android:name="com.ub.service.activity.SyncRoomActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
             android:screenOrientation="landscape"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+
+        <activity
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:name="com.ub.service.activity.SyncBookActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
+            android:screenOrientation="landscape"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="stateHidden|adjustPan" />
 
         <service android:name="com.ub.service.activity.SocketService" />
@@ -592,6 +600,9 @@
         <activity
             android:name="com.ub.service.activity.SelectLessonTypeActivity"
             android:screenOrientation="portrait" />
+        <service android:name="com.kloudsync.techexcel2.service.DownloadFileService"
+            android:process=":remote"
+            />
     </application>
 
 </manifest>

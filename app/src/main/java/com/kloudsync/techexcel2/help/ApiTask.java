@@ -15,4 +15,10 @@ public class ApiTask {
             threadManager.execute(task);
         }
     }
+
+    public static void start(ThreadManager threadManager,Runnable task) {
+        if (task != null) {
+            threadManager.execute(task);
+        }
+    }
 }

@@ -2236,38 +2236,49 @@ public class WatchCourseActivity2 extends BaseActivity implements View.OnClickLi
         if(TextUtils.isEmpty(newPath)){
             newPath = targetUrl.substring(targetUrl.indexOf(".com") + 5, targetUrl.lastIndexOf("/"));
         }
-        ServiceInterfaceTools.getinstance().queryDocument(AppConfig.URL_LIVEDOC + "queryDocument", ServiceInterfaceTools.QUERYDOCUMENT,
-                newPath, new ServiceInterfaceListener() {
-                    @Override
-                    public void getServiceReturnData(Object object) {
-                        String jsonstring = (String) object;
-                        Log.e("当前文档信息", jsonstring);
-                        uploadao = transfering2(jsonstring);
-                        if (uploadao == null) {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    JsonDown();
-                                }
-                            }, 1000);
-                        } else {
-                            String filename = targetUrl.substring(targetUrl.lastIndexOf("/") + 1);
-                            if (1 == uploadao.getServiceProviderId()) {
-                                targetUrl = "https://s3." + uploadao.getRegionName() + ".amazonaws.com/" + uploadao.getBucketName() + "/" + newPath + "/" + filename;
-                            } else if (2 == uploadao.getServiceProviderId()) {
-                                targetUrl = "https://" + uploadao.getBucketName() + "." + uploadao.getRegionName() + "." + "aliyuncs.com" + "/" + newPath + "/" + filename;
-                            }
-                            //https://peertime.oss-cn-shanghai.aliyuncs.com/P49/Attachment/D24893/3fffe932-5e52-4dbb-8376-9436a2de4dbe_1_2K.jpg
-                            Log.e("当前文档信息", "url  " + targetUrl);
-                            if (crpage == 0) {
-                                downloadPdf(targetUrl, 1);
+
+        if(TextUtils.isEmpty(targetUrl)){
+            ServiceInterfaceTools.getinstance().queryDocument(AppConfig.URL_LIVEDOC + "queryDocument", ServiceInterfaceTools.QUERYDOCUMENT,
+                    newPath, new ServiceInterfaceListener() {
+                        @Override
+                        public void getServiceReturnData(Object object) {
+                            String jsonstring = (String) object;
+                            Log.e("当前文档信息", jsonstring);
+                            uploadao = transfering2(jsonstring);
+                            if (uploadao == null) {
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        JsonDown();
+                                    }
+                                }, 1000);
                             } else {
-                                downloadPdf(targetUrl, crpage);
-                                crpage = 0;
+                                String filename = targetUrl.substring(targetUrl.lastIndexOf("/") + 1);
+                                if (1 == uploadao.getServiceProviderId()) {
+                                    targetUrl = "https://s3." + uploadao.getRegionName() + ".amazonaws.com/" + uploadao.getBucketName() + "/" + newPath + "/" + filename;
+                                } else if (2 == uploadao.getServiceProviderId()) {
+                                    targetUrl = "https://" + uploadao.getBucketName() + "." + uploadao.getRegionName() + "." + "aliyuncs.com" + "/" + newPath + "/" + filename;
+                                }
+                                //https://peertime.oss-cn-shanghai.aliyuncs.com/P49/Attachment/D24893/3fffe932-5e52-4dbb-8376-9436a2de4dbe_1_2K.jpg
+                                Log.e("当前文档信息", "url  " + targetUrl);
+                                if (crpage == 0) {
+                                    downloadPdf(targetUrl, 1);
+                                } else {
+                                    downloadPdf(targetUrl, crpage);
+                                    crpage = 0;
+                                }
                             }
                         }
-                    }
-                });
+                    });
+        }else {
+            if (crpage == 0) {
+                downloadPdf(targetUrl, 1);
+            } else {
+                downloadPdf(targetUrl, crpage);
+                crpage = 0;
+            }
+        }
+
 
     }
 

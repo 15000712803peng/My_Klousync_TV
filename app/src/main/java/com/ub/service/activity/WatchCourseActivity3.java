@@ -1351,10 +1351,12 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 }
             }
             if (msg_action.equals("BIND_TV_LEAVE_MEETING")) {
+                sendLeaveMeetingMessage();
                 finish();
             }
 
             if (msg_action.equals("DISABLE_TV_FOLLOW")) {
+                sendLeaveMeetingMessage();
                 finish();
             }
             /**
@@ -1423,10 +1425,11 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                         lineitem.setItemId(jsonObject.getString("itemId"));
                         currentAttachmentPage = jsonObject.getString("pageNumber");
                         AppConfig.currentPageNumber = jsonObject.getString("pageNumber");
-                        Message documentMsg = Message.obtain();
-                        documentMsg.obj = lineitem;
-                        documentMsg.what = 0x1205;
-                        handler.sendMessage(documentMsg);
+//                        Message documentMsg = Message.obtain();
+//                        documentMsg.obj = lineitem;
+//                        documentMsg.what = 0x1205;
+//                        handler.sendMessage(documentMsg);
+                          followChangeFile(lineitem);
                     } else if (jsonObject.getInt("actionType") == 9) { // 直播视频大小切换
                         Log.e("WatchCourseActivity3", "currentMode:" + currentMode);
                         if (currentMode.equals("4")) {
@@ -1739,6 +1742,43 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
         }
     };
+
+    private void followChangeFile(LineItem lineItem) {
+        Log.e("dddddd", documentList.size() + "");
+        if (documentList.size() > 0) {
+            if (lineItem == null || TextUtils.isEmpty(lineItem.getItemId()) || lineItem.getItemId().equals("0")) {
+                lineItem = documentList.get(0);
+                lineItem.setSelect(true);
+            } else {
+                for (int i = 0; i < documentList.size(); i++) {
+                    LineItem lineItem1 = documentList.get(i);
+                    if (lineItem.getItemId().equals(lineItem1.getItemId())) {
+                        lineItem1.setSelect(true);
+                        lineItem = lineItem1;
+                    } else {
+                        lineItem1.setSelect(false);
+                    }
+                }
+            }
+            currentAttachmentId = lineItem.getAttachmentID();
+            currentItemId = lineItem.getItemId();
+            targetUrl = lineItem.getUrl();
+            newPath = lineItem.getNewPath();
+            Log.e("dddddd", currentAttachmentId + "  " + currentItemId + "  " + targetUrl + "  " + newPath);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (wv_show == null) {
+                        return;
+                    }
+                    wv_show.load("file:///android_asset/index.html", null);
+                }
+            });
+
+        }
+
+    }
+
 
     /**
      * 改变HELLO changenumber的值
@@ -2467,38 +2507,48 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
 
     private void JsonDown() {
-        ServiceInterfaceTools.getinstance().queryDocument(AppConfig.URL_LIVEDOC + "queryDocument", ServiceInterfaceTools.QUERYDOCUMENT,
-                newPath, new ServiceInterfaceListener() {
-                    @Override
-                    public void getServiceReturnData(Object object) {
-                        String jsonstring = (String) object;
-                        Log.e("WatchCourseActivity3", "queryDocument response:" + jsonstring);
-                        uploadao = transfering2(jsonstring);
-                        if (uploadao == null) {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    JsonDown();
-                                }
-                            }, 1000);
-                        } else {
-                            String filename = targetUrl.substring(targetUrl.lastIndexOf("/") + 1);
-                            if (1 == uploadao.getServiceProviderId()) {
-                                targetUrl = "https://s3." + uploadao.getRegionName() + ".amazonaws.com/" + uploadao.getBucketName() + "/" + newPath + "/" + filename;
-                            } else if (2 == uploadao.getServiceProviderId()) {
-                                targetUrl = "https://" + uploadao.getBucketName() + "." + uploadao.getRegionName() + "." + "aliyuncs.com" + "/" + newPath + "/" + filename;
-                            }
-                            //https://peertime.oss-cn-shanghai.aliyuncs.com/P49/Attachment/D24893/3fffe932-5e52-4dbb-8376-9436a2de4dbe_1_2K.jpg
-                            Log.e("WatchCourseActivity3", "targetUrl:  " + targetUrl);
-                            if (crpage == 0) {
-                                downloadPdf(targetUrl, 1);
+        if(TextUtils.isEmpty(targetUrl)){
+            ServiceInterfaceTools.getinstance().queryDocument(AppConfig.URL_LIVEDOC + "queryDocument", ServiceInterfaceTools.QUERYDOCUMENT,
+                    newPath, new ServiceInterfaceListener() {
+                        @Override
+                        public void getServiceReturnData(Object object) {
+                            String jsonstring = (String) object;
+                            Log.e("WatchCourseActivity3", "queryDocument response:" + jsonstring);
+                            uploadao = transfering2(jsonstring);
+                            if (uploadao == null) {
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        JsonDown();
+                                    }
+                                }, 1000);
                             } else {
-                                downloadPdf(targetUrl, crpage);
-                                crpage = 0;
+                                String filename = targetUrl.substring(targetUrl.lastIndexOf("/") + 1);
+                                if (1 == uploadao.getServiceProviderId()) {
+                                    targetUrl = "https://s3." + uploadao.getRegionName() + ".amazonaws.com/" + uploadao.getBucketName() + "/" + newPath + "/" + filename;
+                                } else if (2 == uploadao.getServiceProviderId()) {
+                                    targetUrl = "https://" + uploadao.getBucketName() + "." + uploadao.getRegionName() + "." + "aliyuncs.com" + "/" + newPath + "/" + filename;
+                                }
+                                //https://peertime.oss-cn-shanghai.aliyuncs.com/P49/Attachment/D24893/3fffe932-5e52-4dbb-8376-9436a2de4dbe_1_2K.jpg
+                                Log.e("WatchCourseActivity3", "targetUrl:  " + targetUrl);
+                                if (crpage == 0) {
+                                    downloadPdf(targetUrl, 1);
+                                } else {
+                                    downloadPdf(targetUrl, crpage);
+                                    crpage = 0;
+                                }
                             }
                         }
-                    }
-                });
+                    });
+        }else {
+            if (crpage == 0) {
+                downloadPdf(targetUrl, 1);
+            } else {
+                downloadPdf(targetUrl, crpage);
+                crpage = 0;
+            }
+        }
+
 
     }
 
@@ -2686,6 +2736,9 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     private void downEveryOnePdf(final String url, final int currentpageNum) {
         Log.e("WatchCourseActivity3","downEveryOnePdf,url:" + url);
+        if(TextUtils.isEmpty(url)){
+            return;
+        }
         if (currentpageNum <= pageCount && currentpageNum >= 0) {
             final String fileurl2 = url.substring(0, url.lastIndexOf("<")) + currentpageNum + url.substring(url.lastIndexOf("."));
             String fileurl = url.substring(0, url.lastIndexOf("<")) + currentpageNum + url.substring(url.lastIndexOf("."));
@@ -2710,6 +2763,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 Log.e("WatchCourseActivity3", "downEveryOnePdf,downloadurl:" + downloadurl);
 
                 //开始新的下载
+                DownloadUtil.get().cancelAll();
                 DownloadUtil.get().download(downloadurl, fileurl, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(int arg0) {
@@ -3189,7 +3243,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             Log.e("WatchCourseActivity3","receiver user name:" + name);
             if(!TextUtils.isEmpty(name)){
                 userName = name;
-                bindDevice();
+//                bindDevice();
             }
         }
     };
@@ -3441,6 +3495,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 }
                 break;
             case R.id.menu: //弹出file audience chat列表
+
                 if (menu_linearlayout.getVisibility() == View.VISIBLE) {
                     menu_linearlayout.setVisibility(View.GONE);
                     menu.setImageResource(R.drawable.icon_menu);
@@ -3533,6 +3588,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 command_active.setImageResource(R.drawable.icon_command);
                 break;
             case R.id.bindidll:
+                isClose = !isClose;
                 bindDevice();
                 activte_linearlayout.setVisibility(View.GONE);
                 command_active.setImageResource(R.drawable.icon_command);
@@ -6286,12 +6342,10 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
         Log.e("user_name_test","set user name:" + userName);
         if (isClose) {
-            isClose = false;
-            bindUserVoiceText.setText("Voice from " + userName+": on");
-            worker().getRtcEngine().muteRemoteAudioStream(bindUid, false);
-        } else {
-            isClose = true;
             bindUserVoiceText.setText("Voice from " + userName+": off");
+            worker().getRtcEngine().muteRemoteAudioStream(bindUid, true);
+        } else {
+            bindUserVoiceText.setText("Voice from " + userName+": on");
 //            worker().getRtcEngine().muteRemoteAudioStream(bindUid, true);
             worker().getRtcEngine().muteRemoteAudioStream(bindUid, false);
         }
@@ -6977,6 +7031,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             } else {
                 displayrecord.setVisibility(View.GONE);
             }
+
             menu_linearlayout.setVisibility(View.VISIBLE);
             findViewById(R.id.hiddenwalkview).setVisibility(View.VISIBLE);
             menu.setImageResource(R.drawable.icon_menu_active);

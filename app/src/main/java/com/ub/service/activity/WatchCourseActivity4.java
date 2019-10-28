@@ -4,23 +4,34 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import android.view.View;
 import android.widget.Toast;
 
+import com.baidu.platform.comapi.map.A;
 import com.google.gson.Gson;
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.app.App;
 import com.kloudsync.techexcel2.config.AppConfig;
 
 import com.kloudsync.techexcel2.help.ApiTask;
+import com.kloudsync.techexcel2.info.Uploadao;
 import com.kloudsync.techexcel2.meeting.model.MeetingFile;
+import com.kloudsync.techexcel2.meeting.model.MeetingPage;
 import com.kloudsync.techexcel2.meeting.model.MeetingSocketMessage;
+import com.kloudsync.techexcel2.tool.TvFileCache;
 import com.ub.techexcel.service.ConnectService;
+import com.ub.techexcel.tools.DownloadUtil;
+import com.ub.techexcel.tools.FileUtils;
+import com.ub.techexcel.tools.ServiceInterfaceListener;
+import com.ub.techexcel.tools.ServiceInterfaceTools;
 import com.ub.techexcel.tools.Tools;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -32,16 +43,26 @@ import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkView;
 
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+import Decoder.BASE64Encoder;
 import io.agora.openlive.ui.BaseActivity;
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class WatchCourseActivity4 extends BaseActivity implements KloudWebClientManager.OnMessageArrivedListener {
 
     private App app;
     private MeetingData currentMeetingData;
     public static boolean watch3instance = false;
+    TvFileCache cache;
     // ----- views
     XWalkView webView;
 
@@ -60,9 +81,10 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
 
     }
 
+    @SuppressLint("WrongConstant")
     private void initData() {
-
         app = (App) getApplication();
+        cache = TvFileCache.getInstance(this);
         EventBus.getDefault().register(this);
         KloudWebClientManager.getDefault().addOnMessageArrivedListener(this);
         @SuppressLint("WrongConstant") PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -75,6 +97,12 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
             currentMeetingData.lessionId = currentMeetingData.meetingId.substring(0, currentMeetingData.meetingId.lastIndexOf(","));
         }
         currentMeetingData.isStarted = getIntent().getBooleanExtra("is_meeting", false);
+        boolean createSuccess = FileUtils.createFileSaveDir(this);
+        if (!createSuccess) {
+            Toast.makeText(getApplicationContext(), "文件系统异常，打开失败", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
     }
 
@@ -134,8 +162,9 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
         public String lessionId;
         public String bindUserName;
         public int currentFileId;
-        public String currentFilePageIndex;
+        public int currentFilePageIndex;
         public MeetingFile currentMeetingFile;
+        public String notifyWebFileUrl;
 
         @Override
         public String toString() {
@@ -168,34 +197,109 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
             webView.onDestroy();
             webView = null;
         }
-        if(KloudWebClientManager.getDefault() != null){
+        if (KloudWebClientManager.getDefault() != null) {
             KloudWebClientManager.getDefault().removeMessageArrivedLinster(this);
         }
+
+        DownloadUtil.get().cancelAll();
         EventBus.getDefault().unregister(this);
     }
+
 
     private void handleSocketMessage(String message) {
         if (TextUtils.isEmpty(message)) {
             return;
         }
         String _message = Tools.getFromBase64(message);
-        Log.e("handleSocketMessage", "onMessage:" + _message);
-        String action = Tools.getActionInMessage("action", _message);
+
+        String action = Tools.getDataInMessage("action", _message);
+        if (!action.equals("HELLO")) {
+            Log.e("handleSocketMessage", "onMessage:" + _message + ",thread:" + Thread.currentThread());
+        }
         switch (action) {
             case "JOIN_MEETING":
                 handleSocketMessage_JoinMeeting(_message);
                 break;
-
             case "END_MEETING":
                 handleSocketMessage_BindUserEndMeeting(_message);
+                break;
+            case "BROADCAST_FRAME":
+                String codeData = Tools.getDataInMessage("data", _message);
+                if (!TextUtils.isEmpty(codeData)) {
+                    String data = Tools.getFromBase64(codeData);
+                    if (!TextUtils.isEmpty(data)) {
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(data);
+                            Log.e("BROADCAST_FRAME", "data:" + jsonObject);
+                            if (jsonObject.has("type")) {
+                                handleFrameMessage(jsonObject,jsonObject.getInt("type"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
                 break;
         }
 
     }
 
+    private void handleFrameMessage(final JSONObject message ,int type) {
+        Log.e("handleFrameMessage", "message:" + message);
+        if(type == 2){
+            // 翻页 ，检查file  是否下载成功
+            try {
+                int page = message.getInt("page");
+                if(page < 1){
+                    return;
+                }
+//
+//                MeetingPage meetingPage =currentMeetingData.currentMeetingFile.getMeetingPages().get(page - 1);
+//                Log.e("handleFrameMessage","meeting page:" + meetingPage);
+//                if(cache.containFile(meetingPage.getPageUrl())){
+//                    Log.e("handleFrameMessage","file path:"+ meetingPage.getSavedLocalPath());
+//                    if(new File(meetingPage.getSavedLocalPath()).exists()){
+//
+//                    }
+//
+//                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e("WebView_Load", "javascript:PlayActionByTxt('" + message + "','" + 1 + "')");
+//                        webView.clearFormData();
+//                        webView.setDrawingCacheEnabled(false);
+//                        webView.clearCache(false);
+                        webView.load("javascript:PlayActionByTxt('" + message + "','" + 1 + "')", null);
+
+                    }
+                });
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e("WebView_Load", "javascript:PlayActionByTxt('" + message + "','" + 1 + "')");
+                    webView.load("javascript:PlayActionByTxt('" + message + "','" + 1 + "')", null);
+
+                }
+            });
+        }
+
+
+
+    }
+
+
     MeetingSocketMessage meetingSocketMessage;
 
-    @SuppressLint("LongLogTag")
+    @SuppressLint({"LongLogTag", "WrongConstant"})
     private void handleSocketMessage_JoinMeeting(String message) {
         try {
             JSONObject jsonObject = new JSONObject(message);
@@ -204,28 +308,29 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.e("meetingSocketMessage","message:" + meetingSocketMessage);
+        Log.e("meetingSocketMessage", "message:" + meetingSocketMessage);
         if (meetingSocketMessage != null) {
             currentMeetingData.lessionId = meetingSocketMessage.getLessonId();
             String currentDocumentPage = meetingSocketMessage.getCurrentDocumentPage();
-            if(!TextUtils.isEmpty(currentDocumentPage)){
+            if (!TextUtils.isEmpty(currentDocumentPage)) {
                 String[] datas = currentDocumentPage.split("-");
                 currentMeetingData.currentFileId = Integer.parseInt(datas[0]);
-                currentMeetingData.currentFilePageIndex = datas[1];
+                currentMeetingData.currentFilePageIndex = (int) (Float.parseFloat(datas[1]));
             }
-
         }
 
-        Log.e("currentMeetingData",currentMeetingData+"");
+        Log.e("currentMeetingData", currentMeetingData + "");
 
         if (TextUtils.isEmpty(currentMeetingData.lessionId) || currentMeetingData.lessionId.equals("0")) {
 //            sendJoinMeetingMessage();
+            Toast.makeText(this, "lession is:" + currentMeetingData.lessionId, Toast.LENGTH_SHORT).show();
             return;
         }
 
         requestDocumentByLessionId();
 
     }
+
 
     private void handleSocketMessage_BindUserEndMeeting(String message) {
         sendLeaveMeetingMessage();
@@ -302,8 +407,15 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
     }
 
     @org.xwalk.core.JavascriptInterface
-    public void preLoadFileFunction(final String url, final int currentpageNum, final boolean showLoading) {
-        Log.e("JavascriptInterface", "preLoadFileFunction-->url:" + url + ",currentpageNum:" + currentpageNum + ",showLoading:" + showLoading + ",thread:" + Thread.currentThread());
+    public void preLoadFileFunction(final String url, final int pageNum, final boolean showLoading) {
+        Log.e("JavascriptInterface", "preLoadFileFunction-->url:" + url + ",pageNum:" + pageNum + ",showLoading:" + showLoading + ",thread:" + Thread.currentThread());
+        ApiTask.start(ThreadManager.getManager(), new Runnable() {
+            @Override
+            public void run() {
+                MeetingPage page = currentMeetingData.currentMeetingFile.getMeetingPages().get(pageNum - 1);
+                safeDownloadFile(page,url,pageNum, true);
+            }
+        });
 
     }
 
@@ -326,55 +438,75 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
      * 每一页加载完后，金宝会调用这个方法
      */
     @org.xwalk.core.JavascriptInterface
-    public void afterChangePageFunction(final String pageNum, int type) {
+    public void afterChangePageFunction(final int pageNum, int type) {
         // 1:play,2:showdocument,3:next,4:prev,5:topage,  0 :未知
-        Log.e("JavascriptInterface", "afterChangePageFunction-->pageNum:" + pageNum + ",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "afterChangePageFunction-->pageNum:" + pageNum + ",type:" + type + ",thread:" + Thread.currentThread());
+        currentMeetingData.currentFilePageIndex = pageNum;
+
 
     }
 
 
     private void requestDocumentByLessionId() {
         String url = "";
-        if(currentMeetingData.meetingType == TYPE_DOCUMENT){
+        if (currentMeetingData.meetingType == TYPE_DOCUMENT) {
             url = AppConfig.URL_PUBLIC + "Lesson/Item?lessonID=" + currentMeetingData.lessionId;
-        }else if(currentMeetingData.meetingType == TYPE_SYNCROOM){
-             url = AppConfig.URL_PUBLIC + "TopicAttachment/List?topicID=" + currentMeetingData.lessionId;
+        } else if (currentMeetingData.meetingType == TYPE_SYNCROOM) {
+            url = AppConfig.URL_PUBLIC + "TopicAttachment/List?topicID=" + currentMeetingData.lessionId;
         }
-
         asyncGetDocumentDetail(url);
-
-
 
     }
 
     List<MeetingFile> meetingFiles;
 
-    private void asyncGetDocumentDetail(final String url){
+    private void asyncGetDocumentDetail(final String url) {
 
         new ApiTask(new Runnable() {
             @Override
             public void run() {
-
-
                 JSONObject response = ConnectService.getIncidentbyHttpGet(url);
-                if(response == null){
+                if (response == null) {
 
-                }else {
+                } else {
                     try {
                         JSONObject retData = response.getJSONObject("RetData");
-                        Log.e("asyncGetDocumentDetail","ret data:" + retData);
-                        if(retData != null){
+                        Log.e("asyncGetDocumentDetail", "ret data:" + retData);
+                        if (retData != null) {
                             JSONArray array = retData.getJSONArray("AttachmentList");
-                            if(array != null){
+                            if (array != null) {
                                 Gson gson = new Gson();
-                                Log.e("array","array:" + array);
+                                Log.e("array", "array:" + array);
                                 meetingFiles = new ArrayList<>();
-                                for(int i = 0 ; i < array.length();++i){
+                                for (int i = 0; i < array.length(); ++i) {
                                     JSONObject jsonObject = array.getJSONObject(i);
-                                    MeetingFile file = gson.fromJson(jsonObject.toString(),MeetingFile.class);
-                                    for(int j = 0 ; j < file.getPageCount(); ++j){
-                                        file.getAttachmentUrl();
+                                    MeetingFile file = gson.fromJson(jsonObject.toString(), MeetingFile.class);
+                                    String attachmentUrl = file.getAttachmentUrl();
+                                    String preUrl = "";
+                                    String endUrl = "";
+                                    if (!TextUtils.isEmpty(attachmentUrl)) {
+                                        int index = attachmentUrl.lastIndexOf("<");
+                                        int index2 = attachmentUrl.lastIndexOf(">");
+                                        if (index > 0) {
+                                            preUrl = attachmentUrl.substring(0, index);
+                                        }
+                                        if (index2 > 0) {
+                                            endUrl = attachmentUrl.substring(index2 + 1, attachmentUrl.length());
+                                        }
                                     }
+
+                                    List<MeetingPage> meetingPages = new ArrayList<>();
+                                    for (int j = 0; j < file.getPageCount(); ++j) {
+                                        String pageUrl = "";
+                                        MeetingPage meetingPage = new MeetingPage();
+                                        if (TextUtils.isEmpty(preUrl)) {
+                                            meetingPage.setPageUrl(pageUrl);
+                                        } else {
+                                            meetingPage.setPageUrl(preUrl + (j + 1) + endUrl);
+                                        }
+                                        meetingPages.add(meetingPage);
+                                    }
+                                    file.setMeetingPages(meetingPages);
                                     meetingFiles.add(file);
                                 }
                                 EventBus.getDefault().post(meetingFiles);
@@ -390,32 +522,273 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
     }
 
     @SuppressLint("WrongConstant")
-    private void sendSocketMessage(String message){
+    private void sendSocketMessage(String message) {
         if (AppConfig.webSocketClient == null || AppConfig.webSocketClient.getReadyState() != WebSocket.READYSTATE.OPEN) {
             Toast.makeText(getApplicationContext(), "web socket status exception", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.e("sendSocketMessage","message:" + message);
+        Log.e("sendSocketMessage", "message:" + message);
         AppConfig.webSocketClient.send(message);
 
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void receiverFile(List<MeetingFile> files){
-        Log.e("receiverFile","files:" + files);
+    public void receiveFiles(List<MeetingFile> files) {
+        Log.e("receiverFile", "files:" + files);
         meetingFiles = files;
-        if(meetingFiles != null && meetingFiles.size() > 0){
+        if (meetingFiles != null && meetingFiles.size() > 0) {
             int index = meetingFiles.indexOf(new MeetingFile(currentMeetingData.currentFileId));
-            if(index < 0){
+            if (index < 0) {
                 index = 0;
             }
             currentMeetingData.currentMeetingFile = meetingFiles.get(index);
+            downLoadAndShowCurrentPage();
+//            downLoadPages(currentMeetingData.currentMeetingFile.getMeetingPages());
         }
     }
 
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showPdf(MeetingPage page) {
+        Log.e("showFilePage", "page:" + page);
+
+        if (page != null && !TextUtils.isEmpty(page.getShowingPath())) {
+            currentMeetingData.notifyWebFileUrl = page.getShowingPath();
+            if (webView != null) {
+                Log.e("WebView_Load", "javascript:ShowPDF('" + page.getShowingPath() + "',"
+                        + currentMeetingData.currentFilePageIndex + ",0,'" + currentMeetingData.currentMeetingFile.getAttachmentID() + "')");
+                webView.load("javascript:ShowPDF('" + page.getShowingPath() + "'," + currentMeetingData.currentFilePageIndex + ",0," + currentMeetingData.currentMeetingFile.getAttachmentID() + ")", null);
+                webView.load("javascript:Record()", null);
+                downLoadPages(currentMeetingData.currentMeetingFile.getMeetingPages());
+            }
+
+        }
+    }
 
 
+    private void downLoadPages(final List<MeetingPage> pages) {
+
+        new ApiTask(new Runnable() {
+            @Override
+            public void run() {
+                for(int i = 0 ; i < pages.size(); ++i){
+                    safeDownloadFile(pages.get(i),currentMeetingData.notifyWebFileUrl,i + 1,true);
+                }
+            }
+        }).start(ThreadManager.getManager());
+    }
+
+
+    private void downLoadAndShowCurrentPage() {
+        Observable.just(currentMeetingData.currentMeetingFile).observeOn(Schedulers.io()).map(new Function<MeetingFile, Object>() {
+            @Override
+            public Object apply(MeetingFile meetingFile) throws Exception {
+
+                int pageIndex = 1;
+                if (currentMeetingData.currentFilePageIndex == 0) {
+                    pageIndex = 1;
+                } else if (currentMeetingData.currentFilePageIndex > 0) {
+                    pageIndex = currentMeetingData.currentFilePageIndex;
+                }
+                String pageUrl = meetingFile.getMeetingPages().get(pageIndex - 1).getPageUrl();
+                queryAndDownLoadCurrentPageToShow(pageUrl, true);
+                return pageUrl;
+            }
+        }).subscribe();
+    }
+
+
+    public String encoderByMd5(String str) {
+        try {
+            //确定计算方法
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            BASE64Encoder base64en = new BASE64Encoder();
+            //加密后的字符串
+            String newstr = base64en.encode(md5.digest(str.getBytes("utf-8")));
+            return newstr;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private Uploadao parseResponse(final String jsonstring) {
+        try {
+            JSONObject returnjson = new JSONObject(jsonstring);
+            if (returnjson.getBoolean("Success")) {
+                JSONObject data = returnjson.getJSONObject("Data");
+
+                JSONObject bucket = data.getJSONObject("Bucket");
+                Uploadao uploadao = new Uploadao();
+                uploadao.setServiceProviderId(bucket.getInt("ServiceProviderId"));
+                uploadao.setRegionName(bucket.getString("RegionName"));
+                uploadao.setBucketName(bucket.getString("BucketName"));
+                return uploadao;
+            }
+        } catch (JSONException e) {
+            return null;
+        }
+        return null;
+    }
+
+
+    @SuppressLint({"WrongConstant", "LongLogTag"})
+    private void queryAndDownLoadCurrentPageToShow(final String pageUrl, final boolean needRedownload) {
+        boolean createSuccess = FileUtils.createFileSaveDir(this);
+        if (!createSuccess) {
+            Toast.makeText(getApplicationContext(), "文件系统异常，打开失败", Toast.LENGTH_SHORT).show();
+            sendLeaveMeetingMessage();
+            finish();
+            return;
+        }
+
+        MeetingPage page = cache.getPageCache(pageUrl);
+        Log.e("queryAndDownLoadCurrentPageToShow", "get cach page:" + page + "--> url:" + pageUrl);
+        if (page != null && !TextUtils.isEmpty(page.getPageUrl())
+                && !TextUtils.isEmpty(page.getSavedLocalPath()) && !TextUtils.isEmpty(page.getShowingPath())) {
+            if (new File(page.getSavedLocalPath()).exists()) {
+                EventBus.getDefault().post(page);
+                return;
+            } else {
+                cache.removeFile(pageUrl);
+
+            }
+
+        }
+
+        JSONObject queryDocumentResult = ServiceInterfaceTools.getinstance().syncQueryDocument(AppConfig.URL_LIVEDOC + "queryDocument",
+                currentMeetingData.currentMeetingFile.getNewPath());
+        if (queryDocumentResult != null) {
+            Uploadao uploadao = parseResponse(queryDocumentResult.toString());
+            String fileName = pageUrl.substring(pageUrl.lastIndexOf("/") + 1);
+            String part = "";
+            if (1 == uploadao.getServiceProviderId()) {
+                part = "https://s3." + uploadao.getRegionName() + ".amazonaws.com/" + uploadao.getBucketName() + "/" + currentMeetingData.currentMeetingFile.getNewPath()
+                        + "/" + fileName;
+            } else if (2 == uploadao.getServiceProviderId()) {
+                part = "https://" + uploadao.getBucketName() + "." + uploadao.getRegionName() + "." + "aliyuncs.com" + "/" + currentMeetingData.currentMeetingFile.getNewPath() + "/" + fileName;
+            }
+
+            String pathLocalPath = FileUtils.getBaseDir() +
+                    currentMeetingData.meetingId + "_" + encoderByMd5(part).replaceAll("/", "_") +
+                    "_" + currentMeetingData.currentFilePageIndex +
+                    pageUrl.substring(pageUrl.lastIndexOf("."));
+            final String showUrl = FileUtils.getBaseDir() +
+                    currentMeetingData.meetingId + "_" + encoderByMd5(part).replaceAll("/", "_") +
+                    "_<" + currentMeetingData.currentMeetingFile.getPageCount() + ">" +
+                    pageUrl.substring(pageUrl.lastIndexOf("."));
+            int pageIndex = 1;
+            if (currentMeetingData.currentFilePageIndex == 0) {
+                pageIndex = 1;
+            } else if (currentMeetingData.currentFilePageIndex > 0) {
+                pageIndex = currentMeetingData.currentFilePageIndex;
+            }
+
+            Log.e("queryAndDownLoadCurrentPageToShow", "showUrl:" + showUrl);
+
+            final MeetingPage meetingPage = currentMeetingData.currentMeetingFile.getMeetingPages().
+                    get(pageIndex - 1);
+            meetingPage.setSavedLocalPath(pathLocalPath);
+
+            Log.e("queryAndDownLoadCurrentPageToShow", "meeting data:" + currentMeetingData);
+
+            //保存在本地的地址
+
+            DownloadUtil.get().download(pageUrl, pathLocalPath, new DownloadUtil.OnDownloadListener() {
+                @SuppressLint("LongLogTag")
+                @Override
+                public void onDownloadSuccess(int arg0) {
+                    meetingPage.setShowingPath(showUrl);
+                    Log.e("queryAndDownLoadCurrentPageToShow", "onDownloadSuccess:" + meetingPage);
+                    cache.cacheFile(meetingPage);
+                    EventBus.getDefault().post(meetingPage);
+                }
+
+                @Override
+                public void onDownloading(final int progress) {
+
+                }
+
+                @Override
+                public void onDownloadFailed() {
+
+                    Log.e("queryAndDownLoadCurrentPageToShow", "onDownloadFailed:" + meetingPage);
+                    if (needRedownload) {
+                        queryAndDownLoadCurrentPageToShow(pageUrl, false);
+                    }
+                }
+            });
+
+
+        }
+
+    }
+
+    private void notifyWebFilePrepared(final String url, final int index) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.e("WebView_Load", "javascript:AfterDownloadFile('" + url + "', " + index + ")");
+                if(webView == null){
+                    return;
+                }
+                webView.load("javascript:AfterDownloadFile('" + url + "', " + index + ")", null);
+
+            }
+        });
+    }
+
+
+
+    private void safeDownloadFile(final MeetingPage page, final String notifyUrl, final int index, final boolean needRedownload){
+
+        Log.e("safeDownloadFile","start down load:" + page);
+
+        if (page != null && !TextUtils.isEmpty(page.getPageUrl())
+                && !TextUtils.isEmpty(page.getSavedLocalPath()) && !TextUtils.isEmpty(page.getShowingPath())) {
+            if (new File(page.getSavedLocalPath()).exists()) {
+                Log.e("safeDownloadFile","have down load and saved:" + page);
+                notifyWebFilePrepared(notifyUrl,index);
+                return;
+            } else {
+                //清楚缓存
+                cache.removeFile(page.getPageUrl());
+            }
+
+        }
+
+        String pathLocalPath = notifyUrl.substring(0,notifyUrl.lastIndexOf("<")) +
+                index + notifyUrl.substring(notifyUrl.lastIndexOf("."));
+        page.setSavedLocalPath(pathLocalPath);
+
+        final ThreadLocal<MeetingPage> meetingPageLocal = new ThreadLocal<>();
+        meetingPageLocal.set(page);
+//        DownloadUtil.get().cancelAll();
+        DownloadUtil.get().syncDownload(meetingPageLocal.get(), new DownloadUtil.OnDownloadListener() {
+            @Override
+            public void onDownloadSuccess(int code) {
+                meetingPageLocal.get().setShowingPath(notifyUrl);
+                Log.e("safeDownloadFile", "onDownloadSuccess:" + meetingPageLocal.get());
+                cache.cacheFile(meetingPageLocal.get());
+                notifyWebFilePrepared(notifyUrl, index);
+            }
+
+            @Override
+            public void onDownloading(int progress) {
+
+            }
+
+            @Override
+            public void onDownloadFailed() {
+                Log.e("safeDownloadFile", "onDownloadFailed:" + meetingPageLocal.get());
+                if(needRedownload){
+                    safeDownloadFile(page, notifyUrl, index, false);
+                }
+            }
+        });
+    }
 
 
 }

@@ -189,12 +189,12 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         String msg = Tools.getFromBase64(message);
         Log.e("SocketService", "onMessage:" + msg);
         String actionString = getRetCodeByReturnData2("action", msg);
-        if(isAppInBackground(getApplicationContext())){
-            Log.e("SocketService","app in background");
-            return;
-        }else {
-            Log.e("SocketService","app in foreground");
-        }
+//        if(isAppInBackground(getApplicationContext())){
+//            Log.e("SocketService","app in background");
+//            return;
+//        }else {
+//            Log.e("SocketService","app in foreground");
+//        }
 
         if (TextUtils.isEmpty(actionString)) {
             return;
@@ -267,6 +267,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
             AppConfig.UserID = sharedPreferences.getInt("UserID", 0) + "";
         }
     }
+
 
     private void handleRemoveJoinMeetingMessage(String msg) {
         String meetingids = getRetCodeByReturnData2("meetingIds", msg);
@@ -342,6 +343,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
             if (d.has("type")) {
                 type = d.getInt("type");
             }
+            Log.e("handleBindTVJoinMeetingMessage","type:" + type);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -363,8 +365,6 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
 
                 } else {
                     if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
-
-
                         followUser(meetingId,type);
 
                     }

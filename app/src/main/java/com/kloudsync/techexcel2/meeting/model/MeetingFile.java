@@ -33,7 +33,7 @@ public class MeetingFile {
     private String VideoDuration;
     private boolean IsTemporary;
     private String QueryToken;
-    private List<String> pageUrls;
+    private List<MeetingPage> meetingPages;
 
     public MeetingFile() {
 
@@ -251,12 +251,12 @@ public class MeetingFile {
         QueryToken = queryToken;
     }
 
-    public List<String> getPageUrls() {
-        return pageUrls;
+    public List<MeetingPage> getMeetingPages() {
+        return meetingPages;
     }
 
-    public void setPageUrls(List<String> pageUrls) {
-        this.pageUrls = pageUrls;
+    public void setMeetingPages(List<MeetingPage> meetingPages) {
+        this.meetingPages = meetingPages;
     }
 
     @Override
@@ -288,7 +288,7 @@ public class MeetingFile {
                 ", VideoDuration='" + VideoDuration + '\'' +
                 ", IsTemporary=" + IsTemporary +
                 ", QueryToken='" + QueryToken + '\'' +
-                ", pageUrls=" + pageUrls +
+                ", meetingPages=" + meetingPages +
                 '}';
     }
 

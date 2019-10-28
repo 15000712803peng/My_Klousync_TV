@@ -307,6 +307,8 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         sendBroadcast(intent);
     }
 
+
+
     private void handleHeartMessage(String msg) {
         String data = Tools.getFromBase64(getRetCodeByReturnData2("data", msg));
         Log.e("NotifyActivity", "heart beart response：" + data);
@@ -344,7 +346,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
 
                 if (hasOwner) {
 
-
                     if (messageJson.has("tvOwnerMeetingId")) {
                         meetingId = messageJson.getString("tvOwnerMeetingId");
                     } else {
@@ -354,6 +355,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                     roomid = meetingId;
                     if (TextUtils.isEmpty(roomid) || roomid.equals("0")) {
                         // 心跳里面没有meeting的信息
+                        sendEndMeetingMessage();
                         return;
                     }
                     if (messageJson.has("tvOwnerMeetingType")) {
@@ -362,8 +364,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
 
                     type = meetingType;
 
-
-                    if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
+                    if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance || SyncBookActivity.watchSyncroomInstance) {
                         //已经在Meeting或者Document,或者SyncRoom里面
                         Log.e("BeartHeart", "inside,and heart beat meeting id:" + meetingId);
                         if (TextUtils.isEmpty(meetingId) || meetingId.equals("0")) {
@@ -520,7 +521,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onResume() {
         super.onResume();
-
         String user = getSharedPreferences(AppConfig.LOGININFO,
                 MODE_PRIVATE).getString("tv_bind_user", "");
         Log.e("NotifyActivity", "bind user id:" + user);
@@ -586,6 +586,20 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                 intent.putExtra("teacherid", AppConfig.BINDUSERID.replace("-", ""));
                 intent.putExtra("isStartCourse", false);
                 intent.putExtra("is_meeting", true);
+                startActivity(intent);
+            }else if(type == 3){
+                Intent intent = new Intent(NotifyActivity.this, SyncBookActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("userid", AppConfig.BINDUSERID);
+                intent.putExtra("meetingId", roomid);
+                intent.putExtra("isTeamspace", true);
+                intent.putExtra("identity", 1);
+                intent.putExtra("is_meeting", false);
+                intent.putExtra("lessionId", "");
+                intent.putExtra("isInstantMeeting", 1);
+                intent.putExtra("meeting_type", type);
+                intent.putExtra("teacherid", AppConfig.BINDUSERID.replace("-", ""));
+                intent.putExtra("isStartCourse", false);
                 startActivity(intent);
             }
 

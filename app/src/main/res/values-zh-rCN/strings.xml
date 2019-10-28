@@ -456,5 +456,7 @@
 
     <string name="downloading">下载中...</string>
 
+    <string name="outline">目录</string>
+
 
 </resources>
