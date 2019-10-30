@@ -1147,6 +1147,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 sendJoinMeetingMessage(meetingId);
                 return;
             }
+
             if(retdata.has("type")){
                 meetingType = retdata.getInt("type");
             }
@@ -1335,6 +1336,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                     initdefault();  //重新 JOIN_MEETING
                 }
             }
+
             if (msg_action.equals("OFFLINE_MODE") || msg_action.equals("ONLINE_MODE")) {
                 try {
                     List<Customer> joinlist = new ArrayList<>();
@@ -6839,6 +6841,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 //            return false;
 //        }
 
+        Toast.makeText(this,"event:" + event.getKeyCode(),Toast.LENGTH_SHORT).show();
         if (event.getAction() != KeyEvent.ACTION_DOWN) {
             return super.dispatchKeyEvent(event);
         }
