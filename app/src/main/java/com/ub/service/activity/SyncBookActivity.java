@@ -3096,8 +3096,12 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
      */
     @org.xwalk.core.JavascriptInterface
     public void afterLoadFileFunction() {
-
-        scrollOutline();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scrollOutline();
+            }
+        },300);
 
         runOnUiThread(new Runnable() {
             @Override
