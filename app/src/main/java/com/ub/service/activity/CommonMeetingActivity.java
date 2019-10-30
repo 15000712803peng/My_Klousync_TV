@@ -7033,7 +7033,7 @@ public class CommonMeetingActivity extends BaseActivity implements View.OnClickL
             @Override
             public void run() {
                 JSONObject responsedata = com.ub.techexcel.service.ConnectService.submitDataByJson(
-                        AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/logout",
+                        AppConfig.meetingServer + "/tv/logout",
                         new JSONObject());
 //                Log.e("logout_respose", responsedata.toString() + "");
                 getSharedPreferences(AppConfig.LOGININFO,

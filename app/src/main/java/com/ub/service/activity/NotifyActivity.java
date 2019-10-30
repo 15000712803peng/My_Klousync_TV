@@ -868,9 +868,9 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
             @Override
             public void run() {
                 JSONObject responsedata = com.ub.techexcel.service.ConnectService.submitDataByJson(
-                        AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/logout",
+                        AppConfig.meetingServer + "/tv/logout",
                         new JSONObject());
-//                Log.e("logout_respose", responsedata.toString() + "");
+                Log.e("logout_respose", responsedata.toString() + "");
                 goToQrcodeActivity();
             }
         }).start();

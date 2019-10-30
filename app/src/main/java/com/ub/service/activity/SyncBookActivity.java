@@ -5560,7 +5560,7 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
             file.setItemId(currentFileId);
             int currentFileIndex = documentList.indexOf(file);
             if (currentFileIndex < 0) {
-                return;
+                currentFileIndex = 0;
             }
             currentShowPdf = documentList.get(currentFileIndex);
         }
@@ -7354,7 +7354,7 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
             public void run() {
 
                 JSONObject responsedata = com.ub.techexcel.service.ConnectService.submitDataByJson(
-                        AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/logout",
+                        AppConfig.meetingServer + "/tv/logout",
                         new JSONObject());
                 finish();
 
@@ -7549,7 +7549,6 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
     }
 
 
-
     private void notifyMyAction(String action){
          try {
              JSONObject loginjson = new JSONObject();
@@ -7585,11 +7584,9 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
         JSONObject actionJson = new JSONObject();
         try {
             actionJson.put("actionType",1802);
-            // 1表示打开 0表示关闭
             actionJson.put("stat",1);
             actionJson.put("treeNodeId",treeNodeId);
             actionJson.put("isToggle",isToggle);
-
         } catch (JSONException e) {
             e.printStackTrace();
         }

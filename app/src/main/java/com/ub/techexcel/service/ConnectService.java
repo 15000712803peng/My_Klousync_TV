@@ -132,11 +132,14 @@ public class ConnectService {
     // 利用http发送数据到服务器（addincident）
     public static JSONObject submitDataByJson(String path, JSONObject jsonObject) {
 
+        Log.e("check_url","url:" + path);
+
         JSONObject responsejson = new JSONObject();
         // 把JSON数据转换成String类型使用输出流向服务器写
         try {
             URL url2 = new URL(path);
             String content = String.valueOf(jsonObject);
+
             HttpURLConnection connection = (HttpURLConnection) url2
                     .openConnection();
             connection.setConnectTimeout(5000);
@@ -158,6 +161,8 @@ public class ConnectService {
                 responsejson = new JSONObject(json);
                 is.close();
                 connection.disconnect();
+
+                Log.e("response","url:" + url2 + ": response:" + responsejson);
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block

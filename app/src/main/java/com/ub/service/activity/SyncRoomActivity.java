@@ -913,6 +913,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         if (mWebSocketClient == null) {
             return;
         }
+
         if (TextUtils.isEmpty(meetingId)) {
             return;
         }
@@ -1185,20 +1186,17 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
-
-    private void gotoMeeting() {
+    private void gotoMeeting(String meetingId,int meetingType) {
         command_active.setVisibility(View.VISIBLE);
         menu_linearlayout.setVisibility(View.GONE);
         displayFile.setVisibility(View.VISIBLE);
-        meetingId = lessonId;
-        sendJoinMeetingMessage(meetingId,0);
+//        meetingId = lessonId;
         isTeamspace = false;
         worker().joinChannel(meetingId.toUpperCase(), config().mUid);
+        refreshMeeting(meetingId,meetingType);
     }
 
-
     Toast tt;
-
     private int audioTime = 0;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -1206,7 +1204,10 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             String message = intent.getStringExtra("message");
 
             if (message.equals("START_JOIN_MEETING")) {
-                gotoMeeting();
+                Log.e("check_data","data:" + intent.getStringExtra("meeting_id"));
+                gotoMeeting(intent.getStringExtra("meeting_id"),intent.getIntExtra("meeting_type",0));
+
+                return;
             }
             String msg = Tools.getFromBase64(message);
             String msg_action = getRetCodeByReturnData2("action", msg);
@@ -5469,7 +5470,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             file.setItemId(currentFileId);
             int currentFileIndex = documentList.indexOf(file);
             if (currentFileIndex < 0) {
-                return;
+                currentFileIndex = 0;
             }
             currentShowPdf = documentList.get(currentFileIndex);
         }
@@ -7266,7 +7267,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             public void run() {
 
                 JSONObject responsedata = com.ub.techexcel.service.ConnectService.submitDataByJson(
-                        AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/logout",
+                        AppConfig.meetingServer + "/tv/logout",
                         new JSONObject());
                 finish();
 

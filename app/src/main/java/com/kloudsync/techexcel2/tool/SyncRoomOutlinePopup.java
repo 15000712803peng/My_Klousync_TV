@@ -109,7 +109,6 @@ public class SyncRoomOutlinePopup implements View.OnClickListener {
                         (new OutlineChapterItemHolder(mContext));
                 chapterNode.setValueId(chapterItem.getIdeaID() + "-" + chapterItem.getOutLineID());
                 chapterItem.setTreeNodeId(chapterItem.getIdeaID() + "-" + chapterItem.getOutLineID());
-
                 chapterNode.setClickListener(new TreeNode.TreeNodeClickListener() {
                     @Override
                     public void onClick(TreeNode node, Object value) {

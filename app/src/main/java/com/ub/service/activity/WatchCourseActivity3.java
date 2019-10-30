@@ -5121,7 +5121,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             file.setItemId(currentFileId);
             int currentFileIndex = documentList.indexOf(file);
             if (currentFileIndex < 0) {
-                return;
+                currentFileIndex = 0;
             }
             lineItem = documentList.get(currentFileIndex);
         }
@@ -6919,6 +6919,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     }
 
     private void goToPageByDirection(final int direction) {
+
         Log.e("javascript", "MovePage:" + direction);
         runOnUiThread(new Runnable() {
             @Override
@@ -6999,7 +7000,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             public void run() {
 
                 JSONObject responsedata = com.ub.techexcel.service.ConnectService.submitDataByJson(
-                        AppConfig.URL_WSS_SERVER + "/MeetingServer/tv/logout",
+                        AppConfig.meetingServer + "/tv/logout",
                         new JSONObject());
                 finish();
 
