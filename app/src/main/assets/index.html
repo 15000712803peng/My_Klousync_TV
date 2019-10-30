@@ -575,12 +575,12 @@
         }
         function RecordHandle(obj)
         {
+            console.log("Send:"+JSON.stringify(obj));
             if (ISPC)
             {
                 //log(JSON.stringify(obj));
                 return;
-            }
-            //console.log("Send:"+JSON.stringify(obj));
+            }            
             try
             {
                 if (ISANDROID)
