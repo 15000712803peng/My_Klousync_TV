@@ -43,11 +43,10 @@ android {
         applicationId 'com.kloudsync.techexcel2'
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 6
-        versionName "1.0.6"
+        versionCode 7
+        versionName "1.0.7"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86"
         }

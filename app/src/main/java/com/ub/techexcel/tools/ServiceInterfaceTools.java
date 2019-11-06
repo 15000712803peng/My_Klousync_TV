@@ -8,13 +8,17 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.kloudsync.techexcel2.bean.NoteDetail;
 import com.kloudsync.techexcel2.bean.SyncBook;
 import com.kloudsync.techexcel2.config.AppConfig;
+import com.kloudsync.techexcel2.help.ApiTask;
 import com.kloudsync.techexcel2.info.ConvertingResult;
 import com.kloudsync.techexcel2.info.Favorite;
 import com.kloudsync.techexcel2.info.Uploadao;
 import com.kloudsync.techexcel2.resp.NetworkResponse;
 import com.kloudsync.techexcel2.resp.TeamsResponse;
+import com.ub.service.activity.ThreadManager;
 import com.ub.techexcel.bean.AudioActionBean;
 import com.ub.techexcel.bean.PageActionBean;
 import com.ub.techexcel.bean.SoundtrackBean;
@@ -56,6 +60,7 @@ public class ServiceInterfaceTools {
     public static final int QUERYDOCUMENT = 0x1117;
     public static final int NOTIFYUPLOADED = 0x1118;
     public static final int GETSOUNDTRACKACTIONS = 0x1119;
+    public static final int GETNOTELIST = 0x1139;
     public static final int TV_NOT_FOLLOW = 0x1120;
 
     private ConcurrentHashMap<Integer, ServiceInterfaceListener> hashMap = new ConcurrentHashMap<>();
@@ -804,5 +809,39 @@ public class ServiceInterfaceTools {
 
     public Call<NetworkResponse<SyncBook>> getSyncbookOutline(String syncroomId){
         return request.getSyncbookOutline(AppConfig.UserToken,syncroomId);
+    }
+
+
+    public void getNoteListV2(final String url, final int code, ServiceInterfaceListener serviceInterfaceListener) {
+        putInterface(code, serviceInterfaceListener);
+        new ApiTask(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject returnjson = ConnectService.getIncidentbyHttpGet(url);
+                    Log.e("getNoteList", url + "  " + returnjson.toString());
+                    if (returnjson.getInt("RetCode") == 0) {
+                        JSONArray lineitems = returnjson.getJSONArray("RetData");
+                        List<NoteDetail> items = new ArrayList<NoteDetail>();
+                        for (int j = 0; j < lineitems.length(); j++) {
+                            JSONObject lineitem = lineitems.getJSONObject(j);
+                            items.add(new Gson().fromJson(lineitem.toString(),NoteDetail.class));
+                        }
+                        Message msg = Message.obtain();
+                        msg.obj = items;
+                        msg.what = code;
+                        handler.sendMessage(msg);
+                    } else {
+                        Message msg3 = Message.obtain();
+                        msg3.what = ERRORMESSAGE;
+                        msg3.obj = returnjson.getString("ErrorMessage");
+                        handler.sendMessage(msg3);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start(ThreadManager.getManager());
+
     }
 }

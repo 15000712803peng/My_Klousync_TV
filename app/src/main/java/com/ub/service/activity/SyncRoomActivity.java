@@ -80,6 +80,7 @@ import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.app.App;
+import com.kloudsync.techexcel2.bean.NoteDetail;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.dialog.AddFileFromDocumentDialog;
 import com.kloudsync.techexcel2.dialog.AddFileFromFavoriteDialog;
@@ -1075,6 +1076,15 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
 
     private int startYinxiangTime = 0;
 
+    private boolean isMeetingIdDigital(String meetingId){
+        for(int i = 0 ; i < meetingId.length(); ++i){
+            if(!Character.isDigit(meetingId.charAt(i))){
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void doJOIN_MEETING(String msg) {
         try {
             JSONObject jsonObject = new JSONObject(msg);
@@ -1084,8 +1094,9 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             lessonId = retdata.getString("lessonId");
             if(TextUtils.isEmpty(lessonId) || lessonId.equals("0")){
                 Log.e("SyncRoomActivity","lession id is illegal,lession id:" + lessonId);
-                sendJoinMeetingMessage(meetingId,1);
-                return;
+                if(isMeetingIdDigital(meetingId)){
+                    lessonId = meetingId;
+                }
             }
             List<Customer> joinlist = Tools.getUserListByJoinMeeting(jsonArray);
             msg = retdata.toString();
@@ -1696,6 +1707,9 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             loginjson.put("role", role);
             loginjson.put("type", type);
             loginjson.put("isInstantMeeting", isInstantMeeting);
+            if(TextUtils.isEmpty(lessonId)){
+                lessonId = "0";
+            }
             loginjson.put("lessonId", lessonId);
             if (isInClassroom) {
                 loginjson.put("isInClassroom", 1);
@@ -2803,6 +2817,18 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         }
                     }
                 });
+            }
+        });
+
+        ServiceInterfaceTools.getinstance().getNoteListV2(AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + 0 + "&documentItemID=" + currentAttachmentId + "&pageNumber=" + currentAttachmentPage + "&userID=" + AppConfig.UserID, ServiceInterfaceTools.GETNOTELIST, new ServiceInterfaceListener() {
+            @Override
+            public void getServiceReturnData(Object object) {
+                List<NoteDetail> noteDetails = (List<NoteDetail>) object;
+                if (noteDetails != null && noteDetails.size() > 0) {
+//                    {"type":38,"LinkID":123,"LinkProperty":{"X":0.2683315621679065,"Y":0.37898089171974525}}
+                    notifyDrawNotes(noteDetails);
+
+                }
             }
         });
 
@@ -7359,6 +7385,31 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             e.printStackTrace();
         }
 
+    }
+
+    private void notifyDrawNotes(List<NoteDetail> notes) {
+        for (NoteDetail note : notes) {
+            final JSONObject noteData = new JSONObject();
+            try {
+                noteData.put("type", 38);
+                noteData.put("LinkID", note.getLinkID());
+                if (!TextUtils.isEmpty(note.getLinkProperty())) {
+                    noteData.put("LinkProperty", new JSONObject(note.getLinkProperty()));
+                }
+
+                Log.e("draw_note", "data:" + noteData.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (wv_show != null) {
+                        wv_show.load("javascript:PlayActionByTxt('" + noteData + "')", null);
+                    }
+                }
+            });
+        }
     }
 
 }

@@ -64,6 +64,7 @@ import android.widget.Toast;
 
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.app.App;
+import com.kloudsync.techexcel2.bean.NoteDetail;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.dialog.AddFileFromFavoriteDialog;
 import com.kloudsync.techexcel2.help.PopAlbums;
@@ -2657,6 +2658,18 @@ public class WatchCourseActivity2 extends BaseActivity implements View.OnClickLi
                         }
                     }
                 });
+            }
+        });
+
+        ServiceInterfaceTools.getinstance().getNoteListV2(AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + 0 + "&documentItemID=" + currentAttachmentId + "&pageNumber=" + currentAttachmentPage + "&userID=" + AppConfig.UserID, ServiceInterfaceTools.GETNOTELIST, new ServiceInterfaceListener() {
+            @Override
+            public void getServiceReturnData(Object object) {
+                List<NoteDetail> noteDetails = (List<NoteDetail>) object;
+                if (noteDetails != null && noteDetails.size() > 0) {
+//                    {"type":38,"LinkID":123,"LinkProperty":{"X":0.2683315621679065,"Y":0.37898089171974525}}
+                    notifyDrawNotes(noteDetails);
+
+                }
             }
         });
 
@@ -6300,6 +6313,30 @@ public class WatchCourseActivity2 extends BaseActivity implements View.OnClickLi
                 }
             }, 500);
             bindToBigVideoView(mUidsList3);
+        }
+    }
+
+    private void notifyDrawNotes(List<NoteDetail> notes) {
+        for (NoteDetail note : notes) {
+            final JSONObject noteData = new JSONObject();
+            try {
+                noteData.put("type", 38);
+                noteData.put("LinkID", note.getLinkID());
+                if (!TextUtils.isEmpty(note.getLinkProperty())) {
+                    noteData.put("LinkProperty", new JSONObject(note.getLinkProperty()));
+                }
+                Log.e("draw_note", "data:" + noteData.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (wv_show != null) {
+                        wv_show.load("javascript:PlayActionByTxt('" + noteData + "')", null);
+                    }
+                }
+            });
         }
     }
 

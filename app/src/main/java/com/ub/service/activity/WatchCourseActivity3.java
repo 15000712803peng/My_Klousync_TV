@@ -85,6 +85,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.app.App;
 import com.kloudsync.techexcel2.bean.EventUserName;
+import com.kloudsync.techexcel2.bean.NoteDetail;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.dialog.AddFileFromFavoriteDialog;
 import com.kloudsync.techexcel2.dialog.TeamSpaceInterfaceListener;
@@ -205,7 +206,7 @@ import static com.ub.techexcel.tools.ServiceInterfaceTools.TV_NOT_FOLLOW;
 /**
  * Created by wang on 2017/6/16.
  */
-public class WatchCourseActivity3 extends BaseActivity implements View.OnClickListener, AGEventHandler, VideoGestureRelativeLayout.VideoGestureListener, AddFileFromFavoriteDialog.OnFavoriteDocSelectedListener, AddFileFromDocumentDialog.OnDocSelectedListener,KeyboardEventDispatherListener {
+public class WatchCourseActivity3 extends BaseActivity implements View.OnClickListener, AGEventHandler, VideoGestureRelativeLayout.VideoGestureListener, AddFileFromFavoriteDialog.OnFavoriteDocSelectedListener, AddFileFromDocumentDialog.OnDocSelectedListener, KeyboardEventDispatherListener {
 
     private String targetUrl;
     private String newPath;
@@ -248,7 +249,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     private Customer teacherCustomer = new Customer();
     private PowerManager pm;
     private PowerManager.WakeLock wl;
-
 
 
     /**
@@ -382,11 +382,11 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     @Override
     public boolean onKeyEventEnterDispather(View targetView) {
-        if(menu_linearlayout.getVisibility() != View.VISIBLE){
+        if (menu_linearlayout.getVisibility() != View.VISIBLE) {
             return false;
         }
-        if(targetView != null){
-            switch (targetView.getId()){
+        if (targetView != null) {
+            switch (targetView.getId()) {
                 case R.id.keyboard_file:
                     onKeyboardFileClicked();
                     onKeyboardMenuClicked();
@@ -401,10 +401,10 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(),"spinner speaker enter",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "spinner speaker enter", Toast.LENGTH_SHORT).show();
                         }
                     });
-                    if(audioChannelPopup!= null){
+                    if (audioChannelPopup != null) {
                         audioChannelPopup.getKeyboardSpinnerSpeaker().performClick();
                     }
                     break;
@@ -412,11 +412,11 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(),"spinner speaker enter",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "spinner speaker enter", Toast.LENGTH_SHORT).show();
                         }
                     });
                     audioChannelLayout.setVisibility(View.GONE);
-                    if(audioChannelPopup != null){
+                    if (audioChannelPopup != null) {
                         audioChannelPopup = null;
                     }
                     break;
@@ -425,7 +425,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         return false;
     }
 
-    AudioChannelPopup  audioChannelPopup;
+    AudioChannelPopup audioChannelPopup;
 
     private void onKeyboardAudioSettingClicked() {
         audioChannelPopup = new AudioChannelPopup(this, audioChannelLayout);
@@ -448,7 +448,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         @Override
         public void handleMessage(Message msg) {
             final WatchCourseActivity3 activity3 = watchCourseActivity3WeakReference.get();
-            if (activity3 != null){
+            if (activity3 != null) {
                 try {
                     {
                         switch (msg.what) {
@@ -545,13 +545,13 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                                     }
                                 }
                                 if (isHavePresenter()) {
-                                    if(wv_show != null){
+                                    if (wv_show != null) {
                                         wv_show.load("javascript:ShowToolbar(" + true + ")", null);
                                         wv_show.load("javascript:Record()", null);
                                     }
 
                                 } else {
-                                    if(wv_show != null){
+                                    if (wv_show != null) {
                                         wv_show.load("javascript:ShowToolbar(" + false + ")", null);
                                         wv_show.load("javascript:StopRecord()", null);
                                     }
@@ -668,7 +668,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                         }
                         super.handleMessage(msg);
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
             }
@@ -753,7 +753,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             newPath = lineItem.getNewPath();
 
             Log.e("WatchCourseActivity3", "attachmentId:" + currentAttachmentId + ", newPath" + newPath);
-            if(wv_show == null){
+            if (wv_show == null) {
                 wv_show = findViewById(R.id.wv_show);
             }
 
@@ -909,14 +909,14 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         isInClassroom = getIntent().getBooleanExtra("isInClassroom", false);
         Log.e("WatchCourseActivity3", "on create ,targetUrl:" + targetUrl + "  " + "" + "  meetingId: " + meetingId + "  identity : " + identity + "    isInstantMeeting :" + isInstantMeeting + "   lession: " + lessonId);
         imageLoader = new ImageLoader(this);
-        isMeetingStarted = getIntent().getBooleanExtra("is_meeting",false);
+        isMeetingStarted = getIntent().getBooleanExtra("is_meeting", false);
 //        if (meetingId.contains(",")) {
 //            lessonId = meetingId.substring(0, meetingId.lastIndexOf(","));
 //
 //        } else {
 //            isMeetingStarted = true;
 //        }
-        meetingType = getIntent().getIntExtra("meeting_type",2);
+        meetingType = getIntent().getIntExtra("meeting_type", 2);
         cache = new File(Environment.getExternalStorageDirectory(), "Image");
         if (!cache.exists()) {
             cache.mkdirs();
@@ -954,12 +954,10 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
         IntentFilter intentFilter4 = new IntentFilter();
         intentFilter4.addAction("com.kloudsync.techexcel2.username_receive");
-        registerReceiver( userNameReceiver, intentFilter4);
+        registerReceiver(userNameReceiver, intentFilter4);
         requestBindUserName();
         sendJoinMeetingMessage(meetingId);
 //        initdefault();
-
-
 
 
     }
@@ -1134,6 +1132,15 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     private int startYinxiangTime = 0;
 
+    private boolean isMeetingIdDigital(String meetingId){
+        for(int i = 0 ; i < meetingId.length(); ++i){
+            if(!Character.isDigit(meetingId.charAt(i))){
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void doJOIN_MEETING(String msg) {
         try {
             JSONObject jsonObject = new JSONObject(msg);
@@ -1141,14 +1148,16 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             JSONObject retdata = jsonObject.getJSONObject("retData");
             JSONArray jsonArray = retdata.getJSONArray("usersList");
             lessonId = retdata.getString("lessonId");
-            Log.e("WatchCourseActivity3","check_lessonId:" + lessonId);
-            if(TextUtils.isEmpty(lessonId) || lessonId.equals("0")){
-                Log.e("WatchCourseActivity3","lession id is illegal,lession id:" + lessonId);
-                sendJoinMeetingMessage(meetingId);
-                return;
+            Log.e("WatchCourseActivity3", "check_lessonId:" + lessonId);
+            if (TextUtils.isEmpty(lessonId) || lessonId.equals("0")) {
+                Log.e("WatchCourseActivity3", "lession id is illegal,lession id:" + lessonId);
+//                sendJoinMeetingMessage(meetingId);
+                if(isMeetingIdDigital(meetingId)){
+                    lessonId = meetingId;
+                }
             }
 
-            if(retdata.has("type")){
+            if (retdata.has("type")) {
                 meetingType = retdata.getInt("type");
             }
             List<Customer> joinlist = Tools.getUserListByJoinMeeting(jsonArray);
@@ -1159,7 +1168,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             currentMaxVideoUserId = getRetCodeByReturnData2("currentMaxVideoUserId", msg);
             mViewType = Integer.parseInt(currentMode);
             isMeetingStarted = meetingType == 0 ? true : false;
-            Log.e("WatchCourseActivity3","doJOIN_MEETING,isMeetingStarted:" + isMeetingStarted);
+            Log.e("WatchCourseActivity3", "doJOIN_MEETING,isMeetingStarted:" + isMeetingStarted);
             if (!isMeetingStarted) {
             } else {
 //                showAgoraOptionsDialog();
@@ -1191,7 +1200,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             String[] page = currentpage.split("-");
             currentItemId = page[0];
             currentAttachmentPage = page[1];
-            Log.e("WatchCourseActivity3","do join meeting current file id:" + currentItemId + ",current file page index:" + currentAttachmentPage);
+            Log.e("WatchCourseActivity3", "do join meeting current file id:" + currentItemId + ",current file page index:" + currentAttachmentPage);
             Message message1 = Message.obtain();
             message1.obj = joinlist;
             message1.what = AppConfig.SUCCESS;
@@ -1265,7 +1274,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         joinChannel();
     }
 
-    private void joinChannel(){
+    private void joinChannel() {
 
 
         rtcEngine().setChannelProfile(io.agora.rtc.Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
@@ -1285,8 +1294,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     Toast tt;
 
 
-
-    private void requestBindUserName(){
+    private void requestBindUserName() {
         LoginGet lg = new LoginGet();
         lg.setDetailGetListener(new LoginGet.DetailGetListener() {
             @Override
@@ -1295,7 +1303,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.e("WatchCourseActivity3","requestBindUserName,userName:" + userName);
+                        Log.e("WatchCourseActivity3", "requestBindUserName,userName:" + userName);
                         bindDevice();
                     }
                 });
@@ -1309,19 +1317,20 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         });
         lg.CustomerDetailRequest(getApplicationContext(), AppConfig.BINDUSERID);
     }
+
     private int audioTime = 0;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
-            Log.e("WatchCourseActivity3","broadcastReceiver,message:"  + message);
+            Log.e("WatchCourseActivity3", "broadcastReceiver,message:" + message);
             if (message.equals("START_JOIN_MEETING")) {
                 meetingId = intent.getStringExtra("meeting_id");
-                meetingType = intent.getIntExtra(" meeting_type",-1);
-                Log.e("WatchCourseActivity3","broadcastReceiver,message:"  + message + ",meeting_id:" + meetingId + ",meetingType:" + meetingType);
+                meetingType = intent.getIntExtra(" meeting_type", -1);
+                Log.e("WatchCourseActivity3", "broadcastReceiver,message:" + message + ",meeting_id:" + meetingId + ",meetingType:" + meetingType);
                 gotoMeeting();
             }
-            if(message.equals("END_MEETING")){
+            if (message.equals("END_MEETING")) {
                 sendLeaveMeetingMessage();
                 finish();
                 return;
@@ -1431,7 +1440,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 //                        documentMsg.obj = lineitem;
 //                        documentMsg.what = 0x1205;
 //                        handler.sendMessage(documentMsg);
-                          followChangeFile(lineitem);
+                        followChangeFile(lineitem);
                     } else if (jsonObject.getInt("actionType") == 9) { // 直播视频大小切换
                         Log.e("WatchCourseActivity3", "currentMode:" + currentMode);
                         if (currentMode.equals("4")) {
@@ -1474,6 +1483,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                             }
                         });
                     } else if (jsonObject.getInt("actionType") == 23) {
+
                         Log.e("WatchCourseActivity3", "mediaPlayer:" + jsonObject.toString());
                         final int stat = jsonObject.getInt("stat");
                         final String soundtrackID = jsonObject.getString("soundtrackId");
@@ -1828,7 +1838,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     private void sendStringBySocket2(String action, String sessionId, String username, String meetingId2,
                                      String itemId, boolean isPresenter, String clientVersion, boolean isLogin, int role, int isInstantMeeting) {
         try {
-            Log.e("WatchCourseActivity3","meeting type:" + meetingType);
+            Log.e("WatchCourseActivity3", "meeting type:" + meetingType);
             JSONObject loginjson = new JSONObject();
             loginjson.put("action", action);
             loginjson.put("sessionId", sessionId);
@@ -1838,6 +1848,9 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             loginjson.put("role", role);
             loginjson.put("type", meetingType);
             loginjson.put("isInstantMeeting", isInstantMeeting);
+            if(TextUtils.isEmpty(lessonId)){
+                lessonId = "0";
+            }
             loginjson.put("lessonId", lessonId);
             if (isInClassroom) {
                 loginjson.put("isInClassroom", 1);
@@ -1905,12 +1918,12 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         leavepre = (TextView) findViewById(R.id.leavepre);
         leavepre.setOnClickListener(this);
         llpre.setOnClickListener(this);
-        bindUserVoiceText  = (TextView) findViewById(R.id.binddevice);
+        bindUserVoiceText = (TextView) findViewById(R.id.binddevice);
         wv_show = (XWalkView) findViewById(R.id.wv_show);
         wv_show.setZOrderOnTop(false);
         wv_show.addJavascriptInterface(WatchCourseActivity3.this, "AnalyticsWebInterface");
         wv_show.getSettings().setDomStorageEnabled(true);
-        simulateKeyboard = (SimulateDirectionKeyboardView)findViewById(R.id.simulate_keybord);
+        simulateKeyboard = (SimulateDirectionKeyboardView) findViewById(R.id.simulate_keybord);
         simulateKeyboard.setKeyboardEventReceiveListener(keyboardSupporter);
 
         audioChannelLayout = (LinearLayout) findViewById(R.id.layout_audio_channel);
@@ -2121,7 +2134,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         keyboardSupporter.addKeyboardView(closeView);
 
         keyboardSupporter.init();
-
 
 
         handler = new MyHandler(this);
@@ -2507,9 +2519,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     Uploadao uploadao = new Uploadao();
 
 
-
     private void JsonDown() {
-        if(TextUtils.isEmpty(targetUrl)){
+        if (TextUtils.isEmpty(targetUrl)) {
             ServiceInterfaceTools.getinstance().queryDocument(AppConfig.URL_LIVEDOC + "queryDocument", ServiceInterfaceTools.QUERYDOCUMENT,
                     newPath, new ServiceInterfaceListener() {
                         @Override
@@ -2542,7 +2553,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                             }
                         }
                     });
-        }else {
+        } else {
             if (crpage == 0) {
                 downloadPdf(targetUrl, 1);
             } else {
@@ -2666,8 +2677,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             Log.e("WatchCourseActivity3", "downloadPdf, 本地文件存在  show pdf 地址  " + showpdfurl + "  " + page + "  " + currentBlankPageNumber + "--Thread:" + Thread.currentThread());
             currentAttachmentPage = page + "";
             AppConfig.currentPageNumber = currentAttachmentPage;
-            if(wv_show == null){
-                wv_show = (XWalkView)findViewById(R.id.wv_show);
+            if (wv_show == null) {
+                wv_show = (XWalkView) findViewById(R.id.wv_show);
             }
             wv_show.load("javascript:ShowPDF('" + showpdfurl + "', " + page + ",0,'" + currentAttachmentId + "')", null);
             wv_show.load("javascript:Record()", null);
@@ -2734,11 +2745,9 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     private RelativeLayout preparedownprogress;
 
 
-
-
     private void downEveryOnePdf(final String url, final int currentpageNum) {
-        Log.e("WatchCourseActivity3","downEveryOnePdf,url:" + url);
-        if(TextUtils.isEmpty(url)){
+        Log.e("WatchCourseActivity3", "downEveryOnePdf,url:" + url);
+        if (TextUtils.isEmpty(url)) {
             return;
         }
         if (currentpageNum <= pageCount && currentpageNum >= 0) {
@@ -2808,8 +2817,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     }
 
 
-
-
     private void afterDownloadFile(final String url, final int currentpageNum) {
         runOnUiThread(new Runnable() {
             @Override
@@ -2820,8 +2827,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             }
         });
     }
-
-
 
 
     private void getLineAction(final String pageNum, final boolean isPlaying) {
@@ -2843,7 +2848,19 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                             + "&soundtrackID=" + (soundtrackID == -1 ? 0 : soundtrackID)
                             + "&displayDrawingLine=" + (isPlaying ? 0 : 1);
                     jsonObject = ConnectService.getIncidentbyHttpGet(url);
-                    Log.e("WatchCourseActivity3", "getLineAction,url:"+url + "  GetPageObjects response:  " + jsonObject.toString());
+                    ServiceInterfaceTools.getinstance().getNoteListV2(AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + 0 + "&documentItemID=" + currentAttachmentId + "&pageNumber=" + currentAttachmentPage + "&userID=" + AppConfig.UserID, ServiceInterfaceTools.GETNOTELIST, new ServiceInterfaceListener() {
+                        @Override
+                        public void getServiceReturnData(Object object) {
+                            List<NoteDetail> noteDetails = (List<NoteDetail>) object;
+                            if (noteDetails != null && noteDetails.size() > 0) {
+//                    {"type":38,"LinkID":123,"LinkProperty":{"X":0.2683315621679065,"Y":0.37898089171974525}}
+                                notifyDrawNotes(noteDetails);
+
+                            }
+                        }
+                    });
+
+                    Log.e("WatchCourseActivity3", "getLineAction,url:" + url + "  GetPageObjects response:  " + jsonObject.toString());
                     int retCode = jsonObject.getInt("RetCode");
                     switch (retCode) {
                         case 0:
@@ -2876,8 +2893,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             }
         }).start();
     }
-
-
 
 
     public String EncoderByMd5(String str) {
@@ -2920,7 +2935,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         }
         return client;
     }
-
 
 
     /**
@@ -3242,8 +3256,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         @Override
         public void onReceive(Context context, Intent intent) {
             String name = intent.getStringExtra("user_name");
-            Log.e("WatchCourseActivity3","receiver user name:" + name);
-            if(!TextUtils.isEmpty(name)){
+            Log.e("WatchCourseActivity3", "receiver user name:" + name);
+            if (!TextUtils.isEmpty(name)) {
                 userName = name;
 //                bindDevice();
             }
@@ -4292,7 +4306,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     }
 
     private String firstStatus = "0";
-    private void showAgoraOptionsDialog(){
+
+    private void showAgoraOptionsDialog() {
         if (webCamPopuP != null && webCamPopuP.isShowing()) {
             webCamPopuP = null;
         }
@@ -4382,7 +4397,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                             @Override
                             public void run() {
                                 JSONObject jsonObject = ConnectService.submitDataByJson(AppConfig.URL_PUBLIC + "Lesson/SaveInstantLesson?lessonID=" + meetingId, null);
-                                Log.e("WatchCourseActivity3", "SaveInstantLesson,response:"+jsonObject.toString());
+                                Log.e("WatchCourseActivity3", "SaveInstantLesson,response:" + jsonObject.toString());
                                 try {
                                     if (jsonObject.getInt("RetCode") == 0) {
                                         notifyend();
@@ -4639,7 +4654,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                             js.put("itemIDs", favorite.getItemID());
                             JSONObject jsonObject = ConnectService.submitDataByJson
                                     (AppConfig.URL_PUBLIC + "EventAttachment/UploadFromFavorite?lessonID=" + lessonId + "&itemIDs=" + favorite.getItemID(), js);
-                            Log.e("WatchCourseActivity3", "UploadFromFavorite,request param:"+js.toString() + ",response:  " + jsonObject.toString());
+                            Log.e("WatchCourseActivity3", "UploadFromFavorite,request param:" + js.toString() + ",response:  " + jsonObject.toString());
                             Message msg = Message.obtain();
                             msg.what = 0x6002;
                             msg.obj = type;
@@ -5104,21 +5119,21 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 List<LineItem> list = (List<LineItem>) object;
                 documentList.clear();
                 documentList.addAll(list);
-                initpdfdata(documentList,currentItemId);
+                initpdfdata(documentList, currentItemId);
             }
         });
     }
 
     private void initpdfdata(final List<LineItem> documentList, String currentFileId) {
 
-        Log.e("WatchCourseActivity3","initpdfdata，documentList：" + documentList.size() + ", currentFileId:" + currentFileId);
+        Log.e("WatchCourseActivity3", "initpdfdata，documentList：" + documentList.size() + ", currentFileId:" + currentFileId);
         if (documentList == null || documentList.size() == 0 || TextUtils.isEmpty(currentFileId)) {
             return;
         }
         lineItem = null;
-        if(currentFileId.equals("0") || documentList.size() == 1){
+        if (currentFileId.equals("0") || documentList.size() == 1) {
             lineItem = documentList.get(0);
-        }else {
+        } else {
             LineItem file = new LineItem();
             file.setItemId(currentFileId);
             int currentFileIndex = documentList.indexOf(file);
@@ -5128,7 +5143,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             lineItem = documentList.get(currentFileIndex);
         }
 
-        if(lineItem == null){
+        if (lineItem == null) {
             return;
         }
         lineItem.setSelect(true);
@@ -6054,7 +6069,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
 
     private boolean isHavePresenter() {
-        if(AppConfig.BINDUSERID.equals(currentPresenterId)){
+        if (AppConfig.BINDUSERID.equals(currentPresenterId)) {
 
         }
         return true;
@@ -6171,7 +6186,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             unregisterReceiver(refeshMeetingBroadcast);
         }
 
-        if(userNameReceiver != null){
+        if (userNameReceiver != null) {
             unregisterReceiver(userNameReceiver);
         }
 
@@ -6329,32 +6344,31 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     private void bindDevice() {
 
-        if(TextUtils.isEmpty(userName)){
+        if (TextUtils.isEmpty(userName)) {
             userName = "user";
-        }else {
-            if(userName.length() > 6){
-                userName = userName.substring(0,5) + "..";
+        } else {
+            if (userName.length() > 6) {
+                userName = userName.substring(0, 5) + "..";
             }
         }
 
         if (bindUid == 0) {
-            Log.e("user_name_test","bind uid == 0");
+            Log.e("user_name_test", "bind uid == 0");
             return;
         }
 
-        Log.e("user_name_test","set user name:" + userName);
+        Log.e("user_name_test", "set user name:" + userName);
         if (isClose) {
-            bindUserVoiceText.setText("Voice from " + userName+": off");
+            bindUserVoiceText.setText("Voice from " + userName + ": off");
             worker().getRtcEngine().muteRemoteAudioStream(bindUid, true);
         } else {
-            bindUserVoiceText.setText("Voice from " + userName+": on");
+            bindUserVoiceText.setText("Voice from " + userName + ": on");
 //            worker().getRtcEngine().muteRemoteAudioStream(bindUid, true);
             worker().getRtcEngine().muteRemoteAudioStream(bindUid, false);
         }
     }
 
     private int bindUid = 0;
-
 
 
     @Override
@@ -6841,7 +6855,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 //            return false;
 //        }
 
-        Toast.makeText(this,"event:" + event.getKeyCode(),Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "event:" + event.getKeyCode(), Toast.LENGTH_SHORT).show();
         if (event.getAction() != KeyEvent.ACTION_DOWN) {
             return super.dispatchKeyEvent(event);
         }
@@ -6851,11 +6865,10 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             return false;
         }
 
-
-        if(audioChannelPopup != null && audioChannelLayout.getVisibility() == View.VISIBLE){
-            if(keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
-                    keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
-                Log.e("dispatchKeyEvent","audioChannelPopup receiver key event");
+        if (audioChannelPopup != null && audioChannelLayout.getVisibility() == View.VISIBLE) {
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
+                    keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+                Log.e("dispatchKeyEvent", "audioChannelPopup receiver key event");
                 audioChannelPopup.getKeyboardSupporter().setKeyboardEventDispatherListener(this);
                 return audioChannelPopup.getKeyboardSupporter().onKeyEventReceive(event);
             }
@@ -6863,10 +6876,10 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         }
 
 
-        if(menu_linearlayout.getVisibility() == View.VISIBLE){
-            Log.e("dispatchKeyEvent","menu_linearlayout receiver key event");
-            if(keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
-                    keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
+        if (menu_linearlayout.getVisibility() == View.VISIBLE) {
+            Log.e("dispatchKeyEvent", "menu_linearlayout receiver key event");
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
+                    keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
                 keyboardSupporter.setKeyboardEventDispatherListener(this);
                 return keyboardSupporter.onKeyEventReceive(event);
             }
@@ -6874,7 +6887,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
 
         if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-            if(audioChannelLayout.getVisibility() == View.VISIBLE){
+            if (audioChannelLayout.getVisibility() == View.VISIBLE) {
                 audioChannelLayout.setVisibility(View.GONE);
                 audioChannelPopup = null;
             }
@@ -6900,7 +6913,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 //            }
             return false;
 
-        } else  {
+        } else {
             return super.dispatchKeyEvent(event);
         }
     }
@@ -6940,8 +6953,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         @Override
         public void onReceive(Context context, Intent intent) {
             String meetingId = intent.getStringExtra("meeting_id");
-            int type = intent.getIntExtra("meeting_type",-1);
-            if(type != -1){
+            int type = intent.getIntExtra("meeting_type", -1);
+            if (type != -1) {
                 meetingType = type;
             }
 //            Log.e("refeshMeetingBroadcast", "meeting_id:" + meetingId);
@@ -6972,11 +6985,11 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         }
     }
 
-    private void onKeyboardCloseClicked(){
+    private void onKeyboardCloseClicked() {
         requestNotFollow();
     }
 
-    private void onKeyboardFileClicked(){
+    private void onKeyboardFileClicked() {
         documentPopupWindow.showAtLocation(wv_show, Gravity.BOTTOM, 0, 0);
 //        menu_linearlayout.setVisibility(View.GONE);
 //        menu.setImageResource(R.drawable.icon_menu);
@@ -6995,7 +7008,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
         sendLeaveMeetingMessage();
         getSharedPreferences(AppConfig.LOGININFO,
-                MODE_PRIVATE).edit().putString("tv_bind_user","").commit();
+                MODE_PRIVATE).edit().putString("tv_bind_user", "").commit();
         AppConfig.BINDUSERID = "";
 
         new Thread(new Runnable() {
@@ -7011,15 +7024,15 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         }).start();
     }
 
-    private void saveUserSetting(boolean isMicroOn,int voiceType){
-        SharedPreferences.Editor editor= getSharedPreferences(AppConfig.LOGININFO,
+    private void saveUserSetting(boolean isMicroOn, int voiceType) {
+        SharedPreferences.Editor editor = getSharedPreferences(AppConfig.LOGININFO,
                 MODE_PRIVATE).edit();
-        editor.putBoolean("micro_on",isMicroOn);
-        editor.putInt("voice_type",voiceType);
+        editor.putBoolean("micro_on", isMicroOn);
+        editor.putInt("voice_type", voiceType);
         editor.commit();
     }
 
-    private void onKeyboardMenuClicked(){
+    private void onKeyboardMenuClicked() {
         if (menu_linearlayout.getVisibility() == View.VISIBLE) {
             keyboardMenu.setBackground(null);
             menu_linearlayout.setVisibility(View.GONE);
@@ -7051,7 +7064,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     @org.xwalk.core.JavascriptInterface
     public void reflect(String result) {
         Log.e("JavascriptInterface", "reflect-->result:" + result + ",thread:" + Thread.currentThread());
-        if(isHavePresenter()){
+        if (isHavePresenter()) {
             String newresult = Tools.getBase64(result).replaceAll("[\\s*\t\n\r]", "");
             try {
                 JSONObject loginjson = new JSONObject();
@@ -7122,7 +7135,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
      */
     @org.xwalk.core.JavascriptInterface
     public void afterLoadFileFunction() {
-        Log.e("JavascriptInterface", "afterLoadFileFunction-->"+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "afterLoadFileFunction-->" + ",thread:" + Thread.currentThread());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -7135,13 +7148,13 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                     handler.sendMessage(msg3);
                 }
                 if (isHavePresenter()) {
-                    if(wv_show != null){
+                    if (wv_show != null) {
                         wv_show.load("javascript:ShowToolbar(" + true + ")", null);
                         wv_show.load("javascript:Record()", null);
                     }
 
                 } else {
-                    if(wv_show != null){
+                    if (wv_show != null) {
                         wv_show.load("javascript:ShowToolbar(" + false + ")", null);
                         wv_show.load("javascript:StopRecord()", null);
                     }
@@ -7159,7 +7172,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
      */
     @org.xwalk.core.JavascriptInterface
     public void autoChangeFileFunction(int diff) {
-        Log.e("JavascriptInterface", "autoChangeFileFunction-->diff:" + diff+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "autoChangeFileFunction-->diff:" + diff + ",thread:" + Thread.currentThread());
         if (documentList.size() == 0) {
             return;
         }
@@ -7217,7 +7230,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     // 播放视频
     @org.xwalk.core.JavascriptInterface
     public void videoPlayFunction(final int vid) {
-        Log.e("JavascriptInterface", "videoPlayFunction-->vid:" + vid+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "videoPlayFunction-->vid:" + vid + ",thread:" + Thread.currentThread());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -7229,7 +7242,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     //打开
     @org.xwalk.core.JavascriptInterface
     public void videoSelectFunction(String s) {
-        Log.e("JavascriptInterface", "videoSelectFunction-->s:" + s+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "videoSelectFunction-->s:" + s + ",thread:" + Thread.currentThread());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -7244,7 +7257,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     // 录制
     @org.xwalk.core.JavascriptInterface
     public void audioSyncFunction(final int id, final int isRecording) {
-        Log.e("JavascriptInterface", "audioSyncFunction-->id:" + id+",isRecording:" + isRecording+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "audioSyncFunction-->id:" + id + ",isRecording:" + isRecording + ",thread:" + Thread.currentThread());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -7258,7 +7271,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
      */
     @org.xwalk.core.JavascriptInterface
     public void afterLoadPageFunction() {
-        Log.e("JavascriptInterface", "afterLoadPageFunction-->"+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "afterLoadPageFunction-->" + ",thread:" + Thread.currentThread());
         crpage = (int) Float.parseFloat(currentAttachmentPage);
         Log.e("WatchCourseActivity3", "afterLoadPageFunction,url:  " + targetUrl + "        " + crpage + "      newpath:  " + newPath);
         runOnUiThread(new Runnable() {
@@ -7271,7 +7284,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     @org.xwalk.core.JavascriptInterface
     public void preLoadFileFunction(final String url, final int currentpageNum, final boolean showLoading) {
-        Log.e("JavascriptInterface", "preLoadFileFunction-->url:" + url + ",currentpageNum:" + currentpageNum +",showLoading:" + showLoading+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "preLoadFileFunction-->url:" + url + ",currentpageNum:" + currentpageNum + ",showLoading:" + showLoading + ",thread:" + Thread.currentThread());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -7319,7 +7332,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
     @org.xwalk.core.JavascriptInterface
     public void showErrorFunction(final String error) {
-        Log.e("JavascriptInterface", "showErrorFunction-->error:" + error+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "showErrorFunction-->error:" + error + ",thread:" + Thread.currentThread());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -7345,7 +7358,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
      */
     @org.xwalk.core.JavascriptInterface
     public void addBlankPageFunction(final String pageid) {
-        Log.e("JavascriptInterface", "addBlankPageFunction-->pageid:" + pageid+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "addBlankPageFunction-->pageid:" + pageid + ",thread:" + Thread.currentThread());
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -7374,7 +7387,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     @org.xwalk.core.JavascriptInterface
     public void afterChangePageFunction(final String pageNum, int type) {
         // 1:play,2:showdocument,3:next,4:prev,5:topage,  0 :未知
-        Log.e("JavascriptInterface", "afterChangePageFunction-->pageNum:" + pageNum+",thread:" + Thread.currentThread());
+        Log.e("JavascriptInterface", "afterChangePageFunction-->pageNum:" + pageNum + ",thread:" + Thread.currentThread());
         currentAttachmentPage = pageNum + "";
         AppConfig.currentPageNumber = currentAttachmentPage;
         String url;
@@ -7388,6 +7401,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             url = AppConfig.URL_PUBLIC + "PageObject/GetPageObjects?lessonID=" + lessonId + "&itemID=" + currentItemId +
                     "&pageNumber=" + pageNum;
         }
+
         Log.e("WatchCourseActivity3", "afterChangePageFunction,url:" + url);
         MeetingServiceTools.getInstance().getGetPageObjects(url, MeetingServiceTools.GETGETPAGEOBJECTS, new ServiceInterfaceListener() {
             @Override
@@ -7404,11 +7418,22 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                                 if (audiosyncll.getVisibility() == (View.VISIBLE)) {
                                     wv_show.load("javascript:ClearPageAndAction()", null);
                                 }
-                            }
-
+                            };
                         }
                     }
                 });
+            }
+        });
+
+        ServiceInterfaceTools.getinstance().getNoteListV2(AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + 0 + "&documentItemID=" + currentAttachmentId + "&pageNumber=" + currentAttachmentPage + "&userID=" + AppConfig.UserID, ServiceInterfaceTools.GETNOTELIST, new ServiceInterfaceListener() {
+            @Override
+            public void getServiceReturnData(Object object) {
+                List<NoteDetail> noteDetails = (List<NoteDetail>) object;
+                if (noteDetails != null && noteDetails.size() > 0) {
+//                    {"type":38,"LinkID":123,"LinkProperty":{"X":0.2683315621679065,"Y":0.37898089171974525}}
+                    notifyDrawNotes(noteDetails);
+
+                }
             }
         });
 
@@ -7433,6 +7458,30 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             e.printStackTrace();
         }
 
+    }
+
+    private void notifyDrawNotes(List<NoteDetail> notes) {
+        for (NoteDetail note : notes) {
+            final JSONObject noteData = new JSONObject();
+            try {
+                noteData.put("type", 38);
+                noteData.put("LinkID", note.getLinkID());
+                if (!TextUtils.isEmpty(note.getLinkProperty())) {
+                    noteData.put("LinkProperty", new JSONObject(note.getLinkProperty()));
+                }
+                Log.e("draw_note", "data:" + noteData.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (wv_show != null) {
+                        wv_show.load("javascript:PlayActionByTxt('" + noteData + "')", null);
+                    }
+                }
+            });
+        }
     }
 
 

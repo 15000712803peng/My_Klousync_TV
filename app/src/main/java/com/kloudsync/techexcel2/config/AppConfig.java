@@ -38,7 +38,6 @@ public class AppConfig {
     public static String liveToken = "02912174-3dcb-49eb-b9fa-6d90b390d495";
     public static String  meetingServer = "https://wss.peertime.cn:8443/MeetingServer";
 
-
     //测试
 //    public static String URL_PUBLIC = "https://testapi.peertime.cn/peertime/V1/";
 //    public static String COURSE_SOCKET = "ws://testwss.peertime.cn:8443/MeetingServer/websocket";
