@@ -17,6 +17,9 @@
     <string name="contact">好友</string>
     <string name="community">专家课程</string>
     <string name="personal_center">个人中心</string>
+    <string name="mtNote">用户笔记</string>
+    <string name="mtdelete">删除</string>
+    <string name="move">移动</string>
 
     <string-array name="tabname">
         <item>对话</item>

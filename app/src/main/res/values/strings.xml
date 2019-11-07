@@ -17,6 +17,9 @@
     <string name="upcoming">Upcoming</string>
     <string name="pastdue">Past Due</string>
     <string name="pastfinish">Finish</string>
+    <string name="mtNote">User Note</string>
+    <string name="mtdelete">Delete</string>
+    <string name="move">Move</string>
     <string-array name="tabname">
         <item>Chat</item>
         <item>Course</item>

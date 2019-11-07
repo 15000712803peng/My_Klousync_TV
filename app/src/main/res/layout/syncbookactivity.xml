@@ -494,7 +494,7 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:paddingTop="2dp"
-            android:visibility="visible">
+            android:visibility="gone">
             <RelativeLayout
                 android:id="@+id/syncdisplayoutline"
                 android:layout_width="match_parent"

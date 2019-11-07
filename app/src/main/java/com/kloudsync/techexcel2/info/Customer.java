@@ -50,7 +50,15 @@ public class Customer implements Serializable {
 
     private boolean isEnterMeeting;
     private boolean isOnline;
+    private int noteCount;
 
+    public int getNoteCount() {
+        return noteCount;
+    }
+
+    public void setNoteCount(int noteCount) {
+        this.noteCount = noteCount;
+    }
 
     public boolean isOnline() {
         return isOnline;

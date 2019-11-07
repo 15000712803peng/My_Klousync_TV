@@ -2220,7 +2220,7 @@ public class WatchCourseActivity2 extends BaseActivity implements View.OnClickLi
     /**
      * 加载PDF
      */
-    @org.xwalk.core.JavascriptInterface
+    @JavascriptInterface
     public void afterLoadPageFunction() {
         crpage = (int) Float.parseFloat(currentAttachmentPage);
         Log.e("当前文档信息", "url  " + targetUrl + "        " + crpage + "      newpath  " + newPath);
@@ -2478,7 +2478,7 @@ public class WatchCourseActivity2 extends BaseActivity implements View.OnClickLi
 
     private RelativeLayout preparedownprogress;
 
-    @org.xwalk.core.JavascriptInterface
+    @JavascriptInterface
     public void preLoadFileFunction(final String url, final int currentpageNum, final boolean showLoading) {
         Log.e("webview-preLoadFile", url + "     currentpageNum   " + currentpageNum + "   showLoading    " + showLoading);
         runOnUiThread(new Runnable() {
@@ -2592,7 +2592,7 @@ public class WatchCourseActivity2 extends BaseActivity implements View.OnClickLi
             }
         }
     }
-    @org.xwalk.core.JavascriptInterface
+    @JavascriptInterface
     public void showErrorFunction(final String error) {
         runOnUiThread(new Runnable() {
             @Override

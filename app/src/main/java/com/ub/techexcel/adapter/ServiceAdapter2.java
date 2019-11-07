@@ -181,10 +181,10 @@ public class ServiceAdapter2 extends BaseAdapter {
     }
 
 
-    private ServiceAdapter2.OnModifyServiceListener onModifyServiceListener;
+    private OnModifyServiceListener onModifyServiceListener;
 
     public void setOnModifyServiceListener(
-            ServiceAdapter2.OnModifyServiceListener onModifyServiceListener) {
+            OnModifyServiceListener onModifyServiceListener) {
         this.onModifyServiceListener = onModifyServiceListener;
     }
 

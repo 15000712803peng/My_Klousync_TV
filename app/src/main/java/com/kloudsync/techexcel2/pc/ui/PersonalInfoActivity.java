@@ -288,8 +288,8 @@ public class PersonalInfoActivity extends SwipeBackActivity {
 				return lruCache.get(key);
 			}
 		};
-		com.android.volley.toolbox.ImageLoader imageLoader = new com.android.volley.toolbox.ImageLoader(requestQueue, imageCache);
-		com.android.volley.toolbox.ImageLoader.ImageListener listener = com.android.volley.toolbox.ImageLoader.getImageListener(tv_head,
+		ImageLoader imageLoader = new ImageLoader(requestQueue, imageCache);
+		ImageLoader.ImageListener listener = ImageLoader.getImageListener(tv_head,
 				R.drawable.hello, R.drawable.hello);
 
 		imageLoader.get(AvatarUrl, listener);

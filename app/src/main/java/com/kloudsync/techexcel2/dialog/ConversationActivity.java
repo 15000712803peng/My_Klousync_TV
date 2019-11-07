@@ -637,7 +637,7 @@ public class ConversationActivity extends FragmentActivity {
             if (ConversationType.GROUP == mConversationType && mTargetId.contains(getResources().getString(R.string.Classroom))) {
                 TextMessage myTextMessage = (TextMessage)message.getContent();
                 myTextMessage.setExtra(AppConfig.UserID);
-                return Message.obtain(message.getTargetId(), Conversation.ConversationType.GROUP, myTextMessage);
+                return Message.obtain(message.getTargetId(), ConversationType.GROUP, myTextMessage);
             }
             return message;
         }
@@ -1082,7 +1082,7 @@ public class ConversationActivity extends FragmentActivity {
 
     @SuppressWarnings("deprecation")
     private void sendMessage(final MessageContent msg) {
-        io.rong.imlib.model.Message myMessage = io.rong.imlib.model.Message.obtain(mTargetId, Conversation.ConversationType.PRIVATE, msg);
+        Message myMessage = Message.obtain(mTargetId, ConversationType.PRIVATE, msg);
         RongIM.getInstance()
 		/*.getRongIMClient()
 		.sendMessage(ConversationType.PRIVATE, mTargetId,
@@ -1102,18 +1102,18 @@ public class ConversationActivity extends FragmentActivity {
 				});*/
                 .sendMessage(myMessage, null, null, new IRongCallback.ISendMessageCallback() {
                     @Override
-                    public void onAttached(io.rong.imlib.model.Message message) {
+                    public void onAttached(Message message) {
 
                     }
 
                     @Override
-                    public void onSuccess(io.rong.imlib.model.Message message) {
+                    public void onSuccess(Message message) {
                         Log.e("lalala", "sendMessage onError");
 
                     }
 
                     @Override
-                    public void onError(io.rong.imlib.model.Message message, RongIMClient.ErrorCode errorCode) {
+                    public void onError(Message message, ErrorCode errorCode) {
                         Log.e("lalala", "sendMessage onError");
 
                     }
@@ -1123,7 +1123,7 @@ public class ConversationActivity extends FragmentActivity {
     @SuppressWarnings("deprecation")
     private void sendGroupMessage(final MessageContent msg) {
 
-        io.rong.imlib.model.Message myMessage = io.rong.imlib.model.Message.obtain(mTargetId, ConversationType.GROUP, msg);
+        Message myMessage = Message.obtain(mTargetId, ConversationType.GROUP, msg);
         RongIM.getInstance()
 		/*.getRongIMClient()
 		.sendMessage(ConversationType.GROUP, mTargetId,
@@ -1143,18 +1143,18 @@ public class ConversationActivity extends FragmentActivity {
 				});*/
                 .sendMessage(myMessage, null, null, new IRongCallback.ISendMessageCallback() {
                     @Override
-                    public void onAttached(io.rong.imlib.model.Message message) {
+                    public void onAttached(Message message) {
 
                     }
 
                     @Override
-                    public void onSuccess(io.rong.imlib.model.Message message) {
+                    public void onSuccess(Message message) {
                         Log.e("lalala", "sendMessage onError");
 
                     }
 
                     @Override
-                    public void onError(io.rong.imlib.model.Message message, RongIMClient.ErrorCode errorCode) {
+                    public void onError(Message message, ErrorCode errorCode) {
                         Log.e("lalala", "sendMessage onError");
 
                     }

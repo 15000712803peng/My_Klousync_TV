@@ -5,7 +5,7 @@ import android.view.View;
 
 public interface KeyboardEventDispatherListener {
 
-    boolean onKeyEventDispather(KeyEvent keyEvent,int viewId);
+    boolean onKeyEventDispather(KeyEvent keyEvent, int viewId);
 
     boolean onMenuEventDispather();
 

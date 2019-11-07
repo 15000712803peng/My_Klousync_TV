@@ -84,14 +84,14 @@
             android:layout_alignParentBottom="true">
 
             <LinearLayout
-                android:padding="3dp"
                 android:id="@+id/keyboard_menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="45dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:padding="3dp">
 
                 <ImageView
                     android:id="@+id/menu"
@@ -203,26 +203,26 @@
             android:paddingTop="2dp"
             android:visibility="gone">
 
-                <RelativeLayout
+            <RelativeLayout
 
-                    android:id="@+id/displayFile"
+                android:id="@+id/displayFile"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/keyboard_file"
                     android:layout_width="match_parent"
-                    android:layout_height="35dp"
+                    android:layout_height="28dp"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:id="@+id/keyboard_file"
-                        android:layout_centerVertical="true"
-                        android:gravity="center_vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="28dp">
-
                     <ImageView
-                        android:layout_marginLeft="8dp"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_centerVertical="true"
+                        android:layout_marginLeft="8dp"
                         android:src="@drawable/icon_menu_file" />
 
                     <TextView
@@ -235,21 +235,49 @@
                         android:textColor="@color/white"
                         android:textSize="14sp" />
 
-                    </LinearLayout>
+                </LinearLayout>
 
-                    <TextView
-                        android:layout_alignParentBottom="true"
-                        android:layout_width="match_parent"
-                        android:layout_height="0.5dp"
-                        android:background="@color/divider_line" />
-
-
-
-                </RelativeLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/divider_line" />
 
 
+            </RelativeLayout>
 
 
+            <RelativeLayout
+                android:id="@+id/syncdisplaynote"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerVertical="true"
+                    android:padding="1dp"
+                    android:src="@drawable/icon_menu_file" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="30dp"
+                    android:text="@string/mtNote"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/divider_line" />
+
+            </RelativeLayout>
 
 
             <RelativeLayout
@@ -403,12 +431,11 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:visibility="gone"
                 android:id="@+id/displayrecord"
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
-                android:orientation="horizontal">
-
+                android:orientation="horizontal"
+                android:visibility="gone">
 
 
                 <ImageView
@@ -445,29 +472,29 @@
 
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:id="@+id/keyboard_audio_setting"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
                     android:layout_centerVertical="true"
                     android:gravity="center_vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp">
+                    android:orientation="horizontal">
 
-                <ImageView
-                    android:layout_marginLeft="8dp"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/set_icon" />
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="8dp"
+                        android:src="@drawable/set_icon" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="12dp"
-                    android:text="Audio Setting"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="12dp"
+                        android:text="Audio Setting"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
@@ -488,29 +515,29 @@
 
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:id="@+id/keyboard_close"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
                     android:layout_centerVertical="true"
                     android:gravity="center_vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp">
+                    android:orientation="horizontal">
 
-                <ImageView
-                    android:layout_marginLeft="8dp"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/close_menu" />
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="8dp"
+                        android:src="@drawable/close_menu" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="12dp"
-                    android:text="Close"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="12dp"
+                        android:text="Close"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
@@ -1148,10 +1175,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"
             android:id="@+id/audiosyncll"
             android:layout_width="360dp"
             android:layout_height="wrap_content"
@@ -1159,36 +1182,40 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="10dp"
             android:alpha="0.7"
-            android:orientation="vertical"
             android:background="@drawable/audioplaystop"
+            android:orientation="vertical"
+            android:paddingBottom="16dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="16dp"
             android:visibility="gone">
 
             <SeekBar
-                android:thumbOffset="0dp"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:thumb="@drawable/seek_bar_thumb"
-                android:progressDrawable="@drawable/progress_drawable"
-                android:maxHeight="3dp"
-                android:minHeight="3dp"
                 android:id="@+id/seekBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:max="100"
-                android:progress="0" />
+                android:maxHeight="3dp"
+                android:minHeight="3dp"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:progress="0"
+                android:progressDrawable="@drawable/progress_drawable"
+                android:thumb="@drawable/seek_bar_thumb"
+                android:thumbOffset="0dp" />
 
             <LinearLayout
-                android:layout_marginTop="6dp"
                 android:layout_width="360dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
+                android:layout_marginTop="6dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/timehidden"
@@ -1208,16 +1235,16 @@
                 </LinearLayout>
 
                 <View
-                    android:layout_marginLeft="16dp"
-                    android:layout_gravity="center_vertical"
-                    android:background="@color/white"
                     android:layout_width="1.5px"
-                    android:layout_height="18dp" />
+                    android:layout_height="18dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="16dp"
+                    android:background="@color/white" />
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
                     <ImageView
 
@@ -1240,11 +1267,11 @@
                 </LinearLayout>
 
                 <View
-                    android:layout_marginLeft="22dp"
-                    android:layout_gravity="center_vertical"
-                    android:background="@color/white"
                     android:layout_width="1.5px"
-                    android:layout_height="18dp" />
+                    android:layout_height="18dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="22dp"
+                    android:background="@color/white" />
 
                 <TextView
                     android:id="@+id/audiotime"
@@ -1256,24 +1283,25 @@
                     android:textColor="@color/white" />
 
                 <View
-                    android:layout_gravity="center_vertical"
-                    android:background="@color/white"
                     android:layout_width="1.5px"
-                    android:layout_height="18dp" />
+                    android:layout_height="18dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/white" />
 
 
                 <ImageView
-                    android:layout_marginLeft="18dp"
                     android:id="@+id/syncicon"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="18dp"
                     android:layout_marginRight="20dp"
                     android:src="@drawable/syncing"
                     android:visibility="visible" />
 
             </LinearLayout>
         </LinearLayout>
+
         <RelativeLayout
             android:id="@+id/filedownprogress"
             android:layout_width="wrap_content"
@@ -1310,13 +1338,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:layout_marginTop="15dp"
             android:background="@drawable/fileprogressbarbg"
             android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp"
             android:visibility="gone">
 
             <TextView
@@ -1332,18 +1360,30 @@
 
         <LinearLayout
             android:id="@+id/layout_audio_channel"
-            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
-            android:visibility="gone"
-            android:layout_height="match_parent">
-            <include layout="@layout/popup_audio_channel"/>
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:visibility="gone">
+
+            <include layout="@layout/popup_audio_channel" />
         </LinearLayout>
 
         <com.kloudsync.techexcel2.view.SimulateDirectionKeyboardView
-            android:layout_width="wrap_content"
             android:id="@+id/simulate_keybord"
-            android:visibility="gone"
-            android:layout_height="wrap_content"></com.kloudsync.techexcel2.view.SimulateDirectionKeyboardView>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"></com.kloudsync.techexcel2.view.SimulateDirectionKeyboardView>
+
+        <TextView
+            android:id="@+id/closenote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.8"
+            android:background="@color/black"
+            android:padding="10dp"
+            android:text="@string/back"
+            android:textColor="@color/black"
+            android:visibility="gone" />
 
 
     </RelativeLayout>
@@ -1356,7 +1396,6 @@
         android:layout_alignParentRight="true"
         android:background="@color/darkblack2"
         android:visibility="gone" />
-
 
 
 </LinearLayout>
