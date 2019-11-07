@@ -1481,6 +1481,9 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                                 syncRoomDocumentPopup.dismiss();
                             }
                         } else if (jsonObject.getInt("stat") == 1) {
+                            if(syncRoomDocumentPopup != null && syncRoomDocumentPopup.isShowing()){
+                                return;
+                            }
                             openDocumentPopup();
 
                         }
