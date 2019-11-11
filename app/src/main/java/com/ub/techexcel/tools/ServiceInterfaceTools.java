@@ -727,7 +727,6 @@ public class ServiceInterfaceTools {
         }).start(ThreadManager.getManager());
     }
 
-
     public void getNoteListV2(final String url, final int code, ServiceInterfaceListener serviceInterfaceListener) {
         putInterface(code, serviceInterfaceListener);
         new ApiTask(new Runnable() {

@@ -1438,7 +1438,9 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                     JSONObject jsonObject = new JSONObject(Tools.getFromBase64(d));
                     if (jsonObject.getInt("actionType") == 2) {  //横竖屏切换
 
-                    } else if (jsonObject.getInt("actionType") == 8) { //切换文档
+                    } else if (jsonObject.getInt("actionType") == 8) {
+                        //切换文档
+                        Log.e("change_file","change file file id:" + jsonObject.getString("itemId"));
                         LineItem lineitem = new LineItem();
                         lineitem.setUrl(jsonObject.getString("attachmentUrl"));
                         lineitem.setHtml5(jsonObject.getBoolean("isH5"));
@@ -1620,6 +1622,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                     e.printStackTrace();
                 }
             }
+
             if (msg_action.equals("KLOUD_CALL_STARTED")) {
                 if (getRetCodeByReturnData2("retCode", msg).equals("1")) {
                     runOnUiThread(new Runnable() {
@@ -1716,6 +1719,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                     if (!TextUtils.isEmpty(data)) {
                         final JSONObject jsonObject = new JSONObject(Tools.getFromBase64(data));
                         String currentItemId2 = jsonObject.getString("currentItemId");
+                        Log.e("change_file","heart beart file id:" + currentItemId2);
                         currentPresenterId = jsonObject.getString("currentPresenter");
                         String currentMode2 = jsonObject.getString("currentMode");
                         if (!currentPresenterId.equals(AppConfig.UserID)) {  //不是presenter
@@ -1740,6 +1744,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                                     }
                                 }
                             }
+
                             Message msg4 = Message.obtain();
                             msg4.obj = currentMode2;
                             msg4.what = 0x1120;
@@ -1783,7 +1788,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             }
 
             if(!lineItem.isSelect()){  //lineitem 不在pdf列表中
-
                 String noteid=lineItem.getItemId();
                 String url=AppConfig.URL_PUBLIC+"DocumentNote/Item?noteID="+noteid;
                 ServiceInterfaceTools.getinstance().getNoteByNoteId(url, ServiceInterfaceTools.GETNOTEBYNOTEID2, new ServiceInterfaceListener() {

@@ -1324,6 +1324,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         lineitem.setHtml5(jsonObject.getBoolean("isH5"));
                         lineitem.setItemId(jsonObject.getString("itemId"));
                         currentAttachmentPage = jsonObject.getString("pageNumber");
+                        Log.e("change_file","change file file id:" + jsonObject.getString("itemId"));
                         Log.e("切换文档", "currentAttachmentPage:" + currentAttachmentPage);
                         AppConfig.currentPageNumber = jsonObject.getString("pageNumber");
 
@@ -1608,6 +1609,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         String currentItemId2 = jsonObject.getString("currentItemId");
                         currentPresenterId = jsonObject.getString("currentPresenter");
                         String currentMode2 = jsonObject.getString("currentMode");
+                        Log.e("change_file","heart beart file id:" + currentItemId2);
                         if (!currentPresenterId.equals(AppConfig.UserID)) {  //不是presenter
                             String currentAttachmentPage2 = jsonObject.getString("currentPageNumber");
                             if (currentItemId2.equals(currentItemId)) {  //当前是同一个文档
