@@ -79,6 +79,7 @@ import com.amazonaws.event.ProgressListener;
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.baidu.platform.comapi.map.C;
 import com.google.gson.Gson;
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.app.App;
@@ -100,12 +101,17 @@ import com.kloudsync.techexcel2.info.ConvertingResult;
 import com.kloudsync.techexcel2.info.Customer;
 import com.kloudsync.techexcel2.info.Favorite;
 import com.kloudsync.techexcel2.info.Uploadao;
+import com.kloudsync.techexcel2.keyboard.KeyboardEventDispatherListener;
+import com.kloudsync.techexcel2.keyboard.KeyboardSupporter;
+import com.kloudsync.techexcel2.keyboard.KeyboardView;
+import com.kloudsync.techexcel2.pc.bean.TeamSpaceBean;
 import com.kloudsync.techexcel2.service.ConnectService;
 import com.kloudsync.techexcel2.start.LoginGet;
 import com.kloudsync.techexcel2.start.QrCodeActivity;
 import com.kloudsync.techexcel2.tool.FileGetTool;
 import com.kloudsync.techexcel2.tool.Md5Tool;
 import com.kloudsync.techexcel2.tool.MediaControlUtils;
+import com.kloudsync.techexcel2.view.SimulateDirectionKeyboardView;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.util.PreferencesCookieStore;
 import com.ub.teacher.gesture.BrightnessHelper;
@@ -143,6 +149,7 @@ import com.ub.techexcel.tools.SyncRoomOtherNoteListPopup;
 import com.ub.techexcel.tools.Tools;
 import com.ub.techexcel.tools.VideoPopup;
 import com.ub.techexcel.tools.WebCamPopup;
+import com.ub.techexcel.tools.YinxiangPopup;
 import com.ub.techexcel.view.CustomVideoView;
 
 import org.feezu.liuli.timeselector.Utils.TextUtil;
@@ -193,7 +200,7 @@ import static com.ub.techexcel.tools.ServiceInterfaceTools.TV_NOT_FOLLOW;
 /**
  * Created by wang on 2017/6/16.
  */
-public class SyncRoomActivity extends BaseActivity implements View.OnClickListener, AGEventHandler, VideoGestureRelativeLayout.VideoGestureListener, AddFileFromFavoriteDialog.OnFavoriteDocSelectedListener, AddFileFromDocumentDialog.OnDocSelectedListener {
+public class SyncRoomActivity extends BaseActivity implements View.OnClickListener, AGEventHandler, VideoGestureRelativeLayout.VideoGestureListener, AddFileFromFavoriteDialog.OnFavoriteDocSelectedListener, AddFileFromDocumentDialog.OnDocSelectedListener, KeyboardEventDispatherListener {
 
     private String targetUrl;
     //    private String newPath;
@@ -236,7 +243,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private Customer teacherCustomer = new Customer();
     private PowerManager pm;
     private PowerManager.WakeLock wl;
-
+    private int yinxiangmode = 2;
     /**
      * 当前为presenter的student
      */
@@ -357,6 +364,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             }
         });
     }
+
 
     private class MyHandler extends Handler {
 
@@ -1324,7 +1332,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         lineitem.setHtml5(jsonObject.getBoolean("isH5"));
                         lineitem.setItemId(jsonObject.getString("itemId"));
                         currentAttachmentPage = jsonObject.getString("pageNumber");
-                        Log.e("change_file","change file file id:" + jsonObject.getString("itemId"));
+                        Log.e("change_file", "change file file id:" + jsonObject.getString("itemId"));
                         Log.e("切换文档", "currentAttachmentPage:" + currentAttachmentPage);
                         AppConfig.currentPageNumber = jsonObject.getString("pageNumber");
 
@@ -1443,12 +1451,12 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                                 syncRoomOtherNoteListPopup.dismiss();
                             }
                         } else if (jsonObject.getInt("stat") == 1) {
-                            if (syncRoomOtherNoteListPopup == null && !syncRoomOtherNoteListPopup.isShowing()) {
+                            if (syncRoomOtherNoteListPopup == null || !syncRoomOtherNoteListPopup.isShowing()) {
                                 selectCusterId = userid;
                                 openNotePopup();
                             }
                         }
-                    }else if (jsonObject.getInt("actionType") == 22) {
+                    } else if (jsonObject.getInt("actionType") == 22) {
                         String userid = jsonObject.getString("sourceUserId");
                         if (jsonObject.getInt("stat") == 0) {//设置自己听不到XX的声音
                             worker().getRtcEngine().muteRemoteAudioStream(Integer.parseInt(userid), true);
@@ -1621,7 +1629,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         String currentItemId2 = jsonObject.getString("currentItemId");
                         currentPresenterId = jsonObject.getString("currentPresenter");
                         String currentMode2 = jsonObject.getString("currentMode");
-                        Log.e("change_file","heart beart file id:" + currentItemId2);
+                        Log.e("change_file", "heart beart file id:" + currentItemId2);
                         if (!currentPresenterId.equals(AppConfig.UserID)) {  //不是presenter
                             String currentAttachmentPage2 = jsonObject.getString("currentPageNumber");
                             if (currentItemId2.equals(currentItemId)) {  //当前是同一个文档
@@ -1786,6 +1794,13 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
+    private SimulateDirectionKeyboardView simulateKeyboard;
+    private KeyboardSupporter keyboardSupporter;
+
+
+    private LinearLayout keyboard_file, keyboard_note, keyboard_yinxiang, keyboard_members, keyboard_meeting, keyboard_chat, keyboard_share, keyboard_property, keyboard_quit;
+
+
     private void initView() {
 
         tt = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
@@ -1801,6 +1816,9 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         wv_show.setZOrderOnTop(false);
         wv_show.addJavascriptInterface(SyncRoomActivity.this, "AnalyticsWebInterface");
         wv_show.getSettings().setDomStorageEnabled(true);
+
+        simulateKeyboard = (SimulateDirectionKeyboardView) findViewById(R.id.simulate_keybord);
+        simulateKeyboard.setKeyboardEventReceiveListener(keyboardSupporter);
 
         XWalkPreferences.setValue("enable-javascript", true);
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
@@ -1995,7 +2013,112 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         smallimage = (ImageView) findViewById(R.id.smallimage);
         smallimage.setVisibility(View.VISIBLE);
         handler = new MyHandler(this);
+
+
+        //------keyboard
+
+        initkeyboard();
+
     }
+
+
+    private void initkeyboard() {
+
+        keyboard_file = findViewById(R.id.keyboard_file);
+        KeyboardView fileView = new KeyboardView();
+        fileView.setSelected(true);
+        fileView.setTargeview(keyboard_file);
+        fileView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+
+        keyboard_note = findViewById(R.id.keyboard_note);
+        KeyboardView noteView = new KeyboardView();
+        noteView.setSelected(false);
+        noteView.setTargeview(keyboard_note);
+        noteView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+        keyboard_yinxiang = findViewById(R.id.keyboard_yinxiang);
+        KeyboardView yinxiangView = new KeyboardView();
+        yinxiangView.setSelected(false);
+        yinxiangView.setTargeview(keyboard_yinxiang);
+        yinxiangView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+        keyboard_members = findViewById(R.id.keyboard_members);
+        KeyboardView membersView = new KeyboardView();
+        membersView.setSelected(false);
+        membersView.setTargeview(keyboard_members);
+        membersView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+        keyboard_meeting = findViewById(R.id.keyboard_meeting);
+        KeyboardView meetingView = new KeyboardView();
+        meetingView.setSelected(false);
+        meetingView.setTargeview(keyboard_meeting);
+        meetingView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+        keyboard_chat = findViewById(R.id.keyboard_chat);
+        KeyboardView chatView = new KeyboardView();
+        chatView.setSelected(false);
+        chatView.setTargeview(keyboard_chat);
+        chatView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+        keyboard_share = findViewById(R.id.keyboard_share);
+        KeyboardView shareView = new KeyboardView();
+        shareView.setSelected(false);
+        shareView.setTargeview(keyboard_share);
+        shareView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+        keyboard_property = findViewById(R.id.keyboard_property);
+        KeyboardView propertyView = new KeyboardView();
+        propertyView.setSelected(false);
+        propertyView.setTargeview(keyboard_property);
+        propertyView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+        keyboard_quit = findViewById(R.id.keyboard_quit);
+        KeyboardView quitView = new KeyboardView();
+        quitView.setSelected(false);
+        quitView.setTargeview(keyboard_quit);
+        quitView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+
+        fileView.setBottomView(noteView);
+        noteView.setTopView(fileView);
+
+        noteView.setBottomView(yinxiangView);
+        yinxiangView.setTopView(noteView);
+
+        yinxiangView.setBottomView(membersView);
+        membersView.setTopView(yinxiangView);
+
+        membersView.setBottomView(meetingView);
+        meetingView.setTopView(membersView);
+
+        meetingView.setBottomView(chatView);
+        chatView.setTopView(meetingView);
+
+        chatView.setBottomView(shareView);
+        shareView.setTopView(chatView);
+
+        shareView.setBottomView(propertyView);
+        propertyView.setTopView(shareView);
+
+        propertyView.setBottomView(quitView);
+        quitView.setTopView(propertyView);
+
+
+        keyboardSupporter.addKeyboardView(fileView);
+        keyboardSupporter.addKeyboardView(noteView);
+        keyboardSupporter.addKeyboardView(yinxiangView);
+        keyboardSupporter.addKeyboardView(membersView);
+        keyboardSupporter.addKeyboardView(meetingView);
+        keyboardSupporter.addKeyboardView(chatView);
+        keyboardSupporter.addKeyboardView(shareView);
+        keyboardSupporter.addKeyboardView(propertyView);
+        keyboardSupporter.addKeyboardView(quitView);
+
+        keyboardSupporter.init();
+
+
+    }
+
 
     private Favorite favoriteAudio = new Favorite();
     private MediaPlayer mediaPlayer;
@@ -3790,13 +3913,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
 //                openPropertyPopup();
 //                syncroomll.setVisibility(View.GONE);
 //                menu.setImageResource(R.drawable.icon_menu);
-//                if (!goToNextPage()) {
-////                    goToNextDocument();
-//                }
-                _goToNextPage();
-//                if(!goToNextPage()){
-//                    goToNextDocument();
-//                }
                 break;
             case R.id.syncdisplayshare:
                 shareDocumentDialog(currentShowPdf, 0);
@@ -3804,16 +3920,9 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 menu.setImageResource(R.drawable.icon_menu);
                 break;
             case R.id.syncyinxiang:
-//                openYinxiangList(yinxiangmode);
-//                syncroomll.setVisibility(View.GONE);
-//                menu.setImageResource(R.drawable.icon_menu);
-//                if (!goToPrePage()) {
-////                    goToPreDocument();
-//                }
-                _goToPrePage();
-//                if(!goToPrePage()){
-//                    goToPreDocument();
-//                }
+                openYinxiangList(yinxiangmode);
+                syncroomll.setVisibility(View.GONE);
+                menu.setImageResource(R.drawable.icon_menu);
                 break;
             case R.id.syncdisplayquit:
                 closeCourse(0);
@@ -3866,7 +3975,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 break;
             case R.id.syncdisplaynote:
                 openNotePopup();
-                notifyTvNoteOpenOrClose(1,selectCusterId);
+                notifyTvNoteOpenOrClose(1, selectCusterId);
                 menu_linearlayout.setVisibility(View.GONE);
                 menu.setImageResource(R.drawable.icon_menu);
                 break;
@@ -4189,12 +4298,12 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     }
 
 
-    private void loadNoteWhenChangeUser(String userId){
+    private void loadNoteWhenChangeUser(String userId) {
         if (!TextUtils.isEmpty(userId)) {
             if (userId.equals(AppConfig.UserID)) {
                 //清除别人的日记
                 clearBookNote(false, true);
-            }else{//加载别人的日记
+            } else {//加载别人的日记
                 ServiceInterfaceTools.getinstance().getNoteListV3(AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + 0 + "&documentItemID=" + currentAttachmentId + "&pageNumber=" + currentAttachmentPage + "&userID=" + userId, ServiceInterfaceTools.GETNOTELISTV3, new ServiceInterfaceListener() {
                     @Override
                     public void getServiceReturnData(Object object) {
@@ -6831,8 +6940,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     }
 
 
-
-
     /**
      * 文档每一页上  展示 新的PDF文件（笔记）
      *
@@ -6889,7 +6996,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         currentShowPdf.setAttachmentID(note.getAttachmentID() + "");
 
         currentAttachmentId = currentShowPdf.getAttachmentID();
-        currentItemId =currentShowPdf.getItemId();
+        currentItemId = currentShowPdf.getItemId();
         targetUrl = currentShowPdf.getUrl();
         newPath = currentShowPdf.getNewPath();
         notifySwitchDocumentSocket(currentShowPdf, "1");
@@ -6908,7 +7015,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         currentShowPdf.setAttachmentID(note.getAttachmentID() + "");
 
         currentAttachmentId = currentShowPdf.getAttachmentID();
-        currentItemId =currentShowPdf.getItemId();
+        currentItemId = currentShowPdf.getItemId();
         targetUrl = currentShowPdf.getUrl();
         newPath = currentShowPdf.getNewPath();
         loadWebIndex();
@@ -7021,8 +7128,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
 
         }
     }
-
-
 
 
     @Override
@@ -7624,6 +7729,97 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
 //        }
 //    }
 
+
+    private YinxiangPopup yinxiangPopup;
+
+    private void openYinxiangList(int yinxiangmode) {
+        yinxiangPopup = new YinxiangPopup();
+        yinxiangPopup.getPopwindow(SyncRoomActivity.this);
+        if (yinxiangmode == 0) {
+            yinxiangPopup.StartPop(wv_show, currentAttachmentId, "", false, isHavePresenter());
+        } else if (yinxiangmode == 1) {
+            yinxiangPopup.StartPop(wv_show, currentAttachmentId, lessonId, false, isHavePresenter());
+        } else if (yinxiangmode == 2) {
+            yinxiangPopup.StartPop(wv_show, currentAttachmentId, lessonId, true, isHavePresenter());
+        } else if (yinxiangmode == 4) {
+            yinxiangPopup.StartPop(wv_show, "0", lessonId, true, isHavePresenter());
+        }
+    }
+
+
+    @Override
+    public boolean onKeyEventDispather(KeyEvent keyEvent, int viewId) {
+        return false;
+    }
+
+    @Override
+    public boolean onMenuEventDispather() {
+        return false;
+    }
+
+    @Override
+    public boolean onKeyEventEnterDispather(View targetView) {
+        if (menu_linearlayout.getVisibility() != View.VISIBLE) {
+            return false;
+        }
+        if (targetView != null) {
+            switch (targetView.getId()) {
+                case R.id.keyboard_file:
+                    documentPopupWindow.showAtLocation(wv_show, Gravity.BOTTOM, 0, 0);
+                    menu_linearlayout.setVisibility(View.GONE);
+                    menu.setImageResource(R.drawable.icon_menu);
+                    findViewById(R.id.bottomrl).setVisibility(View.GONE);
+                    getSyncRoomDetail();
+                    break;
+                case R.id.keyboard_note:
+                    openNotePopup();
+                    notifyTvNoteOpenOrClose(1, selectCusterId);
+                    menu_linearlayout.setVisibility(View.GONE);
+                    menu.setImageResource(R.drawable.icon_menu);
+                    break;
+                case R.id.keyboard_yinxiang:
+                    openYinxiangList(yinxiangmode);
+                    syncroomll.setVisibility(View.GONE);
+                    menu.setImageResource(R.drawable.icon_menu);
+                    break;
+                case R.id.keyboard_members:
+                    openMemberPopup();
+                    syncroomll.setVisibility(View.GONE);
+                    menu.setImageResource(R.drawable.icon_menu);
+                    break;
+                case R.id.keyboard_meeting:
+                    openMeetingPopup();
+                    syncroomll.setVisibility(View.GONE);
+                    menu.setImageResource(R.drawable.icon_menu);
+                    break;
+                case R.id.keyboard_chat:
+                    chatPopupWindow.showAtLocation(wv_show, Gravity.BOTTOM, 0, 0);
+                    findViewById(R.id.bottomrl).setVisibility(View.GONE);
+                    syncroomll.setVisibility(View.GONE);
+                    menu.setImageResource(R.drawable.icon_menu);
+                    break;
+                case R.id.keyboard_share:
+                    shareDocumentDialog(currentShowPdf, 0);
+                    syncroomll.setVisibility(View.GONE);
+                    menu.setImageResource(R.drawable.icon_menu);
+
+                    break;
+                case R.id.keyboard_property:
+//                    openPropertyPopup();
+//                    syncroomll.setVisibility(View.GONE);
+//                    menu.setImageResource(R.drawable.icon_menu);
+
+                    break;
+                case R.id.keyboard_quit:
+                    closeCourse(0);
+                    requestNotFollow();
+                    break;
+
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
 //        Toast.makeText(this,"Synccroom dispatchKeyEvent:" + event.getKeyCode(),Toast.LENGTH_SHORT).show();
@@ -7631,6 +7827,16 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         if (event.getAction() != KeyEvent.ACTION_DOWN) {
             return super.dispatchKeyEvent(event);
         }
+
+        if (syncroomll.getVisibility() == View.VISIBLE) {
+            Log.e("dispatchKeyEvent", "menu_linearlayout receiver key event");
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
+                    keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+                keyboardSupporter.setKeyboardEventDispatherListener(this);
+                return keyboardSupporter.onKeyEventReceive(event);
+            }
+        }
+
 
         if ((keyCode == KeyEvent.KEYCODE_BACK)) {
             return false;
@@ -7761,7 +7967,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void followChangeFile(LineItem lineItem) {
-        Log.e("dddddd", documentList.size() + " "+lineItem.getItemId());
+        Log.e("dddddd", documentList.size() + " " + lineItem.getItemId());
         if (documentList.size() > 0) {
             if (lineItem == null || TextUtils.isEmpty(lineItem.getItemId()) || lineItem.getItemId().equals("0")) {
                 lineItem = documentList.get(0);

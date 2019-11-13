@@ -207,6 +207,7 @@
                 android:layout_height="35dp"
                 android:orientation="horizontal">
 
+
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
@@ -222,6 +223,7 @@
                     android:text="File"
                     android:textColor="@color/white"
                     android:textSize="14sp" />
+
 
                 <TextView
                     android:layout_width="match_parent"
@@ -481,6 +483,7 @@
             android:paddingRight="8dp"
             android:paddingTop="2dp"
             android:visibility="gone">
+
             <RelativeLayout
                 android:id="@+id/syncdisplaydocument"
                 android:layout_width="match_parent"
@@ -488,22 +491,32 @@
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                <LinearLayout
+                    android:id="@+id/keyboard_file"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
                     android:layout_centerVertical="true"
-                    android:padding="1dp"
-                    android:src="@drawable/icon_menu_file" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="@string/mtFile"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:padding="1dp"
+                        android:src="@drawable/icon_menu_file" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:text="@string/mtFile"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
@@ -511,6 +524,7 @@
                     android:background="@color/divider_line" />
 
             </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/syncdisplaynote"
                 android:layout_width="match_parent"
@@ -518,22 +532,32 @@
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                <LinearLayout
+                    android:id="@+id/keyboard_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
                     android:layout_centerVertical="true"
-                    android:padding="1dp"
-                    android:src="@drawable/icon_menu_file" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="@string/mtNote"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:padding="1dp"
+                        android:src="@drawable/icon_menu_file" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:text="@string/mtNote"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -542,93 +566,9 @@
                     android:background="@color/divider_line" />
 
             </RelativeLayout>
+
             <RelativeLayout
-                android:visibility="visible"
                 android:id="@+id/syncyinxiang"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/yinxiang" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="@string/mtSync"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:id="@+id/syncdisplaymembers"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/icon_menu_audience" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="@string/mtAttendee"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-
-            </RelativeLayout>
-            <RelativeLayout
-                android:id="@+id/syncdisplaymeeting"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/qun" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="@string/Meeting"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-
-            </RelativeLayout>
-            <RelativeLayout
-                android:id="@+id/syncdisplaychat"
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
                 android:orientation="horizontal"
@@ -638,17 +578,65 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/icon_menu_chat" />
+                    android:src="@drawable/yinxiang" />
+
+                <LinearLayout
+                    android:id="@+id/keyboard_yinxiang"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:text="@string/mtSync"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/divider_line" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/syncdisplaymembers"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/keyboard_members"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
                     android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="@string/mtChat"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/icon_menu_audience" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:text="@string/mtAttendee"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
@@ -657,6 +645,84 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:id="@+id/syncdisplaymeeting"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/keyboard_meeting"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/qun" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:text="@string/Meeting"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/divider_line" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/syncdisplaychat"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <LinearLayout
+                    android:id="@+id/keyboard_chat"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/icon_menu_chat" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:text="@string/mtChat"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/divider_line" />
+
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/syncdisplayshare"
@@ -665,21 +731,30 @@
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                <LinearLayout
+                    android:id="@+id/keyboard_share"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/syncdisplayshare" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="@string/share"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/syncdisplayshare" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:text="@string/share"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -687,6 +762,7 @@
                     android:layout_alignParentBottom="true"
                     android:background="@color/divider_line" />
             </RelativeLayout>
+
             <RelativeLayout
 
                 android:id="@+id/syncdisplayproperty"
@@ -695,21 +771,31 @@
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/qun" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <LinearLayout
+                    android:id="@+id/keyboard_property"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
                     android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="@string/sProperty"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/qun" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:text="@string/sProperty"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -725,21 +811,30 @@
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                <LinearLayout
+                    android:id="@+id/keyboard_quit"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/close_menu" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="30dp"
-                    android:text="@string/mtClose"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/close_menu" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:text="@string/mtClose"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
             </RelativeLayout>
         </LinearLayout>
@@ -1374,10 +1469,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"
             android:id="@+id/audiosyncll"
             android:layout_width="360dp"
             android:layout_height="wrap_content"
@@ -1385,36 +1476,40 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="10dp"
             android:alpha="0.7"
-            android:orientation="vertical"
             android:background="@drawable/audioplaystop"
+            android:orientation="vertical"
+            android:paddingBottom="16dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="16dp"
             android:visibility="gone">
 
             <SeekBar
-                android:thumbOffset="0dp"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:thumb="@drawable/seek_bar_thumb"
-                android:progressDrawable="@drawable/progress_drawable"
-                android:maxHeight="3dp"
-                android:minHeight="3dp"
                 android:id="@+id/seekBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:max="100"
-                android:progress="0" />
+                android:maxHeight="3dp"
+                android:minHeight="3dp"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:progress="0"
+                android:progressDrawable="@drawable/progress_drawable"
+                android:thumb="@drawable/seek_bar_thumb"
+                android:thumbOffset="0dp" />
 
             <LinearLayout
-                android:layout_marginTop="6dp"
                 android:layout_width="360dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
+                android:layout_marginTop="6dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/timehidden"
@@ -1434,16 +1529,16 @@
                 </LinearLayout>
 
                 <View
-                    android:layout_marginLeft="16dp"
-                    android:layout_gravity="center_vertical"
-                    android:background="@color/white"
                     android:layout_width="1.5px"
-                    android:layout_height="18dp" />
+                    android:layout_height="18dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="16dp"
+                    android:background="@color/white" />
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
                     <ImageView
 
@@ -1466,11 +1561,11 @@
                 </LinearLayout>
 
                 <View
-                    android:layout_marginLeft="22dp"
-                    android:layout_gravity="center_vertical"
-                    android:background="@color/white"
                     android:layout_width="1.5px"
-                    android:layout_height="18dp" />
+                    android:layout_height="18dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="22dp"
+                    android:background="@color/white" />
 
                 <TextView
                     android:id="@+id/audiotime"
@@ -1482,24 +1577,25 @@
                     android:textColor="@color/white" />
 
                 <View
-                    android:layout_gravity="center_vertical"
-                    android:background="@color/white"
                     android:layout_width="1.5px"
-                    android:layout_height="18dp" />
+                    android:layout_height="18dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/white" />
 
 
                 <ImageView
-                    android:layout_marginLeft="18dp"
                     android:id="@+id/syncicon"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="18dp"
                     android:layout_marginRight="20dp"
                     android:src="@drawable/syncing"
                     android:visibility="visible" />
 
             </LinearLayout>
         </LinearLayout>
+
         <RelativeLayout
             android:id="@+id/filedownprogress"
             android:layout_width="wrap_content"
@@ -1536,13 +1632,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:layout_marginTop="15dp"
             android:background="@drawable/fileprogressbarbg"
             android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp"
             android:visibility="gone">
 
             <TextView
@@ -1555,6 +1651,13 @@
 
 
         </RelativeLayout>
+
+
+        <com.kloudsync.techexcel2.view.SimulateDirectionKeyboardView
+            android:id="@+id/simulate_keybord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"></com.kloudsync.techexcel2.view.SimulateDirectionKeyboardView>
 
         <TextView
             android:id="@+id/closenote"
