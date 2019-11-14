@@ -275,7 +275,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private RelativeLayout joinvideo;
     private RelativeLayout callMeLater;
     private RelativeLayout testdebug;
-    private RelativeLayout prepareclose;
 
 
     private RecyclerView documentrecycleview;
@@ -295,9 +294,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private ImageView menu;
     private ImageView command_active;
     private LinearLayout activte_linearlayout;
-    private LinearLayout menu_linearlayout;
 
-    private RelativeLayout displayAudience, displayFile, syncdisplaynote, displaychat, displaywebcam, displayVideo, setting, setting2, displayrecord;
     public static boolean watchSyncroomInstance = false;
     private TextView endtextview;
     private TextView prompt;
@@ -312,7 +309,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private MyHandler handler;
 
     private LinearLayout syncroomll;
-    private RelativeLayout syncdisplaydocument, syncdisplaymembers, syncdisplaymeeting, syncdisplaychat, syncdisplayproperty, syncdisplayshare, syncyinxiang, syncdisplayquit;
+    private RelativeLayout syncdisplaydocument, syncdisplaynote, syncdisplaymembers, syncdisplaymeeting, syncdisplaychat, syncdisplayproperty, syncdisplayshare, syncyinxiang, syncdisplayquit;
 
 
     private int screenWidth;
@@ -383,7 +380,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 }
                 switch (msg.what) {
                     case 0x1109:
-                        // 翻页
                         if (activity3.isWebViewLoadFinish) {
                             final String m = (String) msg.obj;
                             activity3.runOnUiThread(new Runnable() {
@@ -491,13 +487,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         activity3.videoPopuP.setPresenter(activity3.identity,
                                 activity3.currentPresenterId,
                                 activity3.studentCustomer, activity3.teacherCustomer);
-                        if (activity3.isHavePresenter()) {
-                            activity3.setting.setVisibility(View.VISIBLE);
-                            activity3.findViewById(R.id.videoline).setVisibility(View.VISIBLE);
-                        } else {
-                            activity3.setting.setVisibility(View.GONE);
-                            activity3.findViewById(R.id.videoline).setVisibility(View.GONE);
-                        }
+
                         break;
                     case 0x1111: //离开
                         activity3.changeAllVisible(activity3.leaveUserid);
@@ -515,7 +505,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                     case 0x1301: // 提升旁听者为学生
 //                        activity3.promoteAuditor((String) (msg.obj));
                         break;
-
                     case 0x1205:
                         activity3.currentShowPdf = (LineItem) msg.obj;
                         activity3.changedocumentlabel(activity3.currentShowPdf);
@@ -1215,8 +1204,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
 
     private void gotoMeeting(String meetingId, int meetingType) {
         command_active.setVisibility(View.VISIBLE);
-        menu_linearlayout.setVisibility(View.GONE);
-        displayFile.setVisibility(View.VISIBLE);
 //        meetingId = lessonId;
         isTeamspace = false;
         worker().joinChannel(meetingId.toUpperCase(), config().mUid);
@@ -1828,7 +1815,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             public void onClick(View v) {
                 Log.e("haha", "onclick");
                 activte_linearlayout.setVisibility(View.GONE);
-                menu_linearlayout.setVisibility(View.GONE);
+                syncroomll.setVisibility(View.GONE);
                 findViewById(R.id.hiddenwalkview).setVisibility(View.GONE);
                 menu.setImageResource(R.drawable.icon_menu);
                 command_active.setImageResource(R.drawable.icon_command);
@@ -1840,7 +1827,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             public void onClick(View v) {
                 Log.e("haha", "onclick");
                 activte_linearlayout.setVisibility(View.GONE);
-                menu_linearlayout.setVisibility(View.GONE);
                 menu.setImageResource(R.drawable.icon_menu);
                 command_active.setImageResource(R.drawable.icon_command);
                 findViewById(R.id.hiddenwalkview).setVisibility(View.GONE);
@@ -1857,6 +1843,8 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         syncroomll.setVisibility(View.GONE);
         syncdisplaydocument = (RelativeLayout) findViewById(R.id.syncdisplaydocument);
         syncdisplaydocument.setOnClickListener(this);
+        syncdisplaynote = (RelativeLayout) findViewById(R.id.syncdisplaynote);
+        syncdisplaynote.setOnClickListener(this);
         syncdisplayshare = (RelativeLayout) findViewById(R.id.syncdisplayshare);
         syncdisplayshare.setOnClickListener(this);
         syncyinxiang = (RelativeLayout) findViewById(R.id.syncyinxiang);
@@ -1899,16 +1887,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         command_active.setOnClickListener(this);
         command_active.setVisibility(View.GONE);
         activte_linearlayout = (LinearLayout) findViewById(R.id.activte_linearlayout);
-        menu_linearlayout = (LinearLayout) findViewById(R.id.menu_linearlayout);
-
-        displayAudience = (RelativeLayout) findViewById(R.id.displayAudience);
-        displayAudience.setOnClickListener(this);
-        displayFile = (RelativeLayout) findViewById(R.id.displayFile);
-        displayFile.setOnClickListener(this);
-        syncdisplaynote = (RelativeLayout) findViewById(R.id.syncdisplaynote);
-        syncdisplaynote.setOnClickListener(this);
-        displayrecord = (RelativeLayout) findViewById(R.id.displayrecord);
-        displayrecord.setOnClickListener(this);
 
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
@@ -1943,29 +1921,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         leavell.setVisibility(View.GONE);
         endtextview.setText("Close");
 
-        displaychat = (RelativeLayout) findViewById(R.id.displaychat);
-        displaychat.setOnClickListener(this);
-        displaywebcam = (RelativeLayout) findViewById(R.id.displaywebcam);
-        displaywebcam.setOnClickListener(this);
-        displayVideo = (RelativeLayout) findViewById(R.id.displayvideo);
-        displayVideo.setOnClickListener(this);
 
-        prepareclose = (RelativeLayout) findViewById(R.id.prepareclose);
-        prepareclose.setOnClickListener(this);
-        prepareclose.setVisibility(View.VISIBLE);
-
-        displaychat.setVisibility(View.GONE);
-        displayAudience.setVisibility(View.GONE);
-        displaywebcam.setVisibility(View.GONE);
-
-        setting = (RelativeLayout) findViewById(R.id.setting);
-        setting2 = (RelativeLayout) findViewById(R.id.setting2);
-        if (identity != 2) {
-            setting.setVisibility(View.GONE);
-            findViewById(R.id.videoline).setVisibility(View.GONE);
-        }
-        setting.setOnClickListener(this);
-        setting2.setOnClickListener(this);
         settingllback = (LinearLayout) findViewById(R.id.settingllback);
         settingllback.setOnClickListener(this);
         settingllback2 = (LinearLayout) findViewById(R.id.settingllback2);
@@ -2103,7 +2059,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         propertyView.setBottomView(quitView);
         quitView.setTopView(propertyView);
 
-
+        keyboardSupporter = new KeyboardSupporter();
         keyboardSupporter.addKeyboardView(fileView);
         keyboardSupporter.addKeyboardView(noteView);
         keyboardSupporter.addKeyboardView(yinxiangView);
@@ -3881,7 +3837,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 if (syncroomll.getVisibility() == View.VISIBLE) {
                     syncroomll.setVisibility(View.GONE);
                     menu.setImageResource(R.drawable.icon_menu);
-                } else if (menu_linearlayout.getVisibility() == View.GONE) {
+                } else if (syncroomll.getVisibility() == View.GONE) {
                     syncroomll.setVisibility(View.VISIBLE);
                     menu.setImageResource(R.drawable.icon_menu_active);
                 }
@@ -3891,17 +3847,21 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 syncroomll.setVisibility(View.GONE);
                 menu.setImageResource(R.drawable.icon_menu);
                 break;
+            case R.id.syncdisplaynote:
+                openNotePopup();
+                notifyTvNoteOpenOrClose(1, selectCusterId);
+                syncroomll.setVisibility(View.GONE);
+                menu.setImageResource(R.drawable.icon_menu);
+                break;
             case R.id.syncdisplaymembers:
-//                openMemberPopup();
-//                syncroomll.setVisibility(View.GONE);
-//                menu.setImageResource(R.drawable.icon_menu);
-                _scrollUp();
+                openMemberPopup();
+                syncroomll.setVisibility(View.GONE);
+                menu.setImageResource(R.drawable.icon_menu);
                 break;
             case R.id.syncdisplaymeeting:
-//                openMeetingPopup();
-//                syncroomll.setVisibility(View.GONE);
-//                menu.setImageResource(R.drawable.icon_menu);
-                _scrollDown();
+                openMeetingPopup();
+                syncroomll.setVisibility(View.GONE);
+                menu.setImageResource(R.drawable.icon_menu);
                 break;
             case R.id.syncdisplaychat:
                 chatPopupWindow.showAtLocation(wv_show, Gravity.BOTTOM, 0, 0);
@@ -3927,7 +3887,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             case R.id.syncdisplayquit:
                 closeCourse(0);
                 requestNotFollow();
-//                finish();
                 break;
             case R.id.command_active:  // 弹出语音
                 if (activte_linearlayout.getVisibility() == View.VISIBLE) {
@@ -3937,7 +3896,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                     activte_linearlayout.setVisibility(View.VISIBLE);
                     findViewById(R.id.hiddenwalkview).setVisibility(View.VISIBLE);
                     command_active.setImageResource(R.drawable.icon_command_active);
-                    menu_linearlayout.setVisibility(View.GONE);
+                    syncroomll.setVisibility(View.GONE);
                     menu.setImageResource(R.drawable.icon_menu);
                 }
                 break;
@@ -3960,28 +3919,8 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 intent.setAction("com.cn.refreshsocket");
                 sendBroadcast(intent);
                 break;
-            case R.id.displayAudience:
-                mPopupWindow1.showAtLocation(wv_show, Gravity.BOTTOM, 0, 0);
-                menu_linearlayout.setVisibility(View.GONE);
-                menu.setImageResource(R.drawable.icon_menu);
-                findViewById(R.id.bottomrl).setVisibility(View.GONE);
-                break;
-            case R.id.displayFile:
-                documentPopupWindow.showAtLocation(wv_show, Gravity.BOTTOM, 0, 0);
-                menu_linearlayout.setVisibility(View.GONE);
-                menu.setImageResource(R.drawable.icon_menu);
-                findViewById(R.id.bottomrl).setVisibility(View.GONE);
-                getSyncRoomDetail();
-                break;
-            case R.id.syncdisplaynote:
-                openNotePopup();
-                notifyTvNoteOpenOrClose(1, selectCusterId);
-                menu_linearlayout.setVisibility(View.GONE);
-                menu.setImageResource(R.drawable.icon_menu);
-                break;
-            case R.id.prepareclose:
-                finish();
-                break;
+
+
             case R.id.leavell:
                 notifyleave();
                 closeCourse(0);
@@ -4021,43 +3960,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 activte_linearlayout.setVisibility(View.GONE);
                 command_active.setImageResource(R.drawable.icon_command);
                 break;
-            case R.id.displaychat:
-                chatPopupWindow.showAtLocation(wv_show, Gravity.BOTTOM, 0, 0);
-                menu_linearlayout.setVisibility(View.GONE);
-                menu.setImageResource(R.drawable.icon_menu);
-                findViewById(R.id.bottomrl).setVisibility(View.GONE);
-                break;
-            case R.id.displaywebcam:
-                if (mViewType == VIEW_TYPE_DEFAULT) {
-                    switchToBigVideoView();
-                    changevideo(1, "");
-                } else if (mViewType == VIEW_TYPE_NORMAL || mViewType == VIEW_TYPE_SING_NORMAL) {
-                    switchToDefaultVideoView();
-                    changevideo(0, "");
-                }
-                menu_linearlayout.setVisibility(View.GONE);
-                menu.setImageResource(R.drawable.icon_menu);
-                findViewById(R.id.bottomrl).setVisibility(View.VISIBLE);
-                break;
-
-            case R.id.displayvideo:
-                videoPopuP.startVideoPop(wv_show, menu_linearlayout, menu);
-                videoPopuP.setPresenter(identity,
-                        currentPresenterId,
-                        studentCustomer, teacherCustomer);
-                break;
-            case R.id.displayrecord:
-
-                menu_linearlayout.setVisibility(View.GONE);
-                menu.setImageResource(R.drawable.icon_menu);
-                findViewById(R.id.bottomrl).setVisibility(View.VISIBLE);
-                break;
-            case R.id.setting:
-                menu_linearlayout.setVisibility(View.GONE);
-                menu.setImageResource(R.drawable.icon_menu);
-                findViewById(R.id.settingll).setVisibility(View.VISIBLE);
-                rightViewEnter();
-                break;
             case R.id.settingllback:
                 if (right2.getVisibility() == View.VISIBLE) {
                     right2Out("");
@@ -4066,11 +3968,6 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 } else {
                     rightViewOut();
                 }
-                break;
-            case R.id.setting2:
-                menu_linearlayout.setVisibility(View.GONE);
-                menu.setImageResource(R.drawable.icon_menu);
-                findViewById(R.id.settingll2).setVisibility(View.VISIBLE);
                 break;
             case R.id.settingllback2:
                 findViewById(R.id.settingll2).setVisibility(View.GONE);
@@ -5068,10 +4965,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         toggle.setVisibility(View.VISIBLE);
         joinvideo.setVisibility(View.GONE);
         startll.setVisibility(View.GONE);
-        prepareclose.setVisibility(View.GONE);
-        displaywebcam.setVisibility(View.VISIBLE);
-        displaychat.setVisibility(View.VISIBLE);
-        displayAudience.setVisibility(View.VISIBLE);
+
         leavell.setVisibility(View.VISIBLE);
         endtextview.setText("End");
         if (currentLine == LINE_PEERTIME) {  //  声网  模式
@@ -7759,22 +7653,20 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public boolean onKeyEventEnterDispather(View targetView) {
-        if (menu_linearlayout.getVisibility() != View.VISIBLE) {
+        if (syncroomll.getVisibility() != View.VISIBLE) {
             return false;
         }
         if (targetView != null) {
             switch (targetView.getId()) {
                 case R.id.keyboard_file:
-                    documentPopupWindow.showAtLocation(wv_show, Gravity.BOTTOM, 0, 0);
-                    menu_linearlayout.setVisibility(View.GONE);
+                    openDocumentPopup();
+                    syncroomll.setVisibility(View.GONE);
                     menu.setImageResource(R.drawable.icon_menu);
-                    findViewById(R.id.bottomrl).setVisibility(View.GONE);
-                    getSyncRoomDetail();
                     break;
                 case R.id.keyboard_note:
                     openNotePopup();
                     notifyTvNoteOpenOrClose(1, selectCusterId);
-                    menu_linearlayout.setVisibility(View.GONE);
+                    syncroomll.setVisibility(View.GONE);
                     menu.setImageResource(R.drawable.icon_menu);
                     break;
                 case R.id.keyboard_yinxiang:
@@ -7802,13 +7694,11 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                     shareDocumentDialog(currentShowPdf, 0);
                     syncroomll.setVisibility(View.GONE);
                     menu.setImageResource(R.drawable.icon_menu);
-
                     break;
                 case R.id.keyboard_property:
 //                    openPropertyPopup();
 //                    syncroomll.setVisibility(View.GONE);
 //                    menu.setImageResource(R.drawable.icon_menu);
-
                     break;
                 case R.id.keyboard_quit:
                     closeCourse(0);
@@ -7867,7 +7757,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             if (syncroomll.getVisibility() == View.VISIBLE) {
                 syncroomll.setVisibility(View.GONE);
                 menu.setImageResource(R.drawable.icon_menu);
-            } else if (menu_linearlayout.getVisibility() == View.GONE) {
+            } else if (syncroomll.getVisibility() == View.GONE) {
                 syncroomll.setVisibility(View.VISIBLE);
                 menu.setImageResource(R.drawable.icon_menu_active);
             }

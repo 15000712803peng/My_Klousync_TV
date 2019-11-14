@@ -68,7 +68,7 @@
         android:orientation="horizontal"
         android:padding="10dp">
 
-        <com.kloudsync.techexcel.view.CircleImageView
+        <com.kloudsync.techexcel2.view.CircleImageView
             android:id="@+id/iconciv"
             android:layout_width="50dp"
             android:layout_height="50dp" />
