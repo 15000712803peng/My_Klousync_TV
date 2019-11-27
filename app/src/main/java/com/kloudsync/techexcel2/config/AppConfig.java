@@ -273,6 +273,9 @@ public class AppConfig {
     public static String currentMode = "0";
     public static String currentPageNumber = "0";
     public static String currentDocId = "0";
+    public static boolean IsInMeeting = false;
+
+    public static boolean IsInQrcode = false;
 
     // 余迪凯
     public static final int PASSWORDSUCCESS = 0X1130;

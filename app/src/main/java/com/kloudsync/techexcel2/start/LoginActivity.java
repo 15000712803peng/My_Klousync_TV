@@ -30,9 +30,18 @@ import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.tool.SoftInputUtils;
 import com.kloudsync.techexcel2.ui.MainActivity;
+import com.ub.techexcel.tools.ServiceInterfaceTools;
 
+import org.feezu.liuli.timeselector.Utils.TextUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.UUID;
+
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class LoginActivity extends Activity {
 
@@ -51,6 +60,8 @@ public class LoginActivity extends Activity {
     private boolean flag_cp;
     private int flag_se;
     private TextView socketInfoText;
+    private static final int CODE_TOKEN_EXPIRED = -1401;
+    String deviceId;
 
     private Handler handler = new Handler() {
         @Override
@@ -63,14 +74,28 @@ public class LoginActivity extends Activity {
 //                    finish();
                     break;
                 case AppConfig.FAILED:
+                    if(msg.arg1 == CODE_TOKEN_EXPIRED){
+                        refreshAndLogin();
+                    }
                     result = (String) msg.obj;
-                    Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     break;
             }
         }
     };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        },100);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +106,7 @@ public class LoginActivity extends Activity {
         initView();
         IntentFilter filter = new IntentFilter();
         filter.addAction("socket_info");
+//        expiredRefreshAndLogin();
         registerReceiver(socketInfoReceiver,filter);
 
     }
@@ -94,7 +120,6 @@ public class LoginActivity extends Activity {
         et_password = (EditText) findViewById(R.id.et_password);
         fl_login = (FrameLayout) findViewById(R.id.fl_login);
         rl_login = (RelativeLayout) findViewById(R.id.rl_login);
-
         tv_login.setEnabled(false);
 //        tv_login.setText(getVersion());
         editListener();
@@ -133,7 +158,7 @@ public class LoginActivity extends Activity {
                         case R.id.et_password:
                             if (!TextUtils.isEmpty(t1) && !TextUtils.isEmpty(t2)) {
                                 if (flag) {
-                                    GetLogin();
+                                    doLogin();
                                 }
                                 flag = !flag;
                             }
@@ -220,8 +245,9 @@ public class LoginActivity extends Activity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.tv_login:
-                    GetLogin();
-                    // GoToMain();
+//                    GetLogin();
+//                    refreshAndLogin();
+                    doLogin();
                     break;
                 case R.id.tv_atjoin:
                     GoToSign();
@@ -259,8 +285,16 @@ public class LoginActivity extends Activity {
         overridePendingTransition(R.anim.tran_in4, R.anim.tran_out4);
     }
 
-    private void GetLogin() {
-        tv_login.setEnabled(false);
+
+    private void doLogin() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tv_login.setEnabled(false);
+                fl_login.setVisibility(View.VISIBLE);
+            }
+        });
+
         telephone = et_telephone.getText().toString();
         password = et_password.getText().toString();
         editor.putString("telephone", telephone);
@@ -269,7 +303,6 @@ public class LoginActivity extends Activity {
         editor.commit();
         telephone = tv_cphone.getText().toString() + telephone;
         GoToSendMessage();
-        fl_login.setVisibility(View.VISIBLE);
         new Handler().postDelayed(new Runnable() {
 
             @Override
@@ -283,10 +316,13 @@ public class LoginActivity extends Activity {
     }
 
     private void GoToSendMessage() {
+
         final JSONObject jsonobject = format();
+        AppConfig.UserToken = sharedPreferences.getString("UserToken", null);
         new Thread(new Runnable() {
             @Override
             public void run() {
+
                 try {
                     Log.e("BindTVAuthentication", jsonobject.toString() + "");
                     JSONObject responsedata = ConnectService.submitDataByJson(
@@ -300,8 +336,10 @@ public class LoginActivity extends Activity {
                         msg.obj = responsedata.toString();
                     } else {
                         msg.what = AppConfig.FAILED;
+                        msg.arg1 = Integer.parseInt(retcode);
                         msg.obj = responsedata.getString("ErrorMessage");
                     }
+
                     handler.sendMessage(msg);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -314,7 +352,7 @@ public class LoginActivity extends Activity {
     private JSONObject format() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("TvID", AppConfig.UUID);
+            jsonObject.put("TvID", sharedPreferences.getString("DeviceId", null));
             jsonObject.put("UserName", telephone);
             jsonObject.put("Password", password);
             jsonObject.put("EncryptOption", 0);
@@ -340,7 +378,6 @@ public class LoginActivity extends Activity {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -406,7 +443,9 @@ public class LoginActivity extends Activity {
         } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
             if (!et_telephone.isFocusable() && !et_password.isFocusable()
                     && !flag_cp) {
-                GetLogin();
+//                GetLogin();
+//                refreshAndLogin();
+                doLogin();
             } else if (flag_cp) {
                 GotoChangeCode();
             }
@@ -465,5 +504,89 @@ public class LoginActivity extends Activity {
 
         }
     };
+
+    private class RefreshData{
+        public String newToken;
+    }
+
+    private void refreshAndLogin(){
+
+        String tvId = sharedPreferences.getString("DeviceId","");
+        if(TextUtils.isEmpty(tvId)){
+            tvId = getDeviceInfo(this);
+        }
+        final String id = tvId;
+
+        final RefreshData refreshData = new RefreshData();
+        Observable.just(id).observeOn(Schedulers.io()).map(new Function<String, RefreshData>() {
+            @Override
+            public RefreshData apply(final String id) throws Exception {
+                ServiceInterfaceTools.getinstance().refreshTvToken(AppConfig.URL_PUBLIC + "TV/RefreshToken", id, new ServiceInterfaceTools.OnJsonResponseReceiver() {
+                    @Override
+                    public void jsonResponse(JSONObject jsonResponse) {
+                        if(jsonResponse != null){
+                            try {
+                                int retCode = jsonResponse.getInt("RetCode");
+                                Log.e("expired","step one");
+                                if(retCode == 0){
+//                                    refreshData.newToken = "";
+                                      JSONObject data = jsonResponse.getJSONObject("RetData");
+                                      if(data != null && data.has("UserToken")){
+                                          sharedPreferences.edit().putString("UserToken",data.getString("UserToken"));
+                                          AppConfig.UserToken = data.getString("UserToken");
+                                          refreshData.newToken = AppConfig.UserToken;
+                                      }
+
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
+                });
+                return refreshData;
+            }
+
+        }).doOnNext(new Consumer<RefreshData>() {
+            @Override
+            public void accept(RefreshData refreshData) throws Exception {
+                Log.e("expired","step two");
+                if(!TextUtils.isEmpty(refreshData.newToken)){
+                    //
+                    doLogin();
+                }
+            }
+        }).subscribe();
+//        Observable.just()
+    }
+
+    public static String getDeviceInfo(Context context) {
+
+        try {
+            String device_id = "";
+            if(TextUtil.isEmpty(device_id)){
+                device_id = android.os.Build.SERIAL;
+            }
+
+            if(TextUtil.isEmpty(device_id)){
+                device_id = android.os.Build.FINGERPRINT;
+            }
+
+            if(TextUtils.isEmpty(device_id)){
+                device_id = UUID.randomUUID() +"";
+            }
+
+            if(!TextUtils.isEmpty(device_id)){
+                device_id = device_id.replaceAll("/","");
+            }
+
+            return device_id;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 }

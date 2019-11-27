@@ -1,15 +1,20 @@
 package com.kloudsync.techexcel2.start;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -40,11 +45,13 @@ import com.ub.service.activity.SocketService;
 import com.ub.techexcel.service.ConnectService;
 import com.ub.techexcel.tools.FileUtils;
 
+import org.feezu.liuli.timeselector.Utils.TextUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URI;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.UUID;
 
 public class QrCodeActivity extends AppCompatActivity implements View.OnClickListener {
@@ -69,11 +76,11 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
         findView();
         initView();
         initUpdate();
+        checkPermission();
 
     }
 
     private void StartWBService() {
-
         service = new Intent(getApplicationContext(), SocketService.class);
         startService(service);
     }
@@ -94,6 +101,7 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
         String uuid = sharedPreferences.getString("uuid", null);
         String tvToken = sharedPreferences.getString("UserToken",null);
         Log.e("QrcodeActivity","tvToken:" + tvToken);
+        editor.putString("DeviceId",getDeviceInfo(QrCodeActivity.this)).commit();
         Bitmap bitmap = null;
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
@@ -101,7 +109,7 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
         width -= DensityUtil.dp2px(this, 60);
         try {
             //+ "###Kloudsync_TV" + tvToken
-            bitmap = createQRCode(uuid + "###Kloudsync_TV" + tvToken, width);
+            bitmap = createQRCode(getDeviceInfo(this) + "###Kloudsync_TV" + tvToken, width);
             Log.e("QrcodeActivity","QRCode_info:" + uuid + "###Kloudsync_TV" + tvToken);
         } catch (WriterException e) {
             e.printStackTrace();
@@ -128,10 +136,10 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
     UUID uuid;
     private JSONObject format(String name) {
         uuid = UUID.randomUUID();
-        Log.e("uuid", uuid + "");
+//        Log.e("uuid", uuid + "");
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("TvID", uuid);
+            jsonObject.put("TvID", sharedPreferences.getString("DeviceId",""));
             jsonObject.put("TvName", name);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -179,7 +187,22 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onResume() {
         super.onResume();
+        AppConfig.IsInQrcode = true;
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppConfig.IsInQrcode = false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        AppConfig.IsInQrcode = false;
+    }
+
+
 
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
@@ -330,6 +353,7 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
         super.onDestroy();
         KillService();
         KillFile();
+        AppConfig.IsInQrcode = false;
     }
 
     private void KillFile() {
@@ -436,6 +460,82 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
                     }
                 }).register();
     }
+
+    public static String getDeviceInfo(Context context) {
+
+        try {
+            String device_id = "";
+            if(TextUtil.isEmpty(device_id)){
+                device_id = android.os.Build.SERIAL;
+            }
+
+            if(TextUtil.isEmpty(device_id)){
+                device_id = android.os.Build.FINGERPRINT;
+            }
+
+            if(TextUtils.isEmpty(device_id)){
+                device_id = UUID.randomUUID() +"";
+            }
+
+            if(!TextUtils.isEmpty(device_id)){
+                device_id = device_id.replaceAll("/","");
+            }
+
+            return device_id;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void keepWebSocketLive(){
+        if(isServiceRunning(this,"com.ub.service.activity.SocketService")){
+            Log.e("MainActivity","SocketService is running");
+            KloudWebClientManager.getDefault().startHeartBeat();
+        }else {
+            Log.e("MainActivity","SocketService is not running");
+            StartWBService();
+        }
+    }
+
+    public static boolean isServiceRunning(Context mContext, String className){
+        boolean isRunning = false ;
+        ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> seviceList = activityManager.getRunningServices(300);
+        if (seviceList.size() <= 0){
+            return false;
+        }
+        for (int i=0 ;i < seviceList.size();i++){
+            if (seviceList.get(i).service.getClassName().toString().equals(className)){
+                isRunning = true;
+                break;
+            }
+        }
+        return isRunning;
+    }
+
+    private void checkPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.LOCATION_HARDWARE)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.LOCATION_HARDWARE, Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.CALL_PHONE,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO}, 0x0010);
+        }
+    }
+
+
 
 
 }

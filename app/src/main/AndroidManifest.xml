@@ -394,7 +394,7 @@
         <!-- 测试 -->
         <meta-data
             android:name="PGYER_APPID"
-            android:value="8bf80b7244c3865d513295949bdb40bd" />
+            android:value="b48e865ecdb0b9b3f7f0328844aca7fb" />
 
         <!-- 正式 -->
 
@@ -478,7 +478,6 @@
             android:name="com.ub.service.activity.WatchCourseActivity4"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
             android:screenOrientation="landscape"
-            android:launchMode="singleInstance"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"

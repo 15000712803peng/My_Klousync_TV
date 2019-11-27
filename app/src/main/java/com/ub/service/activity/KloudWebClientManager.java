@@ -122,11 +122,15 @@ public class KloudWebClientManager implements KloudWebClient.OnClientEventListen
                 heartBeatMessage.put("sessionId", AppConfig.UserToken);
                 heartBeatMessage.put("changeNumber", 0);
                 if (AppConfig.isPresenter) {
-//                    heartBeatMessage.put("status", AppConfig.status);
-//                    heartBeatMessage.put("currentLine", AppConfig.currentLine);
-//                    heartBeatMessage.put("currentMode", AppConfig.currentMode);
+                    heartBeatMessage.put("status", AppConfig.status);
+                    heartBeatMessage.put("currentLine", AppConfig.currentLine);
+                    heartBeatMessage.put("currentMode", AppConfig.currentMode);
                     heartBeatMessage.put("currentPageNumber", AppConfig.currentPageNumber);
                     heartBeatMessage.put("currentItemId", AppConfig.currentDocId);
+                }
+
+                if(AppConfig.IsInQrcode){
+                    heartBeatMessage.put("tvUnbound", 1);
                 }
 
                 if(kloudWebClient != null){

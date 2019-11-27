@@ -357,8 +357,11 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     int meetingType = 2;
     private SimulateDirectionKeyboardView simulateKeyboard;
 
+
+
     @Override
     public void onFavoriteDocSelected(String docId) {
+
         TeamSpaceInterfaceTools.getinstance().uploadFromSpace(AppConfig.URL_PUBLIC + "EventAttachment/UploadFromFavorite?lessonID=" + lessonId + "&itemIDs=" + docId, TeamSpaceInterfaceTools.UPLOADFROMSPACE, new TeamSpaceInterfaceListener() {
             @Override
             public void getServiceReturnData(Object object) {
@@ -908,6 +911,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.FULL_WAKE_LOCK, "TEST");
         wl.acquire();
+        AppConfig.IsInMeeting = false;
         teacherid = getIntent().getStringExtra("teacherid");
         studentid = getIntent().getStringExtra("userid");
         identity = getIntent().getIntExtra("identity", 0);
@@ -1177,6 +1181,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             currentMaxVideoUserId = getRetCodeByReturnData2("currentMaxVideoUserId", msg);
             mViewType = Integer.parseInt(currentMode);
             isMeetingStarted = meetingType == 0 ? true : false;
+            AppConfig.IsInMeeting = isMeetingStarted;
             Log.e("WatchCourseActivity3", "doJOIN_MEETING,isMeetingStarted:" + isMeetingStarted);
             if (!isMeetingStarted) {
             } else {
@@ -1284,8 +1289,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     }
 
     private void joinChannel() {
-
-
         rtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
         rtcEngine().setAudioProfile(Constants.AUDIO_PROFILE_MUSIC_HIGH_QUALITY_STEREO,
                 Constants.AUDIO_SCENARIO_SHOWROOM);
@@ -1333,6 +1336,11 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             Log.e("WatchCourseActivity3", "broadcastReceiver,message:" + message);
+
+            if(TextUtils.isEmpty(message)){
+                return;
+            }
+
             if (message.equals("START_JOIN_MEETING")) {
                 meetingId = intent.getStringExtra("meeting_id");
                 meetingType = intent.getIntExtra(" meeting_type", -1);
@@ -1342,6 +1350,11 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             if (message.equals("END_MEETING")) {
                 sendLeaveMeetingMessage();
                 finish();
+                return;
+            }
+
+            if(message.equals("LEAVE_MEETING")){
+                followLeaveMeeting();
                 return;
             }
             String msg = Tools.getFromBase64(message);
@@ -1728,6 +1741,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 AppConfig.currentDocId = currentItemId;
                 try {
                     String data = getRetCodeByReturnData2("data", msg);
+                    // 矫正
                     if (!TextUtils.isEmpty(data)) {
                         final JSONObject jsonObject = new JSONObject(Tools.getFromBase64(data));
                         String currentItemId2 = jsonObject.getString("currentItemId");
@@ -1782,7 +1796,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
     };
 
     private void followChangeFile(LineItem lineItem) {
-        Log.e("dddddd", documentList.size() + "");
+        Log.e("followChangeFile", documentList.size() + "");
         if (documentList.size() > 0) {
             if (lineItem == null || TextUtils.isEmpty(lineItem.getItemId()) || lineItem.getItemId().equals("0")) {
                 lineItem = documentList.get(0);
@@ -1815,7 +1829,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             currentItemId = lineItem.getItemId();
             targetUrl = lineItem.getUrl();
             newPath = lineItem.getNewPath();
-            Log.e("dddddd", currentAttachmentId + "  " + currentItemId + "  " + targetUrl + "  " + newPath);
+            Log.e("followChangeFile", currentAttachmentId + "  " + currentItemId + "  " + targetUrl + "  " + newPath);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -2175,8 +2189,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
         keyboardSupporter.addKeyboardView(closeView);
 
         keyboardSupporter.init();
-
-
         handler = new MyHandler(this);
 
     }
@@ -5393,7 +5405,12 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             try {
                 JSONObject loginjson = new JSONObject();
                 if (id == 1) {
-                    loginjson.put("action", "END_MEETING");
+                    if(meetingType == 0){
+                        loginjson.put("action", "END_MEETING");
+                    }else {
+                        loginjson.put("action", "LEAVE_MEETING");
+                    }
+
                 } else if (id == 0) {
                     loginjson.put("action", "LEAVE_MEETING");
                 }
@@ -6424,7 +6441,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 currentItemId = lineItem.getItemId();
                 targetUrl = lineItem.getUrl();
                 newPath = lineItem.getNewPath();
-                notifySwitchDocumentSocket(lineItem, "1");
+                notifySwitchDocumentSocket(lineItem, currentAttachmentPage);
                 loadWebIndex();
             }
         });
@@ -7934,6 +7951,8 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             JSONObject message = new JSONObject();
             message.put("action", "LEAVE_MEETING");
             message.put("sessionId", AppConfig.UserToken);
+            message.put("meetingId", meetingId);
+            message.put("followToLeave", 1);
             SpliteSocket.sendMesageBySocket(message.toString());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -8024,5 +8043,23 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 displayNote(note);
             }
         });
+    }
+
+
+    private void followLeaveMeeting(){
+        if (mWebSocketClient != null) {
+            try {
+                JSONObject loginjson = new JSONObject();
+                loginjson.put("action", "LEAVE_MEETING");
+                loginjson.put("sessionId", AppConfig.UserToken);
+                loginjson.put("meetingId", meetingId);
+                loginjson.put("followToLeave", 1);
+                String ss = loginjson.toString();
+                SpliteSocket.sendMesageBySocket(ss);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        finish();
     }
 }

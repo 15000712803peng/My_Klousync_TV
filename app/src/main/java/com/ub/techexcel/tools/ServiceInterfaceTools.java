@@ -765,6 +765,7 @@ public class ServiceInterfaceTools {
             @Override
             public void run() {
                 try {
+
                     JSONObject returnjson = ConnectService.getIncidentbyHttpGet(url);
                     Log.e("TwinkleBookNote", url + "  " + returnjson.toString());
                     if (returnjson.getInt("RetCode") == 0) {
@@ -774,6 +775,7 @@ public class ServiceInterfaceTools {
                             JSONObject lineitem = lineitems.getJSONObject(j);
                             items.add(new Gson().fromJson(lineitem.toString(), NoteDetail.class));
                         }
+
                         Message msg = Message.obtain();
                         msg.obj = items;
                         msg.what = code;
@@ -1258,6 +1260,18 @@ public class ServiceInterfaceTools {
 
     }
 
+//    TV/RefreshToken
+
+    public void refreshTvToken(final String url, final String tvID, final OnJsonResponseReceiver jsonResponseReceiver) {
+
+        JSONObject returnjson = ConnectService.getRequestWithoutToken(url + "?tvID=" + tvID);
+        Log.e("refreshTvToken", url + "?tvID=" + tvID + ",response:" + returnjson);
+        if (jsonResponseReceiver != null) {
+            jsonResponseReceiver.jsonResponse(returnjson);
+        }
+
+    }
+
 
     public interface OnJsonResponseReceiver {
         void jsonResponse(JSONObject jsonResponse);
@@ -1270,6 +1284,7 @@ public class ServiceInterfaceTools {
     public Call<NetworkResponse<SyncBook>> getSyncbookOutline(String syncroomId){
         return request.getSyncbookOutline(AppConfig.UserToken,syncroomId);
     }
+
 
 
 }

@@ -288,7 +288,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         Log.e("SocketService", "sendEndMeetingMessage");
         Intent intent = new Intent();
         intent.setAction("com.cn.socket");
-        intent.putExtra("message", "END_MEETING");
+        intent.putExtra("message", "LEAVE_MEETING");
         sendBroadcast(intent);
     }
 
@@ -327,11 +327,20 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
             int meetingType = 0;
             JSONObject messageJson = new JSONObject(data);
 
-            if (messageJson.has("tvBindUserId")) {
-                updateBindUser(messageJson.getInt("tvBindUserId") + "");
-            } else {
+            if(!messageJson.has("tvBindUserId") || TextUtils.isEmpty(messageJson.getString("tvBindUserId"))){
                 goToQrcodeActivity();
                 return;
+            }
+
+            if(messageJson.has("enableSync")){
+                if(!messageJson.getBoolean("enableSync")){
+                    setDeviceType(-1);
+                    return;
+                }
+            }
+
+            if (messageJson.has("tvBindUserId")) {
+                updateBindUser(messageJson.getInt("tvBindUserId") + "");
             }
 
             if (messageJson.has("tvOwnerDeviceType")) {
@@ -437,8 +446,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         startMeetingCard.setOnClickListener(this);
         GetBottom();
         editListener();
-
-
 //        EditHelp.hideSoftInputMethod(roomet, NotifyActivity.this);
 //        GetPhoneInfo();
         getBindUserInfo();
@@ -556,7 +563,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         if (!TextUtils.isEmpty(roomid) && !TextUtils.isEmpty(AppConfig.BINDUSERID)) {
             Log.e("NotifyActivity", "follow user,meeting type:" + type + ",meeting id" + roomid);
             if (type == 1 || type == 2) {
-
                 Intent intent = (type == 2) ? new Intent(NotifyActivity.this, WatchCourseActivity3.class) :
                         new Intent(NotifyActivity.this, SyncRoomActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

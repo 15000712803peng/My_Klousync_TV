@@ -1,12 +1,15 @@
 package com.kloudsync.techexcel2.start;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -15,11 +18,19 @@ import android.widget.Toast;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.ub.service.activity.NotifyActivity;
 import com.ub.service.activity.SocketService;
+import com.ub.techexcel.tools.ServiceInterfaceTools;
 
 import org.feezu.liuli.timeselector.Utils.TextUtil;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Locale;
+import java.util.UUID;
+
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class StartUbao extends Activity {
 
@@ -36,7 +47,6 @@ public class StartUbao extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-
         sharedPreferences = getSharedPreferences(AppConfig.LOGININFO,
                 MODE_PRIVATE);
         editor = sharedPreferences.edit();
@@ -51,17 +61,14 @@ public class StartUbao extends Activity {
         AppConfig.DEVICE_ID = sharedPreferences.getString("DeviceId", null);
         Log.e("deviceID", AppConfig.DEVICE_ID);
 //        Toast.makeText(getApplicationContext(),"device_id:" + AppConfig.DEVICE_ID,Toast.LENGTH_LONG).show();
-
         password = LoginGet.DecodeBase64Password(sharedPreferences.getString("password", ""));
         countrycode = sharedPreferences.getInt("countrycode", 86);
         AppConfig.LANGUAGEID = getLocaleLanguage();
-
         Log.e("haha", AppConfig.UUID + ":" + AppConfig.UserToken + ":" + AppConfig.UserID);
 
 		/*Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
 		startActivity(intent);
 		finish();*/
-
 		/*if (isLogIn) {
 			LoginGet.LoginRequest(StartUbao.this, "+" + countrycode
 					+ telephone, password, 1, sharedPreferences, editor);
@@ -73,11 +80,10 @@ public class StartUbao extends Activity {
 		}*/
         Intent intent = null;
         Log.e("tv_bind_user",sharedPreferences.getString("tv_bind_user",""));
-        if (isFirst || TextUtils.isEmpty(AppConfig.UUID)) {
+        if (isFirst || TextUtils.isEmpty(AppConfig.UserToken)) {
             intent = new Intent(getApplicationContext(),
                     TvRegisterActivity.class);
         } else {
-
             AppConfig.BINDUSERID = sharedPreferences.getString("tv_bind_user","");
             if(TextUtils.isEmpty(AppConfig.BINDUSERID) || AppConfig.BINDUSERID.equals("0")){
                 intent = new Intent(getApplicationContext(),
@@ -87,11 +93,11 @@ public class StartUbao extends Activity {
                 intent = new Intent(this, NotifyActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             }
-
         }
         startActivity(intent);
         finish();
     }
+
 
     private void startWBService() {
         Intent service = new Intent(getApplicationContext(), SocketService.class);
@@ -108,6 +114,10 @@ public class StartUbao extends Activity {
 
             if(TextUtil.isEmpty(device_id)){
                 device_id = android.os.Build.FINGERPRINT;
+            }
+
+            if(TextUtils.isEmpty(device_id)){
+                device_id = UUID.randomUUID() +"";
             }
 
             if(!TextUtils.isEmpty(device_id)){
@@ -173,5 +183,7 @@ public class StartUbao extends Activity {
 //        MobclickAgent.onPageEnd("StartUbao");
 //	    MobclickAgent.onPause(this);
     }
+
+
 
 }

@@ -1,6 +1,7 @@
 package com.kloudsync.techexcel2.start;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,11 +21,18 @@ import android.widget.Toast;
 import com.ub.techexcel.service.ConnectService;
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.config.AppConfig;
+import com.ub.techexcel.tools.ServiceInterfaceTools;
 
+import org.feezu.liuli.timeselector.Utils.TextUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.UUID;
+
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class TvRegisterActivity extends AppCompatActivity {
 
@@ -57,11 +65,16 @@ public class TvRegisterActivity extends AppCompatActivity {
                     tv_error.setVisibility(View.VISIBLE);
                     tv_error.setText(result);
                     break;
+                case -10002:
+                    refreshAndLogin();
+                    break;
                 default:
                     break;
             }
         }
     };
+
+
 
     private void mJsonTV(String result) {
         try {
@@ -82,7 +95,7 @@ public class TvRegisterActivity extends AppCompatActivity {
                 editor.putBoolean("isFirst", false);
                 editor.putString("UserToken", UserToken);
                 editor.putString("Name", Name);
-                editor.putString("uuid", uuid + "");
+//                editor.putString("uuid", uuid + "");
                 editor.commit();
                 Intent intent = new Intent(this, QrCodeActivity.class);
                 startActivity(intent);
@@ -184,7 +197,7 @@ public class TvRegisterActivity extends AppCompatActivity {
                             msg.what = AppConfig.SUCCESS;
                             msg.obj = responsedata.toString();
                         } else {
-                            msg.what = AppConfig.FAILED;
+                            msg.what = Integer.parseInt(retcode);
                             msg.obj = responsedata.getString("ErrorMessage");
                         }
                     }else {
@@ -208,7 +221,7 @@ public class TvRegisterActivity extends AppCompatActivity {
         Log.e("uuid", uuid + "");
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("TvID", uuid);
+            jsonObject.put("TvID", sharedPreferences.getString("DeviceId", null));
             jsonObject.put("TvName", name);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -216,6 +229,51 @@ public class TvRegisterActivity extends AppCompatActivity {
 
         return jsonObject;
     }
+
+    private void refreshAndLogin(){
+
+        String tvId = sharedPreferences.getString("DeviceId","");
+        if(TextUtils.isEmpty(tvId)){
+            tvId = getDeviceInfo(this);
+        }
+        final String id = tvId;
+
+
+        Observable.just(id).observeOn(Schedulers.io()).map(new Function<String, Object>() {
+            @Override
+            public Object apply(final String id) throws Exception {
+                ServiceInterfaceTools.getinstance().refreshTvToken(AppConfig.URL_PUBLIC + "TV/RefreshToken", id, new ServiceInterfaceTools.OnJsonResponseReceiver() {
+                    @Override
+                    public void jsonResponse(JSONObject jsonResponse) {
+                        if(jsonResponse != null){
+                            try {
+                                int retCode = jsonResponse.getInt("RetCode");
+                                Log.e("expired","step one");
+                                if(retCode == 0){
+//                                    refreshData.newToken = "";
+                                    JSONObject data = jsonResponse.getJSONObject("RetData");
+                                    if(data != null && data.has("UserToken")){
+                                        sharedPreferences.edit().putString("UserToken",data.getString("UserToken")).commit();
+                                        AppConfig.UserToken = data.getString("UserToken");
+                                        goToQrcodeActivity();
+
+                                    }
+
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
+                });
+                return id;
+            }
+
+        }).subscribe();
+//        Observable.just()
+    }
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -235,4 +293,48 @@ public class TvRegisterActivity extends AppCompatActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    public static String getDeviceInfo(Context context) {
+
+        try {
+            String device_id = "";
+            if(TextUtil.isEmpty(device_id)){
+                device_id = android.os.Build.SERIAL;
+            }
+
+            if(TextUtil.isEmpty(device_id)){
+                device_id = android.os.Build.FINGERPRINT;
+            }
+
+            if(TextUtils.isEmpty(device_id)){
+                device_id = UUID.randomUUID() +"";
+            }
+
+            if(!TextUtils.isEmpty(device_id)){
+                device_id = device_id.replaceAll("/","");
+            }
+
+            return device_id;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void goToQrcodeActivity() {
+        getSharedPreferences(AppConfig.LOGININFO,
+                MODE_PRIVATE).edit().putString("tv_bind_user", "").commit();
+        AppConfig.BINDUSERID = "";
+        Intent intent = new Intent(this, QrCodeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        overridePendingTransition(R.anim.tran_in7, R.anim.tran_out7);
+        startActivity(intent);
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        }, 500);
+    }
+
 }

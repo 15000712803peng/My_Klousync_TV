@@ -921,6 +921,7 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
         initView();
         instance = this;
         watchSyncroomInstance = true;
+        AppConfig.IsInMeeting = false;
         WindowManager wm = (WindowManager)
                 getSystemService(WINDOW_SERVICE);
         EventBus.getDefault().register(this);
@@ -1292,9 +1293,21 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
 
+
+            if(TextUtils.isEmpty(message)){
+                return;
+            }
+
+
             if (message.equals("START_JOIN_MEETING")) {
                 gotoMeeting();
             }
+
+            if(message.equals("LEAVE_MEETING")){
+                followLeaveMeeting();
+                return;
+            }
+
             String msg = Tools.getFromBase64(message);
             String msg_action = getRetCodeByReturnData2("action", msg);
 
@@ -5685,7 +5698,7 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
             try {
                 JSONObject loginjson = new JSONObject();
                 if (id == 1) {
-                    loginjson.put("action", "END_MEETING");
+                    loginjson.put("action", "LEAVE_MEETING");
                 } else if (id == 0) {
                     loginjson.put("action", "LEAVE_MEETING");
                 }
@@ -5696,6 +5709,7 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
                 e.printStackTrace();
             }
         }
+        finish();
 
     }
 
@@ -7471,10 +7485,13 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
             JSONObject message = new JSONObject();
             message.put("action", "LEAVE_MEETING");
             message.put("sessionId", AppConfig.UserToken);
+            message.put("meetingId", meetingId);
+            message.put("followToLeave", 1);
             SpliteSocket.sendMesageBySocket(message.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
 
     }
 
@@ -7657,6 +7674,23 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
             e.printStackTrace();
         }
         send_message("SEND_MESSAGE", AppConfig.UserToken, 0, null, Tools.getBase64(actionJson.toString()).replaceAll("[\\s*\t\n\r]", ""));
+    }
+
+    private void followLeaveMeeting(){
+        if (mWebSocketClient != null) {
+            try {
+                JSONObject loginjson = new JSONObject();
+                loginjson.put("action", "LEAVE_MEETING");
+                loginjson.put("sessionId", AppConfig.UserToken);
+                loginjson.put("meetingId", meetingId);
+                loginjson.put("followToLeave", 1);
+                String ss = loginjson.toString();
+                SpliteSocket.sendMesageBySocket(ss);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        finish();
     }
 
 

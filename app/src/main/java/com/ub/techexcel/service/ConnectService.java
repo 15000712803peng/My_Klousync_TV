@@ -101,6 +101,29 @@ public class ConnectService {
         return jsonObject;
     }
 
+
+    public static JSONObject getRequestWithoutToken(String path) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            URL url = new URL(path);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(5 * 1000);
+            // conn.addRequestProperty("LanguageID", AppConfig.LANGUAGEID + "");
+            conn.setRequestMethod("GET");
+            if (conn.getResponseCode() == 200) {
+                InputStream is = conn.getInputStream();
+                String json = StringUtils.inputStreamTString(is);
+
+                jsonObject = new JSONObject(json);
+                is.close();
+                conn.disconnect();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
     /**
      * 通過httpget获取网络数据
      *

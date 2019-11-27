@@ -46,7 +46,7 @@ public class App extends Application {
 
         mCrashHandler = CrashHandler.getInstance();
         PgyerActivityManager.set(App.this);
-        Pgyer.setAppId("8bf80b7244c3865d513295949bdb40bd");
+        Pgyer.setAppId("b48e865ecdb0b9b3f7f0328844aca7fb");
         mCrashHandler.init(this);
 		
 		PgyCrashManager.register(this);

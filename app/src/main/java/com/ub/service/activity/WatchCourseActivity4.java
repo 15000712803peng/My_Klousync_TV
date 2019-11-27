@@ -416,7 +416,6 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
                 safeDownloadFile(page,url,pageNum, true);
             }
         });
-
     }
 
     @org.xwalk.core.JavascriptInterface
@@ -455,7 +454,6 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
             url = AppConfig.URL_PUBLIC + "TopicAttachment/List?topicID=" + currentMeetingData.lessionId;
         }
         asyncGetDocumentDetail(url);
-
     }
 
     List<MeetingFile> meetingFiles;
@@ -583,7 +581,6 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
         Observable.just(currentMeetingData.currentMeetingFile).observeOn(Schedulers.io()).map(new Function<MeetingFile, Object>() {
             @Override
             public Object apply(MeetingFile meetingFile) throws Exception {
-
                 int pageIndex = 1;
                 if (currentMeetingData.currentFilePageIndex == 0) {
                     pageIndex = 1;
@@ -596,6 +593,7 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
             }
         }).subscribe();
     }
+
 
 
     public String encoderByMd5(String str) {
@@ -720,8 +718,6 @@ public class WatchCourseActivity4 extends BaseActivity implements KloudWebClient
                     }
                 }
             });
-
-
         }
 
     }

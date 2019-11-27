@@ -50,7 +50,9 @@ import com.kloudsync.techexcel2.start.LoginGet;
 import com.kloudsync.techexcel2.tool.DensityUtil;
 import com.kloudsync.techexcel2.view.CustomViewPager;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.java_websocket.client.WebSocketClient;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -598,6 +600,10 @@ public class MainActivity extends FragmentActivity {
 
 //        stopService(service);
     }
+
+
+
+
 
 
 }

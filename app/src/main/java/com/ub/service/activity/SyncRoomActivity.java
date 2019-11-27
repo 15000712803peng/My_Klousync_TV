@@ -1508,6 +1508,38 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                                 syncRoomDocumentPopup.changeSelectedPostion(position);
                             }
                         }
+                    }else if(jsonObject.getInt("actionType") == 1858){
+                        ServiceInterfaceTools.getinstance().getNoteListV2(AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + 0 + "&documentItemID=" + currentAttachmentId + "&pageNumber=" + currentAttachmentPage + "&userID=" + AppConfig.BINDUSERID, ServiceInterfaceTools.GETNOTELISTV2, new ServiceInterfaceListener() {
+                            @Override
+                            public void getServiceReturnData(Object object) {
+                                List<NoteDetail> noteDetails = (List<NoteDetail>) object;
+                                if (noteDetails != null && noteDetails.size() > 0) {
+                                    notifyDrawNotes(noteDetails, 0);
+                                }
+                                if (isTwinkleBookNote) {
+                                    isTwinkleBookNote = false;
+                                    twinkleBookNote(linkID);
+                                }
+
+                                if (!TextUtils.isEmpty(selectCusterId) && !selectCusterId.equals(AppConfig.UserID)) {
+                                    ServiceInterfaceTools.getinstance().getNoteListV3(AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + 0 + "&documentItemID=" + currentAttachmentId + "&pageNumber=" + currentAttachmentPage + "&userID=" + selectCusterId, ServiceInterfaceTools.GETNOTELISTV3, new ServiceInterfaceListener() {
+                                        @Override
+                                        public void getServiceReturnData(Object object) {
+                                            List<NoteDetail> noteDetails = (List<NoteDetail>) object;
+                                            if (noteDetails != null && noteDetails.size() > 0) {
+                                                notifyDrawNotes(noteDetails, 1);
+                                            }
+                                            if (isTwinkleBookNote) {
+                                                twinkleBookNote(linkID);
+                                            }
+                                            isTwinkleBookNote = false;
+                                        }
+                                    });
+                                }
+                            }
+                        });
+
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -6866,7 +6898,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 currentItemId = currentShowPdf.getItemId();
                 targetUrl = currentShowPdf.getUrl();
                 newPath = currentShowPdf.getNewPath();
-                notifySwitchDocumentSocket(currentShowPdf, "1");
+                notifySwitchDocumentSocket(currentShowPdf, currentAttachmentPage);
                 loadWebIndex();
             }
         });

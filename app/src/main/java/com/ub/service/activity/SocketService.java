@@ -165,11 +165,11 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
             notifyBean.setStatus(status);
             AppConfig.progressCourse.add(notifyBean);
         }
+
         Intent intent = new Intent();
         intent.setAction(getResources().getString(R.string.Receive_Course));
         sendBroadcast(intent);
     }
-
 
     private void notifyend(String meetingId) {
         for (int i = 0; i < AppConfig.progressCourse.size(); i++) {
@@ -182,7 +182,6 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
             }
         }
     }
-
 
     @Override
     public void onMessage(String message) {
@@ -560,7 +559,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
                 if (SingleCallActivity2.instance != null) {
                     SingleCallActivity2.instance.finish();
                 }
-            }else if(actionType == 27){
+            }else if(actionType == 1805){
                 sendEndMeetingMessage();
                 logout();
             }
@@ -580,66 +579,6 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
           Intent heartBeatIntent = new Intent("com.kloudsync.techexcel2.HeartBeatMessage");
           heartBeatIntent.putExtra("message",msg);
           sendBroadcast(heartBeatIntent);
-//        String action = Tools.getFromBase64(getRetCodeByReturnData2("data", msg));
-////        if (WatchCourseActivity3.isMeetingStarted) {
-////            //TV已经在会议里面
-////            return;
-////        }
-//
-//        if (!TextUtils.isEmpty(action)) {
-//            try {
-//                String meetingId = null;
-//                int meetingType = 0;
-//                JSONObject actionJson = new JSONObject(action);
-//
-//                if(actionJson.has("tvBindUserId")){
-//                    updateBindUser(actionJson.getInt("tvBindUserId")+"");
-//                }else {
-//                    updateBindUser("");
-//                }
-//
-//                if (actionJson.has("hasOwner")) {
-//                    //绑定了某台设备，或者web
-//                    boolean hasOwner = actionJson.getBoolean("hasOwner");
-//
-//                    if (hasOwner) {
-//                        if (actionJson.has("tvOwnerMeetingId")) {
-//                            meetingId = actionJson.getString("tvOwnerMeetingId");
-//                        }else {
-//                            meetingId = "0";
-//                        }
-//                        if (actionJson.has("tvOwnerMeetingType")) {
-//                            meetingType = actionJson.getInt("tvOwnerMeetingType");
-//                        }
-//
-//                        if(actionJson.has("tvOwnerDeviceType")){
-//                            sendBindStatusMessage(actionJson.getInt("tvOwnerDeviceType"));
-//                        }
-//
-//                        if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
-//                            //已经在Meeting或者Document,或者SyncRoom里面
-//                            Log.e("BeartHeart","inside,and heart beat meeting id:" + meetingId);
-//                            if(TextUtils.isEmpty(meetingId) || meetingId.equals("0")){
-//                                sendEndMeetingMessage();
-//                                return;
-//                            }
-//                        } else {
-//                            //不在，跳进去
-//                            if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
-//                                followUser(meetingId,meetingType);
-//                                Log.e("BeartHeart","enter again");
-//                            }
-//                        }
-//                    }else {
-//                        sendBindStatusMessage(-1);
-//                    }
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }else {
-//            sendBindStatusMessage(-1);
-//        }
 
     }
 
@@ -660,7 +599,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         }
         Intent intent = new Intent();
         intent.setAction("com.cn.socket");
-        intent.putExtra("message", leaveJson.toString());
+        intent.putExtra("message", "LEAVE_MEETING");
         sendBroadcast(intent);
         sendbindMessage(-1);
     }
@@ -669,7 +608,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         Log.e("SocketService","sendEndMeetingMessage");
         Intent intent = new Intent();
         intent.setAction("com.cn.socket");
-        intent.putExtra("message", "END_MEETING");
+        intent.putExtra("message", "LEAVE_MEETING");
         sendBroadcast(intent);
     }
 
