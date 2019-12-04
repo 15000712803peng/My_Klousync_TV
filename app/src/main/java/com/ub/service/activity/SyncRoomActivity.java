@@ -2858,7 +2858,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         });
 
         if (closenote.getVisibility() == View.GONE) {
-            ServiceInterfaceTools.getinstance().getNoteListV2(AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + 0 + "&documentItemID=" + currentAttachmentId + "&pageNumber=" + currentAttachmentPage + "&userID=" + AppConfig.UserID, ServiceInterfaceTools.GETNOTELISTV2, new ServiceInterfaceListener() {
+            ServiceInterfaceTools.getinstance().getNoteListV2(AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + 0 + "&documentItemID=" + currentAttachmentId + "&pageNumber=" + currentAttachmentPage + "&userID=" + AppConfig.BINDUSERID, ServiceInterfaceTools.GETNOTELISTV2, new ServiceInterfaceListener() {
                 @Override
                 public void getServiceReturnData(Object object) {
                     List<NoteDetail> noteDetails = (List<NoteDetail>) object;
@@ -4078,7 +4078,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     }
 
 
-    private String selectCusterId = AppConfig.UserID;
+    private String selectCusterId = AppConfig.BINDUSERID;
 
     private void openNotePopup() {
 //        if (TextUtils.isEmpty(selectCusterId)) {
