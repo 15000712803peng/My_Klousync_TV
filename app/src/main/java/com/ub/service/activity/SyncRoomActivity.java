@@ -7734,6 +7734,32 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private void openYinxiangList(int yinxiangmode) {
         yinxiangPopup = new YinxiangPopup();
         yinxiangPopup.getPopwindow(SyncRoomActivity.this);
+        yinxiangPopup.setFavoritePoPListener(new YinxiangPopup.FavoritePoPListener() {
+            @Override
+            public void dismiss() {
+
+            }
+
+            @Override
+            public void open() {
+
+            }
+
+            @Override
+            public void createYinxiang() {
+
+            }
+
+            @Override
+            public void editYinxiang(SoundtrackBean soundtrackBean) {
+
+            }
+
+            @Override
+            public void playYinxiang(SoundtrackBean soundtrackBean) {
+
+            }
+        });
         if (yinxiangmode == 0) {
             yinxiangPopup.StartPop(wv_show, currentAttachmentId, "", false, isHavePresenter());
         } else if (yinxiangmode == 1) {
