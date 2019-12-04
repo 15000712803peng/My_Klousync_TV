@@ -40,6 +40,25 @@ public class LineItem implements Serializable {
 
     private boolean me;
 
+    private String pageNumber;
+
+    private int docType;
+    public int getDocType() {
+        return docType;
+    }
+
+    public void setDocType(int docType) {
+        this.docType = docType;
+    }
+
+    public String getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(String pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
     public boolean isMe() {
         return me;
     }

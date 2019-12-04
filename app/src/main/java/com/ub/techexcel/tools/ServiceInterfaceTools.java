@@ -65,7 +65,7 @@ public class ServiceInterfaceTools {
     public static final int TV_NOT_FOLLOW = 0x1120;
     public static final int GETNOTELIST = 0x1139;
     public static final int GETNOTEBYLOCALFILEID = 0x1140;
-    public static final int GETNOTEBYNOTEID2 = 0x1141;
+    public static final int GETNOTEBYNOTEID = 0x1141;
     public static final int GETSYNCROOMUSERLIST = 0x1142;
     public static final int IMPORTNOTE = 0x1143;
     public static final int GETNOTELISTV2 = 0x1144;

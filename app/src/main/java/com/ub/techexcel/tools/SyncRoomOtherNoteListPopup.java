@@ -113,15 +113,18 @@ public class SyncRoomOtherNoteListPopup {
             @Override
             public void selectCustomer(Customer customer) {
                 String userid = customer.getUserID();
-                selectId = userid;
                 webCamPopupListener.notifychangeUserid(userid);
-                setName(userid, syncroomid);
-                getNoteData(userid, syncroomid);
 
             }
         });
         syncRoomNotePopup.StartPop(syncroomid, userid);
     }
+    public void reLoadUser(String userid) {
+        selectId = userid;
+        setName(userid, syncroomid);
+        getNoteData(userid, syncroomid);
+    }
+
 
 
     private String selectId;
@@ -157,6 +160,7 @@ public class SyncRoomOtherNoteListPopup {
             }
         });
     }
+    private List<NoteDetail> useNoteList = new ArrayList<>();
 
     private void getNoteData(String id, String syncroomid) {
         String url = AppConfig.URL_PUBLIC + "DocumentNote/List?syncRoomID=" + syncroomid + "&documentItemID=0&pageNumber=0&userID=" + id;
@@ -166,12 +170,16 @@ public class SyncRoomOtherNoteListPopup {
                 List<NoteDetail> items = new ArrayList<NoteDetail>();
                 items.clear();
                 items.addAll((List<NoteDetail>) object);
+                useNoteList.clear();
+                useNoteList.addAll((List<NoteDetail>) object);
                 syncRoomNoteListAdapter = new SyncRoomNoteListAdapter(mContext, items);
                 recycleview.setAdapter(syncRoomNoteListAdapter);
             }
         });
     }
-
+    public List<NoteDetail> getUseNoteList() {
+        return useNoteList;
+    }
 
     public boolean isShowing() {
         return mPopupWindow.isShowing();
