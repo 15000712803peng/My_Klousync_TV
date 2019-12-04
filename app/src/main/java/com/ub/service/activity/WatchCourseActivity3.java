@@ -3844,7 +3844,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
 
             @Override
             public void notifychangeUserid(String userId) {
-
                 loadNoteWhenChangeUser(userId);
                 notifyChangeNoteUser(userId);
             }
@@ -3852,6 +3851,16 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             @Override
             public void close() {
                 notifyTvNoteOpenOrClose(0, selectCusterId);
+            }
+
+            @Override
+            public void viewNote(NoteDetail noteDetail) {
+                Note note = new Note();
+                note.setNoteID(noteDetail.getNoteID());
+                note.setAttachmentID(noteDetail.getAttachmentID());
+                note.setAttachmentUrl(noteDetail.getAttachmentUrl());
+                Log.e("webview-autoChangeFile", note.getNoteID() + "  ");
+                displayNote(note);
             }
 
         });
@@ -6452,6 +6461,7 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                             notifySwitchDocumentSocket(currentShowPdf, currentAttachmentPage, 0);
                             loadWebIndex();
                             prevItemId = null;
+
                         } else if (!TextUtils.isEmpty(currentShowPdf2.getItemId())) {
                             Log.e("displayNotelog", "3");
                             closenote.setVisibility(View.GONE);
@@ -7676,7 +7686,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
                 public void getServiceReturnData(Object object) {
                     pageNoteDetails.clear();
                     pageNoteDetails.addAll((List<NoteDetail>) object);
-
                     Log.e("webview-autoChangeFile", diff + "  " + pageNoteDetails.size());
                     if (pageNoteDetails.size() == 0 || pageNoteDetails.size() == 1) {
                         return;

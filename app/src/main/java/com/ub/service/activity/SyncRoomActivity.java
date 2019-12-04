@@ -4119,6 +4119,16 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                 notifyTvNoteOpenOrClose(0, selectCusterId);
             }
 
+            @Override
+            public void viewNote(NoteDetail noteDetail) {
+                Note note = new Note();
+                note.setNoteID(noteDetail.getNoteID());
+                note.setAttachmentID(noteDetail.getAttachmentID());
+                note.setAttachmentUrl(noteDetail.getAttachmentUrl());
+                Log.e("webview-autoChangeFile", note.getNoteID() + "  ");
+                displayNote(note);
+            }
+
         });
         syncRoomOtherNoteListPopup.StartPop(userid, lessonId);
 

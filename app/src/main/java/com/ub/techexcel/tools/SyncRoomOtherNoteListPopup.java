@@ -199,6 +199,8 @@ public class SyncRoomOtherNoteListPopup {
         void notifychangeUserid(String userId);
 
         void close();
+
+        void  viewNote(NoteDetail noteDetail);
     }
 
     public void setWebCamPopupListener(WebCamPopupListener webCamPopupListener) {
@@ -268,6 +270,13 @@ public class SyncRoomOtherNoteListPopup {
                     noteOperatorPopup.StartPop(holder.operationmore, noteDetail);
                 }
             });
+            holder.viewnote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                    webCamPopupListener.viewNote(noteDetail);
+                }
+            });
         }
 
         @Override
@@ -282,6 +291,7 @@ public class SyncRoomOtherNoteListPopup {
             TextView date;
             TextView pagenumber;
             ImageView operationmore;
+            ImageView viewnote;
 
             public RecycleHolder2(View itemView) {
                 super(itemView);
@@ -291,6 +301,7 @@ public class SyncRoomOtherNoteListPopup {
                 img_url = itemView.findViewById(R.id.img_url);
                 pagenumber = itemView.findViewById(R.id.pagenumber);
                 operationmore = itemView.findViewById(R.id.operationmore);
+                viewnote = itemView.findViewById(R.id.viewnote);
             }
         }
     }
