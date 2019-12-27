@@ -126,7 +126,9 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
                 GoToLogin();
                 break;
             case R.id.txt_refresh_qrcode:
-                refresh();
+//                refresh();
+                initView();
+                Toast.makeText(getApplicationContext(),R.string.success,Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;
@@ -232,7 +234,7 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
         sharedPreferences = getSharedPreferences(AppConfig.LOGININFO,
                 MODE_PRIVATE);
         editor = sharedPreferences.edit();
-        String name = sharedPreferences.getString("Name","");
+        String name = getDeviceInfo(this);
         if(TextUtils.isEmpty(name)){
             Toast.makeText(getApplicationContext(),"please register again",Toast.LENGTH_LONG).show();
             startActivity(new Intent(this,TvRegisterActivity.class));
