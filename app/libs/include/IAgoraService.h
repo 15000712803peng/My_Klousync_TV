@@ -1,6 +1,6 @@
 //  Agora SDK
 //
-//  Copyright (c) 2019 Agora.io. All rights reserved.
+//  Copyright (c) 2018 Agora.io. All rights reserved.
 //
 
 #ifndef AGORA_SERVICE_H
@@ -11,8 +11,8 @@ namespace agora {
     namespace rtc {
         class IRtcEngine;
     }
-    namespace rtm {
-        class IRtmService;
+    namespace signaling {
+        class ISignalingEngine;
     }
 namespace base {
 
@@ -23,38 +23,39 @@ struct AgoraServiceContext
 
 class IAgoraService
 {
-protected:
-    virtual ~IAgoraService(){}
 public:
     virtual void release() = 0;
 
-	/** Initializes the engine.
-     
-    @param context RtcEngine context.
+	/**
+    * Initializes the engine.
+    * @param context RtcEngine context.
     @return
+     
      - 0: Success.
-     - < 0: Failure.
+     - <0: Failure.
     */
     virtual int initialize(const AgoraServiceContext& context) = 0;
 
-    /** Retrieves the SDK version number.
+    /** Gets the SDK version number.
     * @param build Build number.
-    * @return The current SDK version in the string format. For example, 2.4.0
+    * @return return SDK version number in char format.
     */
     virtual const char* getVersion(int* build) = 0;
 
-    virtual rtm::IRtmService* createRtmService() = 0;
+    virtual rtc::IRtcEngine* createRtcEngine() = 0;
+    virtual signaling::ISignalingEngine* createSignalingEngine() = 0;
 };
 
 } //namespace base
 } // namespace agora
 
-/** Gets the SDK version number.
- 
- @param build Build number of the Agora SDK.
+/**
+* Gets the SDK version number.
+* @param build Build number of the Agora SDK.
  @return
+ 
  - 0: Success.
- - < 0: Failure.
+ - <0: Failure.
 */
 AGORA_API const char* AGORA_CALL getAgoraSdkVersion(int* build);
 

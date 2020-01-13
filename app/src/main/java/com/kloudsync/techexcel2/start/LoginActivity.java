@@ -537,6 +537,8 @@ public class LoginActivity extends Activity {
                                           refreshData.newToken = AppConfig.UserToken;
                                       }
 
+                                }else {
+
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();

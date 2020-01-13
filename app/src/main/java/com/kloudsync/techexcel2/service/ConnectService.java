@@ -361,4 +361,43 @@ public class ConnectService {
         return responsejson;
     }
 
+
+    public static JSONObject submitDataByJsonLive(String path, JSONObject jsonObject) {
+        JSONObject responsejson = new JSONObject();
+        /* 把JSON数据转换成String类型使用输出流向服务器写 */
+        try {
+            URL url2 = new URL(path);
+            String content = String.valueOf(jsonObject);
+            HttpURLConnection connection = (HttpURLConnection) url2
+                    .openConnection();
+            connection.setConnectTimeout(5000);
+            connection.addRequestProperty("Authorization", "Bearer " +AppConfig.liveToken);
+            connection.setRequestProperty("Accept", "image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, application/x-shockwave-flash," +
+                    " application/vnd.ms-powerpoint, application/vnd.ms-excel, application/msword, */*");
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("User-Agent", "Fiddler");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Charset", "utf-8");
+            OutputStream os = connection.getOutputStream();
+            os.write(content.getBytes());
+            os.close();
+            int code = connection.getResponseCode();
+            Log.e("code", code + "");
+            if (code == 200) {
+                InputStream is = connection.getInputStream();
+                String str = StringUtils.inputStreamTString(is);
+                responsejson = new JSONObject(str);
+                is.close();
+                connection.disconnect();
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return responsejson;
+
+    }
+
+
 }

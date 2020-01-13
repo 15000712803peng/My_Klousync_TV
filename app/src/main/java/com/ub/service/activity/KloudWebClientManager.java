@@ -121,6 +121,7 @@ public class KloudWebClientManager implements KloudWebClient.OnClientEventListen
                 heartBeatMessage.put("action", "HELLO");
                 heartBeatMessage.put("sessionId", AppConfig.UserToken);
                 heartBeatMessage.put("changeNumber", 0);
+
                 if (AppConfig.isPresenter) {
                     heartBeatMessage.put("status", AppConfig.status);
                     heartBeatMessage.put("currentLine", AppConfig.currentLine);

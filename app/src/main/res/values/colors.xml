@@ -112,4 +112,6 @@
     <color name="blue1">#108EE9</color>
 
     <color name="divider">#d3d3d3</color>
+
+    <color name="bg_gray">#F6F8F9</color>
 </resources>

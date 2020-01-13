@@ -1,13 +1,15 @@
-package com.ub.techexcel.bean;
+package com.kloudsync.techexcel2.bean;
+
+
+
+import com.kloudsync.techexcel2.bean.DocumentPage;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Note implements Serializable {
-    /**
-     * 解决方案具体信息(片段)
-     */
-    private static final long serialVersionUID = 0x110;
 
+    private static final long serialVersionUID = 0x110;
 
     private int documentItemID;
     private int pageNumber;
@@ -23,6 +25,51 @@ public class Note implements Serializable {
     private String createdDate;
     private int status;
     private int linkID;
+    private String localFilePath;
+    private String url;
+    private int PageCount;
+    private List<DocumentPage> documentPages;
+    private String newPath;
+
+    public String getNewPath() {
+        return newPath;
+    }
+
+    public void setNewPath(String newPath) {
+        this.newPath = newPath;
+    }
+
+    public List<DocumentPage> getDocumentPages() {
+        return documentPages;
+    }
+
+    public void setDocumentPages(List<DocumentPage> documentPages) {
+        this.documentPages = documentPages;
+    }
+
+    public int getPageCount() {
+        return PageCount;
+    }
+
+    public void setPageCount(int pageCount) {
+        PageCount = pageCount;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getLocalFilePath() {
+        return localFilePath;
+    }
+
+    public void setLocalFilePath(String localFilePath) {
+        this.localFilePath = localFilePath;
+    }
 
     public int getLinkID() {
         return linkID;
@@ -138,5 +185,15 @@ public class Note implements Serializable {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Note{" +
+                "noteID=" + noteID +
+                ", attachmentUrl='" + attachmentUrl + '\'' +
+                ", localFilePath='" + localFilePath + '\'' +
+                ", url='" + url + '\'' +
+                '}';
     }
 }

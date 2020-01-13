@@ -15,10 +15,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kloudsync.techexcel2.R;
+import com.kloudsync.techexcel2.bean.Note;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.info.Customer;
 import com.kloudsync.techexcel2.info.Customer;
-import com.ub.techexcel.bean.Note;
+
 import com.ub.techexcel.tools.NoteOthersPopup;
 import com.ub.techexcel.tools.ServiceInterfaceListener;
 import com.ub.techexcel.tools.ServiceInterfaceTools;

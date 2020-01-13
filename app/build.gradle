@@ -19,6 +19,10 @@ dependencies {
     compile files('libs/aws-android-sdk-s3-2.13.0.jar')
     compile files('libs/aws-android-sdk-cognito-2.13.0.jar')
     compile files('libs/aws-android-sdk-mobile-client-2.13.0-sources.jar')
+    compile 'com.jakewharton:butterknife:7.0.1'
+    annotationProcessor 'com.jakewharton:butterknife:7.0.1'
+
+
 }
 
 configurations.all {
@@ -43,8 +47,8 @@ android {
         applicationId 'com.kloudsync.techexcel2'
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 14
-        versionName "1.4.0"
+        versionCode 16
+        versionName "1.6.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
@@ -65,7 +69,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro','Proguard-project.txt'
 
         }*/
-
     }
 
     sourceSets {

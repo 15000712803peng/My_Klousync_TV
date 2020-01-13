@@ -50,7 +50,7 @@ public class StartUbao extends Activity {
         sharedPreferences = getSharedPreferences(AppConfig.LOGININFO,
                 MODE_PRIVATE);
         editor = sharedPreferences.edit();
-        editor.putString("DeviceId",getDeviceInfo(StartUbao.this)).commit();
+        editor.putString("DeviceId", getDeviceInfo(StartUbao.this)).commit();
         isFirst = sharedPreferences.getBoolean("isFirst", true);
         isLogIn = sharedPreferences.getBoolean("isLogIn", false);
         telephone = sharedPreferences.getString("telephone", null);
@@ -65,35 +65,83 @@ public class StartUbao extends Activity {
         countrycode = sharedPreferences.getInt("countrycode", 86);
         AppConfig.LANGUAGEID = getLocaleLanguage();
         Log.e("haha", AppConfig.UUID + ":" + AppConfig.UserToken + ":" + AppConfig.UserID);
-
-		/*Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-		startActivity(intent);
-		finish();*/
-		/*if (isLogIn) {
-			LoginGet.LoginRequest(StartUbao.this, "+" + countrycode
-					+ telephone, password, 1, sharedPreferences, editor);
-		} else {
-			Intent intent = new Intent(getApplicationContext(),
-					LoginActivity.class);
-			startActivity(intent);
-			finish();
-		}*/
         Intent intent = null;
-        Log.e("tv_bind_user",sharedPreferences.getString("tv_bind_user",""));
-        if (isFirst || TextUtils.isEmpty(AppConfig.UserToken)) {
-            intent = new Intent(getApplicationContext(),
-                    TvRegisterActivity.class);
+        Log.e("tv_bind_user", sharedPreferences.getString("tv_bind_user", ""));
+        if (TextUtils.isEmpty(AppConfig.UserToken)) {
+//            intent = new Intent(getApplicationContext(),
+//                    TvRegisterActivity.class);
+            refreshAndLogin();
+
         } else {
-            AppConfig.BINDUSERID = sharedPreferences.getString("tv_bind_user","");
-            if(TextUtils.isEmpty(AppConfig.BINDUSERID) || AppConfig.BINDUSERID.equals("0")){
-                intent = new Intent(getApplicationContext(),
-                        QrCodeActivity.class);
-            }else {
-                startWBService();
-                intent = new Intent(this, NotifyActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            }
+            enter();
         }
+    }
+
+    public void enter(){
+        AppConfig.BINDUSERID = sharedPreferences.getString("tv_bind_user", "");
+        Intent intent;
+        if (TextUtils.isEmpty(AppConfig.BINDUSERID) || AppConfig.BINDUSERID.equals("0")) {
+            intent = new Intent(getApplicationContext(),
+                    QrCodeActivity.class);
+        } else {
+            startWBService();
+            intent = new Intent(this, NotifyActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        }
+        startActivity(intent);
+        finish();
+    }
+
+    private void refreshAndLogin() {
+
+        String tvId = sharedPreferences.getString("DeviceId", "");
+        if (TextUtils.isEmpty(tvId)) {
+            tvId = getDeviceInfo(this);
+        }
+        final String id = tvId;
+
+        Observable.just(id).observeOn(Schedulers.io()).map(new Function<String, Object>() {
+            @Override
+            public Object apply(final String id) throws Exception {
+                ServiceInterfaceTools.getinstance().refreshTvToken(AppConfig.URL_PUBLIC + "TV/RefreshToken", id, new ServiceInterfaceTools.OnJsonResponseReceiver() {
+                    @Override
+                    public void jsonResponse(JSONObject jsonResponse) {
+                        if (jsonResponse != null) {
+                            try {
+                                int retCode = jsonResponse.getInt("RetCode");
+                                Log.e("expired", "step one");
+                                if (retCode == 0) {
+//                                    refreshData.newToken = "";
+                                    JSONObject data = jsonResponse.getJSONObject("RetData");
+                                    if (data != null && data.has("UserToken")) {
+                                        sharedPreferences.edit().putString("UserToken", data.getString("UserToken")).commit();
+                                        AppConfig.UserToken = data.getString("UserToken");
+                                        enter();
+                                    } else {
+                                        goToRegister();
+                                    }
+
+                                }else {
+                                    goToRegister();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }else {
+                            goToRegister();
+                        }
+                    }
+                });
+                return id;
+            }
+
+        }).subscribe();
+//        Observable.just()
+    }
+
+    private void goToRegister(){
+        Intent intent = new Intent(getApplicationContext(), TvRegisterActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
     }
@@ -108,20 +156,20 @@ public class StartUbao extends Activity {
 
         try {
             String device_id = "";
-            if(TextUtil.isEmpty(device_id)){
+            if (TextUtil.isEmpty(device_id)) {
                 device_id = android.os.Build.SERIAL;
             }
 
-            if(TextUtil.isEmpty(device_id)){
+            if (TextUtil.isEmpty(device_id)) {
                 device_id = android.os.Build.FINGERPRINT;
             }
 
-            if(TextUtils.isEmpty(device_id)){
-                device_id = UUID.randomUUID() +"";
+            if (TextUtils.isEmpty(device_id)) {
+                device_id = UUID.randomUUID() + "";
             }
 
-            if(!TextUtils.isEmpty(device_id)){
-                device_id = device_id.replaceAll("/","");
+            if (!TextUtils.isEmpty(device_id)) {
+                device_id = device_id.replaceAll("/", "");
             }
 
             return device_id;
@@ -156,7 +204,7 @@ public class StartUbao extends Activity {
         } else if (mlanguage.equals("zh")) {
             return 2;
         }/*else if(mlanguage.equals("ja")){
-			return 4;
+                        return 4;
 		}else if(mlanguage.equals("fr")){
 			return 12;
 		}*/
@@ -183,7 +231,6 @@ public class StartUbao extends Activity {
 //        MobclickAgent.onPageEnd("StartUbao");
 //	    MobclickAgent.onPause(this);
     }
-
 
 
 }

@@ -88,6 +88,7 @@ import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.app.App;
 import com.kloudsync.techexcel2.bean.BookNote;
 import com.kloudsync.techexcel2.bean.EventUserName;
+import com.kloudsync.techexcel2.bean.Note;
 import com.kloudsync.techexcel2.bean.NoteDetail;
 import com.kloudsync.techexcel2.bean.SupportDevice;
 import com.kloudsync.techexcel2.config.AppConfig;
@@ -138,7 +139,7 @@ import com.ub.techexcel.adapter.TeacherRecyclerAdapter;
 import com.ub.techexcel.bean.AgoraBean;
 import com.ub.techexcel.bean.AudioActionBean;
 import com.ub.techexcel.bean.LineItem;
-import com.ub.techexcel.bean.Note;
+
 import com.ub.techexcel.bean.NotifyBean;
 import com.ub.techexcel.bean.PageActionBean;
 import com.ub.techexcel.bean.SoundtrackBean;
@@ -1219,7 +1220,6 @@ public class WatchCourseActivity3 extends BaseActivity implements View.OnClickLi
             message1.obj = joinlist;
             message1.what = AppConfig.SUCCESS;
             handler.sendMessage(message1);
-
             String prepareMode = getRetCodeByReturnData2("prepareMode", msg);
             Message msg2 = Message.obtain();
             msg2.obj = prepareMode;

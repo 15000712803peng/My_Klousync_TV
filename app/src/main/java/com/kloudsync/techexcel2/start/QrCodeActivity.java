@@ -44,6 +44,7 @@ import com.ub.service.activity.KloudWebClientManager;
 import com.ub.service.activity.SocketService;
 import com.ub.techexcel.service.ConnectService;
 import com.ub.techexcel.tools.FileUtils;
+import com.ub.techexcel.tools.Tools;
 
 import org.feezu.liuli.timeselector.Utils.TextUtil;
 import org.json.JSONException;
@@ -190,6 +191,7 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
     protected void onResume() {
         super.onResume();
         AppConfig.IsInQrcode = true;
+        Tools.keepSocketServiceOn(this);
     }
 
     @Override

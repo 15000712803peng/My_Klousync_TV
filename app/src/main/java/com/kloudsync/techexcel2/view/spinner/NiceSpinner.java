@@ -292,7 +292,7 @@ public class NiceSpinner extends AppCompatTextView {
         setArrowDrawableOrHide(arrowDrawable);
     }
 
-    private void setTextInternal(Object item) {
+    public void setTextInternal(Object item) {
         if (selectedTextFormatter != null) {
             setText(selectedTextFormatter.format(item));
         } else {

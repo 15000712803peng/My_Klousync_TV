@@ -22,7 +22,16 @@ public class NoteDetail {
     String AttachmentUrl;
     String SourceFileUrl;
     String CreatedDate;
-    String Status;
+    int Status;
+    String url;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public int getLinkID() {
         return LinkID;
@@ -152,11 +161,11 @@ public class NoteDetail {
         CreatedDate = createdDate;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return Status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         Status = status;
     }
 }

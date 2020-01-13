@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">kloudsyncTV</string>
+    <string name="app_name">KloudTV</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
 
@@ -451,13 +451,33 @@
     <string name="mtLibrary">通过资料库导入</string>
     <string name="mtTPhoto">拍照</string>
 
-    <string name="satOn">启用</string>
-    <string name="satOff">关闭</string>
-    <string name="satOk">确认</string>
 
     <string name="downloading">下载中...</string>
 
     <string name="outline">目录</string>
 
+
+    <!--进入页面显示-->
+    <string name="inAttendee">邀请参会者</string>
+    <string name="cbPage">新建白板</string>
+    <string name="shDocument">分享文档</string>
+    <string name="shYcan">作为主持人，你可以</string>
+    <string name="shAcan">作为参会者，你可以</string>
+    <string name="miProgress">正在进行中的会议</string>
+    <string name="attendees">参会者</string>
+
+    <string name="presenter">主持人</string>
+
+    <!--进入弹窗-->
+    <string name="satOptions">选择音频工具选项</string>
+    <string name="satSystem">系统</string>
+    <string name="kCall">Kloud电话</string>
+    <string name="satExternal">外部工具</string>
+    <string name="satOn">启用</string>
+    <string name="satOff">关闭</string>
+    <string name="satOk">确定</string>
+    <string name="mtMore">更多</string>
+    <string name="mtLeave">离开</string>
+    <string name="mtEnd">结束</string>
 
 </resources>

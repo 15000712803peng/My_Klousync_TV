@@ -86,7 +86,7 @@ public class KloudWebClient extends WebSocketClient{
 
     @Override
     public void onMessage(String message) {
-        Log.e("KloudWebClient","onMessage:" + message);
+//        Log.e("KloudWebClient","onMessage:" + message);
         if(onClientEventListener != null){
             onClientEventListener.onMessage(message);
         }

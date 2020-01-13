@@ -1,8 +1,10 @@
 package com.ub.techexcel.tools;
 
+import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -13,6 +15,7 @@ import android.util.Log;
 
 import com.kloudsync.techexcel2.dialog.message.GroupMessage;
 import com.kloudsync.techexcel2.info.Customer;
+import com.ub.service.activity.SocketService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
@@ -295,6 +298,28 @@ public class Tools {
         } else {
             return "";
         }
+    }
+
+    public static void keepSocketServiceOn(Context context){
+        if(!isServiceRunning(context,"com.ub.service.activity.SocketService")){
+            Intent service = new Intent(context.getApplicationContext(), SocketService.class);
+            context.startService(service);
+        }
+    }
+
+    private static boolean isServiceRunning(Context context, String ServiceName) {
+
+        ActivityManager myManager = (ActivityManager) context
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager
+                .getRunningServices(50);
+        for (int i = 0; i < runningService.size(); i++) {
+            if (runningService.get(i).service.getClassName().toString()
+                    .equals(ServiceName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

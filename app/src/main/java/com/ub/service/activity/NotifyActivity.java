@@ -2,7 +2,10 @@ package com.ub.service.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -36,7 +39,12 @@ import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.kloudsync.techexcel2.R;
+import com.kloudsync.techexcel2.bean.EventDisableTvFollow;
+import com.kloudsync.techexcel2.bean.EventEnableTvFollow;
+import com.kloudsync.techexcel2.bean.EventHeartBeat;
+import com.kloudsync.techexcel2.bean.EventTvJoin;
 import com.kloudsync.techexcel2.bean.EventUserName;
+import com.kloudsync.techexcel2.bean.MeetingType;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.help.ApiTask;
 import com.kloudsync.techexcel2.info.Customer;
@@ -90,7 +98,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     private UpcomingLesson lesson = null;
     private boolean flag_back;
     private boolean flag_enter;
-
     private List<ImageView> imgs = new ArrayList<ImageView>();
     private List<LinearLayout> imgsLayout = new ArrayList<LinearLayout>();
     private int imgIDs[] = {R.id.img1, R.id.img2, R.id.img3};
@@ -101,7 +108,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     private int flag_t = 0;
     private int flag_b = 0;
     private boolean flag_bo;
-
     private LinearLayout editLayout;
     private TextView deviceTypeText;
 
@@ -187,7 +193,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                             }
                         }, 2000);
                     }
-
                     break;
                 case 0x1306:
                     Log.e("notifity", roomid + "   " + (String) msg.obj + "   ");
@@ -247,7 +252,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             if (!TextUtils.isEmpty(message)) {
-                handleHeartMessage(message);
+//                handleHeartMessage(message);
             }
 
         }
@@ -256,8 +261,8 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     BroadcastReceiver bindMsgReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-             deviceType = intent.getIntExtra("device_type",-1);
-             setDeviceType(deviceType);
+            deviceType = intent.getIntExtra("device_type", -1);
+            setDeviceType(deviceType);
 
         }
     };
@@ -308,104 +313,109 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     }
 
 
-
-    private void handleHeartMessage(String msg) {
-        String data = Tools.getFromBase64(getRetCodeByReturnData2("data", msg));
-        Log.e("NotifyActivity", "heart beart response：" + data);
-//        if (WatchCourseActivity3.isMeetingStarted) {
-//            //TV已经在会议里面
+//    private void handleHeartMessage(String msg) {
+//        String data = Tools.getFromBase64(getRetCodeByReturnData2("data", msg));
+//        Log.e("NotifyActivity", "heart beart response：" + data);
+////        if (WatchCourseActivity3.isMeetingStarted) {
+////            //TV已经在会议里面
+////            return;
+////        }
+//        if (TextUtils.isEmpty(data)) {
+//            goToQrcodeActivity();
 //            return;
 //        }
-        if (TextUtils.isEmpty(data)) {
-            goToQrcodeActivity();
-            return;
+//
+//
+//        try {
+//            String meetingId = null;
+//            int meetingType = 0;
+//            JSONObject messageJson = new JSONObject(data);
+//
+//            if (!messageJson.has("tvBindUserId") || TextUtils.isEmpty(messageJson.getString("tvBindUserId"))) {
+//                goToQrcodeActivity();
+//                return;
+//            }
+//
+//            if (messageJson.has("enableSync")) {
+//                if (!messageJson.getBoolean("enableSync")) {
+//                    setDeviceType(-1);
+//                    return;
+//                }
+//            }
+//
+//            if (messageJson.has("tvBindUserId")) {
+//                updateBindUser(messageJson.getInt("tvBindUserId") + "");
+//            }
+//
+//            if (messageJson.has("tvOwnerDeviceType")) {
+//                deviceType = messageJson.getInt("tvOwnerDeviceType");
+//                setDeviceType(deviceType);
+//            }
+//
+//
+//            if (messageJson.has("hasOwner")) {
+//                //绑定了某台设备，或者web
+//                boolean hasOwner = messageJson.getBoolean("hasOwner");
+//
+//                if (hasOwner) {
+//
+//                    if (messageJson.has("tvOwnerMeetingId")) {
+//                        meetingId = messageJson.getString("tvOwnerMeetingId");
+//                    } else {
+//                        meetingId = "0";
+//                    }
+//
+//                    roomid = meetingId;
+//                    if (TextUtils.isEmpty(roomid) || roomid.equals("0")) {
+//                        // 心跳里面没有meeting的信息
+//                        sendEndMeetingMessage();
+//                        return;
+//                    }
+//                    if (messageJson.has("tvOwnerMeetingType")) {
+//                        meetingType = messageJson.getInt("tvOwnerMeetingType");
+//                    }
+//                    type = meetingType;
+//
+//                    follow();
+//
+////                    if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance || SyncBookActivity.watchSyncroomInstance) {
+////                        //已经在Meeting或者Document,或者SyncRoom里面
+////                        Log.e("BeartHeart", "inside,and heart beat meeting id:" + meetingId);
+////                        if (TextUtils.isEmpty(meetingId) || meetingId.equals("0")) {
+////                            sendEndMeetingMessage();
+////                            return;
+////                        }
+////                    } else {
+////                        //不在，跳进去
+////                        if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
+////
+////                            followUser();
+////                            Log.e("BeartHeart", "enter again");
+////                        }
+////                    }
+//                }
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+
+    private void follow() {
+        if (!hasEntered()) {
+            enter();
         }
-
-
-        try {
-            String meetingId = null;
-            int meetingType = 0;
-            JSONObject messageJson = new JSONObject(data);
-
-            if(!messageJson.has("tvBindUserId") || TextUtils.isEmpty(messageJson.getString("tvBindUserId"))){
-                goToQrcodeActivity();
-                return;
-            }
-
-            if(messageJson.has("enableSync")){
-                if(!messageJson.getBoolean("enableSync")){
-                    setDeviceType(-1);
-                    return;
-                }
-            }
-
-            if (messageJson.has("tvBindUserId")) {
-                updateBindUser(messageJson.getInt("tvBindUserId") + "");
-            }
-
-            if (messageJson.has("tvOwnerDeviceType")) {
-                deviceType = messageJson.getInt("tvOwnerDeviceType");
-                setDeviceType(deviceType);
-            }
-
-
-            if (messageJson.has("hasOwner")) {
-                //绑定了某台设备，或者web
-                boolean hasOwner = messageJson.getBoolean("hasOwner");
-
-                if (hasOwner) {
-
-                    if (messageJson.has("tvOwnerMeetingId")) {
-                        meetingId = messageJson.getString("tvOwnerMeetingId");
-                    } else {
-                        meetingId = "0";
-                    }
-
-                    roomid = meetingId;
-                    if (TextUtils.isEmpty(roomid) || roomid.equals("0")) {
-                        // 心跳里面没有meeting的信息
-                        sendEndMeetingMessage();
-                        return;
-                    }
-                    if (messageJson.has("tvOwnerMeetingType")) {
-                        meetingType = messageJson.getInt("tvOwnerMeetingType");
-                    }
-
-                    type = meetingType;
-
-                    if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance || SyncBookActivity.watchSyncroomInstance) {
-                        //已经在Meeting或者Document,或者SyncRoom里面
-                        Log.e("BeartHeart", "inside,and heart beat meeting id:" + meetingId);
-                        if (TextUtils.isEmpty(meetingId) || meetingId.equals("0")) {
-                            sendEndMeetingMessage();
-                            return;
-                        }
-                    } else {
-                        //不在，跳进去
-                        if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
-                            followUser();
-                            Log.e("BeartHeart", "enter again");
-                        }
-                    }
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
     }
-
 
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter("com.kloudsync.techexcel2.HeartBeatMessage");
         registerReceiver(heartBeatMsgReceiver, filter);
 
         IntentFilter filter1 = new IntentFilter("com.kloudsync.techexcel2.bind_message");
-        registerReceiver(bindMsgReceiver,filter1);
+        registerReceiver(bindMsgReceiver, filter1);
 
         IntentFilter filter2 = new IntentFilter("com.kloudsync.techexcel2.logout");
-        registerReceiver(logoutReceiver,filter2);
-
+        registerReceiver(logoutReceiver, filter2);
     }
 
 
@@ -459,7 +469,8 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
             attachmentId = getIntent().getStringExtra("attachmentId");
             type = getIntent().getIntExtra("type", 0);
             Log.e("NotifyActivity", "on create follow user");
-            followUser();
+//            followUser();
+            follow();
         } else {
 //            roomet.setFocusable(true);
 //            roomet.setSelection(0);
@@ -530,10 +541,12 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         super.onResume();
         String user = getSharedPreferences(AppConfig.LOGININFO,
                 MODE_PRIVATE).getString("tv_bind_user", "");
-        Log.e("NotifyActivity", "bind user id:" + user);
+        Log.e("NotifyActivity", "on_resume_bind_user_id:" + user);
         if (TextUtils.isEmpty(user) || user.equals("0")) {
             goToQrcodeActivity();
         }
+        Tools.keepSocketServiceOn(this);
+
     }
 
     int deviceType = -1;
@@ -550,7 +563,8 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
             attachmentId = intent.getStringExtra("attachmentId");
             type = intent.getIntExtra("type", -1);
             Log.e("NotifyActivity", "on create follow user");
-            followUser();
+//            followUser();
+            follow();
         } else {
 //            roomet.setFocusable(true);
 //            roomet.setSelection(0);
@@ -593,7 +607,7 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                 intent.putExtra("isStartCourse", false);
                 intent.putExtra("is_meeting", true);
                 startActivity(intent);
-            }else if(type == 3){
+            } else if (type == 3) {
                 Intent intent = new Intent(NotifyActivity.this, SyncBookActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("userid", AppConfig.BINDUSERID);
@@ -711,7 +725,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                             e.printStackTrace();
                         }
                     }
-
 
                 }
             }
@@ -846,7 +859,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.backll:
 //                finish();
-
                 goToQrcodeActivity();
                 break;
             case R.id.roomet:
@@ -1118,10 +1130,10 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         if (heartBeatMsgReceiver != null) {
             unregisterReceiver(heartBeatMsgReceiver);
         }
-        if(bindMsgReceiver != null){
+        if (bindMsgReceiver != null) {
             unregisterReceiver(bindMsgReceiver);
         }
-        if(logoutReceiver != null){
+        if (logoutReceiver != null) {
             unregisterReceiver(logoutReceiver);
         }
         EventBus.getDefault().unregister(this);
@@ -1190,6 +1202,130 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
             LogoutRoom();
         }
     };
+
+    private boolean hasEntered() {
+        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(1);
+        if (list != null && list.size() > 0) {
+            ComponentName cpn = list.get(0).topActivity;
+            if ("com.ub.service.activity.TvKeyActivity".equals(cpn.getClassName()))
+                return true;
+        }
+        return false;
+    }
+
+
+    private void enter() {
+        if (!TextUtils.isEmpty(roomid) && !TextUtils.isEmpty(AppConfig.BINDUSERID)) {
+            Log.e("NotifyActivity", "follow user,meeting type:" + type + ",meeting id" + roomid);
+            Intent intent = new Intent(this, TvKeyActivity.class);
+            intent.putExtra("userid", AppConfig.BINDUSERID);
+            intent.putExtra("meeting_id", roomid);
+            intent.putExtra("isTeamspace", true);
+            intent.putExtra("identity", 1);
+            intent.putExtra("lessionId", "");
+            intent.putExtra("isInstantMeeting", 1);
+            intent.putExtra("meeting_type", type);
+            startActivity(intent);
+        } else {
+            Toast.makeText(NotifyActivity.this, getString(R.string.joinroom), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    //handle socket message
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventMessageEnableTvFollow(EventEnableTvFollow tvFollow) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(tvFollow.getMessage());
+            JSONObject d = jsonObject.getJSONObject("retData");
+            if (d.has("meetingId")) {
+                roomid = d.getString("meetingId");
+            } else {
+                roomid = "";
+            }
+
+            if (d.has("type")) {
+                type = d.getInt("type");
+            }
+            if (d.has("deviceType")) {
+                deviceType = d.getInt("deviceType");
+                setDeviceType(deviceType);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if (TextUtils.isEmpty(roomid)) {
+            return;
+        }
+
+        follow();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventMessageTvJoin(EventTvJoin tvJoin) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(tvJoin.getMessage());
+
+            JSONObject d = jsonObject.getJSONObject("retData");
+            if (d.has("meetingId")) {
+                roomid = d.getString("meetingId");
+            }
+            if (d.has("type")) {
+                type = d.getInt("type");
+            }
+            if (d.has("deviceType")) {
+                deviceType = d.getInt("deviceType");
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        follow();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventMessageDisableTvFollow(EventDisableTvFollow disableTvFollow) {
+        setDeviceType(-1);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventHeartbeat(EventHeartBeat heartBeat) {
+
+        try {
+            JSONObject messageJson = new JSONObject(heartBeat.getMessage());
+            if (messageJson.has("tvBindUserId")) {
+
+            }
+
+            if (messageJson.has("tvOwnerDeviceType")) {
+                int _deviceType = messageJson.getInt("tvOwnerDeviceType");
+                if (deviceType != _deviceType) {
+                    deviceType = _deviceType;
+                    setDeviceType(deviceType);
+                }
+            }
+
+            if(messageJson.has("tvOwnerMeetingId")){
+                String meetingId = messageJson.getString("tvOwnerMeetingId");
+                if(!TextUtils.isEmpty(meetingId)){
+                    roomid = meetingId;
+                    type = messageJson.getInt("tvOwnerMeetingType");
+                    follow();
+                }
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 
 }

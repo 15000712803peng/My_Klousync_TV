@@ -15,41 +15,26 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.kloudsync.techexcel2.R;
+import com.kloudsync.techexcel2.bean.EventDisableTvFollow;
+import com.kloudsync.techexcel2.bean.EventEnableTvFollow;
+import com.kloudsync.techexcel2.bean.EventHeartBeat;
+import com.kloudsync.techexcel2.bean.EventTvJoin;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.dialog.plugin.SingleCallActivity2;
 import com.kloudsync.techexcel2.info.Customer;
-import com.kloudsync.techexcel2.start.LoginActivity;
 import com.kloudsync.techexcel2.start.QrCodeActivity;
-import com.kloudsync.techexcel2.tool.Md5Tool;
 import com.ub.techexcel.bean.NotifyBean;
-import com.ub.techexcel.tools.SpliteSocket;
 import com.ub.techexcel.tools.Tools;
 
-import org.chromium.base.ThreadUtils;
+import org.greenrobot.eventbus.EventBus;
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
 import io.rong.callkit.RongCallAction;
 import io.rong.callkit.RongVoIPIntent;
 
@@ -188,12 +173,6 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         String msg = Tools.getFromBase64(message);
         Log.e("SocketService", "onMessage:" + msg);
         String actionString = getRetCodeByReturnData2("action", msg);
-//        if(isAppInBackground(getApplicationContext())){
-//            Log.e("SocketService","app in background");
-//            return;
-//        }else {
-//            Log.e("SocketService","app in foreground");
-//        }
 
         if (TextUtils.isEmpty(actionString)) {
             return;
@@ -209,7 +188,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
                 handleUpdateMeetingStatusMessage(msg);
                 break;
             case "END_MEETING":
-                handleEndMeetingMessage(msg);
+//                handleEndMeetingMessage(msg);
                 break;
             case "BIND_TV":
                 handleBindTVMessage(msg);
@@ -237,7 +216,6 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
             case "LEAVE_MEETING":
                 break;
 
-
         }
 
         Intent intent = new Intent();
@@ -245,7 +223,6 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         intent.putExtra("message", message);
         sendBroadcast(intent);
     }
-
 
 
     private void handleLoginMessage(String msg) {
@@ -328,88 +305,97 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         notifyend(getRetCodeByReturnData2("meetingId", msg));
     }
 
+
     String meetingId = null;
     int type = -1;
     private void handleBindTVJoinMeetingMessage(final String msg) {
-         meetingId = null;
-         type = -1;
-        try {
-            JSONObject jsonObject = new JSONObject(msg);
-            JSONObject d = jsonObject.getJSONObject("retData");
-            if(d.has("meetingId")){
-                meetingId = d.getString("meetingId");
-            }
-            if (d.has("type")) {
-                type = d.getInt("type");
-            }
-            Log.e("handleBindTVJoinMeetingMessage","type:" + type);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        Intent ii = new Intent();
-        ii.setAction("com.cn.socket");
-        ii.putExtra("message", "START_JOIN_MEETING");
-        ii.putExtra("meeting_id",meetingId);
-        ii.putExtra("meeting_type",type);
-        sendBroadcast(ii);
+        EventTvJoin tvJoin = new EventTvJoin();
+        tvJoin.setMessage(msg);
+        EventBus.getDefault().post(tvJoin);
+//         meetingId = null;
+//         type = -1;
+//        try {
+//            JSONObject jsonObject = new JSONObject(msg);
+//            JSONObject d = jsonObject.getJSONObject("retData");
+//            if(d.has("meetingId")){
+//                meetingId = d.getString("meetingId");
+//            }
+//            if (d.has("type")) {
+//                type = d.getInt("type");
+//            }
+//            Log.e("handleBindTVJoinMeetingMessage","type:" + type);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Intent ii = new Intent();
+//        ii.setAction("com.cn.socket");
+//        ii.putExtra("message", "START_JOIN_MEETING");
+//        ii.putExtra("meeting_id",meetingId);
+//        ii.putExtra("meeting_type",type);
+//        sendBroadcast(ii);
 //        if (WatchCourseActivity3.isMeetingStarted) {
 //            //TV已经在会议里面
 //            Log.e("-------------","meeting started return");
 //            return;
 //        }
-        delayOption(new Runnable() {
-            @Override
-            public void run() {
-                if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
+//        delayOption(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
+//
+//                } else {
+//                    if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
+//                    }
+//
+//                }
+//            }
+//        });
 
-                } else {
-                    if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
-                        followUser(meetingId,type);
+//        followUser(meetingId,type);
 
-                    }
-
-                }
-            }
-        });
 
 
     }
 
     private void handleEnableTvFollow(String msg) {
-        if (WatchCourseActivity3.isMeetingStarted) {
-            //TV已经在会议里面
-            return;
-        }
-        if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
-//            sendLeaveMeetingMessage();
-            Log.e("SocketService","refresh meeting in handleEnableTvFollow");
+        EventEnableTvFollow tvFollow = new EventEnableTvFollow();
+        tvFollow.setMessage(msg);
+        EventBus.getDefault().post(tvFollow);
 
-            refreshMeeting(msg);
-        }else {
-            if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
-                String meetingId = null;
-                int type = -1;
-                int deviceType = -1;
-                try {
-                    JSONObject jsonObject = new JSONObject(msg);
-                    JSONObject d = jsonObject.getJSONObject("retData");
-                    if(d.has("meetingId")){
-                        meetingId = d.getString("meetingId");
-                    }
-                    if (d.has("type")) {
-                        type = d.getInt("type");
-                    }
-                    if(d.has("deviceType")){
-                        deviceType = d.getInt("deviceType");
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                followUser(meetingId,type,deviceType);
-
-            }
-        }
+//        if (WatchCourseActivity3.isMeetingStarted) {
+//            //TV已经在会议里面
+//            return;
+//        }
+//        if (WatchCourseActivity3.watch3instance || WatchCourseActivity2.watch2instance || SyncRoomActivity.watchSyncroomInstance) {
+////            sendLeaveMeetingMessage();
+//            Log.e("SocketService","refresh meeting in handleEnableTvFollow");
+//
+//            refreshMeeting(msg);
+//        }else {
+//            if (!TextUtils.isEmpty(AppConfig.BINDUSERID)) {
+//                String meetingId = null;
+//                int type = -1;
+//                int deviceType = -1;
+//                try {
+//                    JSONObject jsonObject = new JSONObject(msg);
+//                    JSONObject d = jsonObject.getJSONObject("retData");
+//                    if(d.has("meetingId")){
+//                        meetingId = d.getString("meetingId");
+//                    }
+//                    if (d.has("type")) {
+//                        type = d.getInt("type");
+//                    }
+//                    if(d.has("deviceType")){
+//                        deviceType = d.getInt("deviceType");
+//                    }
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                followUser(meetingId,type,deviceType);
+//            }
+//        }
 
 
     }
@@ -477,9 +463,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
             e.printStackTrace();
             Log.e("SocketService", "json exception:" + e);
         }
-        Log.e("abc", meetingId + ":   " + bindUserId + ":  " + attachmentId);
-
-
+        Log.e("handleBindTVMessage", meetingId + ":   " + bindUserId + ":  " + attachmentId);
         Intent intent = new Intent(QrCodeActivity.instance, NotifyActivity.class);
         if (!TextUtils.isEmpty(meetingId)) {
             intent.putExtra("meetingId", meetingId);
@@ -576,14 +560,28 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
     }
 
     private void handleHeartMessage(String msg) {
-          Intent heartBeatIntent = new Intent("com.kloudsync.techexcel2.HeartBeatMessage");
-          heartBeatIntent.putExtra("message",msg);
-          sendBroadcast(heartBeatIntent);
+//          Intent heartBeatIntent = new Intent("com.kloudsync.techexcel2.HeartBeatMessage");
+//          heartBeatIntent.putExtra("message",msg);
+//          sendBroadcast(heartBeatIntent);
+        try {
+            JSONObject message = new JSONObject(msg);
+            if(message.has("data")){
+                String data = message.getString("data");
+                if(!TextUtils.isEmpty(data)){
+                    EventHeartBeat eventHeartBeat = new EventHeartBeat();
+                    eventHeartBeat.setMessage(Tools.getFromBase64(data));
+                    EventBus.getDefault().post(eventHeartBeat);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
     private void handleDisableTvFollow(String msg){
-        sendLeaveMeetingMessage();
+        EventBus.getDefault().post(new EventDisableTvFollow());
     }
 
     private void handleEnableFollowOnDocMode(String msg){
@@ -602,6 +600,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
         intent.putExtra("message", "LEAVE_MEETING");
         sendBroadcast(intent);
         sendbindMessage(-1);
+
     }
 
     private void sendEndMeetingMessage(){

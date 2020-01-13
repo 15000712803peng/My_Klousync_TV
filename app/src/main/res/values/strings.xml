@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">kloudsyncTV</string>
+    <string name="app_name">KloudTV</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
 
@@ -469,12 +469,35 @@ Please input the cell phone number to add the contact
     <string name="sProperty">Property</string>
     <string name="mtClose">Close</string>
 
-    <string name="satOn">Turn On</string>
-    <string name="satOff">Turn Off</string>
-    <string name="satOk">Ok</string>
+
 
     <string name="downloading">downloading...</string>
 
     <string name="outline">Outline</string>
+
+    <string name="attendees">Attendees</string>
+
+    <!--进入页面显示-->
+    <string name="inAttendee">Invite attendee</string>
+    <string name="cbPage">Create blank page</string>
+    <string name="shDocument">Share  document</string>
+    <string name="shYcan">As host,you can</string>
+    <string name="shAcan">As attendee,you can</string>
+    <string name="miProgress">MEETING IN PROGRESS</string>
+
+    <string name="presenter">presenter</string>
+
+    <!--进入弹出窗口-->
+    <string name="satOptions">Select Audio Tool Options</string>
+    <string name="satSystem">System</string>
+    <string name="kCall">KloudCall</string>
+    <string name="satExternal">External</string>
+    <string name="satOn">Turn On</string>
+    <string name="satOff">Turn Off</string>
+    <string name="satOk">Ok</string>
+
+    <string name="mtMore">More</string>
+    <string name="mtLeave">Leave</string>
+    <string name="mtEnd">End</string>
 
 </resources>

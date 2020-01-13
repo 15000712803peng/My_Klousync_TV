@@ -58,7 +58,8 @@ public class FavoriteVideoPopup {
     }
 
 
-    public void setData(int type,boolean isYinxiang) {  // 2   video  3   audio
+    @SuppressLint("WrongConstant")
+    public void setData(int type, boolean isYinxiang) {  // 2   video  3   audio
         selectPosition=-1;
         this.type = type;
         this.isYinxiang=isYinxiang;
