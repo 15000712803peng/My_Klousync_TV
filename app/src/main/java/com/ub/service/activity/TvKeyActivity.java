@@ -565,7 +565,11 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
                 public void accept(JSONObject jsonObject) throws Exception {
                     String key = "ShowDotPanData";
                     Log.e("ShowDotPanData","javascript:FromApp('" + key + "'," + jsonObject + ")" );
-                    noteWeb.load("javascript:FromApp('" + key + "'," + jsonObject + ")", null);
+                    JSONObject _data = new JSONObject();
+                    _data.put("LinesData",jsonObject);
+                    _data.put("ShowInCenter",false);
+                    _data.put("TriggerEvent",false);
+                    noteWeb.load("javascript:FromApp('" + key + "'," + _data + ")", null);
                 }
             }).doOnNext(new Consumer<JSONObject>() {
                 @Override
@@ -577,11 +581,37 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
                                 Log.e("draw_new_note","temp_note_note");
                                 if(tempNoteData.getNoteId() == currentNoteId){
                                     String key = "ShowDotPanData";
-                                    noteWeb.load("javascript:FromApp('" + key + "'," + tempNoteData.getData() + ")", null);
+                                    JSONObject _data = new JSONObject();
+                                    _data.put("LinesData",tempNoteData.getData());
+                                    _data.put("ShowInCenter",true);
+                                    _data.put("TriggerEvent",true);
+                                    noteWeb.load("javascript:FromApp('" + key + "'," + _data + ")", null);
                                 }
                                 newNoteDatas.remove(tempNoteData);
                             }
                         }).subscribe();
+                    }
+                }
+            }).observeOn(Schedulers.io()).doOnNext(new Consumer<JSONObject>() {
+                @Override
+                public void accept(JSONObject jsonObject) throws Exception {
+                    JSONObject result = ServiceInterfaceTools.getinstance().syncGetNoteP1Item(currentNoteId);
+                    if(result.has("code")){
+                        if(result.getInt("code") == 0){
+                            JSONArray dataArray = result.getJSONArray("data");
+                            Observable.just(dataArray).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<JSONArray>() {
+                                @Override
+                                public void accept(JSONArray _jsonArray) throws Exception {
+                                    for(int i = 0 ; i < _jsonArray.length(); ++i){
+                                        JSONObject data = _jsonArray.getJSONObject(i);
+                                        addLinkBorderForDTNew(data);
+                                    }
+
+                                }
+                            }).subscribe();
+
+
+                        }
                     }
                 }
             }).subscribe();
@@ -776,8 +806,11 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
                         String key = "ShowDotPanData";
                         if (noteLayout.getVisibility() == View.VISIBLE) {
                             if (noteWeb != null) {
-                                noteWeb.load("javascript:FromApp('" + key + "'," + Tools.getFromBase64(noteData) + ")", null);
-                            }
+                                JSONObject _data = new JSONObject();
+                                _data.put("LinesData",Tools.getFromBase64(noteData));
+                                _data.put("ShowInCenter",true);
+                                _data.put("TriggerEvent",true);
+                                noteWeb.load("javascript:FromApp('" + key + "'," + _data + ")", null);                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -2747,6 +2780,41 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
             SocketMessageManager.getManager(this).sendMessage_JoinMeeting(meetingConfig);
         }
     }
+
+    private void addLinkBorderForDTNew(JSONObject p1Created) throws JSONException {
+        if(p1Created.has("noteId")){
+            if(currentNoteId == p1Created.getInt("noteId")){
+//                noteWeb.load("javascript:whiteboard");
+                JSONArray positionArray = new JSONArray(p1Created.getString("position"));
+                Log.e("addLinkBorderForDTNew","positionArray:" + positionArray);
+                JSONObject info = new JSONObject();
+                info.put("ProjectID",p1Created.getInt("projectId"));
+                info.put("TaskID",p1Created.getInt("itemId"));
+                for(int i = 0 ; i < positionArray.length(); ++i){
+                    JSONObject position = positionArray.getJSONObject(i);
+                    doDrawDTNewBorder(position.getInt("left"),position.getInt("top"),position.getInt("width"),position.getInt("height"),info);
+                }
+            }
+        }
+    }
+
+    private void doDrawDTNewBorder(int x,int y,int width,int height,JSONObject info) throws JSONException {
+        JSONObject message = new JSONObject();
+        message.put("type", 40);
+        message.put("CW", 678);
+        message.put("x", x);
+        message.put("y", y);
+        message.put("width", width);
+        message.put("height", height);
+        message.put("info", info);
+
+        JSONObject clearLastMessage = new JSONObject();
+        clearLastMessage.put("type", 40);
+
+        Log.e("doDrawDTNewBorder", "border_PlayActionByTxt:" + message);
+        noteWeb.load("javascript:PlayActionByTxt('" + message + "')", null);
+    }
+
 
 
 }
