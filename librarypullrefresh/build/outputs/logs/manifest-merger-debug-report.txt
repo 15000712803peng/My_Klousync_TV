@@ -1,25 +1,25 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:2:1-10:12
-INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:2:1-10:12
-INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:2:1-10:12
-INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:2:1-10:12
-INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:2:1-10:12
-INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:2:1-10:12
-INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:2:1-10:12
+ADDED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:2:1-10:12
+INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:2:1-10:12
+INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:2:1-10:12
+INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:2:1-10:12
+INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:2:1-10:12
+INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:2:1-10:12
+INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:2:1-10:12
 	package
-		ADDED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:3:5-49
-		INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml
-		INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml
+		ADDED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:3:5-49
+		INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml
+		INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml
 	android:versionName
-		ADDED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:5:5-32
-		INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml
-		INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml
+		ADDED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:5:5-32
+		INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml
+		INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml
 	xmlns:android
-		ADDED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:2:11-69
+		ADDED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:2:11-69
 	android:versionCode
-		ADDED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:4:5-31
-		INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml
-		INJECTED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml
+		ADDED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:4:5-31
+		INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml
+		INJECTED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml
 application
-ADDED from C:\work\ubao\UBAO\kloudsync_TV\librarypullrefresh\AndroidManifest.xml:8:5-20
+ADDED from /Users/tonyan/work/My_Klousync_TV/librarypullrefresh/AndroidManifest.xml:8:5-20
