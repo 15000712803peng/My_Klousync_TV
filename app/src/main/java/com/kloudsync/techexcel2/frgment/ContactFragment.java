@@ -132,7 +132,6 @@ public class ContactFragment extends Fragment implements ContactHelpInterface {
         et_search = (ClearEditText) view.findViewById(R.id.et_search);
         lv_contact = (ListView) view.findViewById(R.id.lv_contact);
         sidebar = (SideBar) view.findViewById(R.id.sidebar);
-
         getPopupWindowInstance();
     }
 

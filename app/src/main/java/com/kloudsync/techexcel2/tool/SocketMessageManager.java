@@ -42,6 +42,9 @@ public class SocketMessageManager {
     public static final String MESSAGE_MEMBER_LIST_CHANGE = "MEMBER_LIST_CHANGE";
     public static final String MESSAGE_NOTE_DATA = "NOTE_DATA";
     public static final String MESSAGE_NOTE_CHANGE = "NOTE_CHANGE";
+    public static final String MESSAGE_HEART_BEAT = "HELLO";
+    public static final String MESSAGE_START_RECOGNIZING_NOTE = "START_RECOGNIZING_NOTE";
+    public static final String MESSAGE_BIND_TV_LEAVE_MEETING = "BIND_TV_LEAVE_MEETING";
     public static final int MESSAGE_VIDEO_PAUSE = 0;
     public static final int MESSAGE_VIDEO_PLAY = 1;
     public static final int MESSAGE_VIDEO_CLOSE = 2;
@@ -217,6 +220,19 @@ public class SocketMessageManager {
             message.put("sessionId", config.getUserToken());
             message.put("meetingId", config.getMeetingId());
 //                    message.put("followToLeave", 1);
+            doSendMessage(message.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendMessage_LeaveMeeting(MeetingConfig config,int followToLeave) {
+        try {
+            JSONObject message = new JSONObject();
+            message.put("action", "LEAVE_MEETING");
+            message.put("sessionId", config.getUserToken());
+            message.put("meetingId", config.getMeetingId());
+            message.put("followToLeave", 1);
             doSendMessage(message.toString());
         } catch (JSONException e) {
             e.printStackTrace();

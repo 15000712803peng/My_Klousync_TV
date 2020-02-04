@@ -67,11 +67,10 @@ public class StartUbao extends Activity {
         Log.e("haha", AppConfig.UUID + ":" + AppConfig.UserToken + ":" + AppConfig.UserID);
         Intent intent = null;
         Log.e("tv_bind_user", sharedPreferences.getString("tv_bind_user", ""));
-        if (TextUtils.isEmpty(AppConfig.UserToken)) {
+        if (TextUtils.isEmpty(AppConfig.UserToken) || TextUtils.isEmpty(AppConfig.UserID) || AppConfig.UserID.equals("0")) {
 //            intent = new Intent(getApplicationContext(),
 //                    TvRegisterActivity.class);
             refreshAndLogin();
-
         } else {
             enter();
         }
@@ -116,6 +115,10 @@ public class StartUbao extends Activity {
                                     if (data != null && data.has("UserToken")) {
                                         sharedPreferences.edit().putString("UserToken", data.getString("UserToken")).commit();
                                         AppConfig.UserToken = data.getString("UserToken");
+                                        if(data.has("UserID")){
+                                            sharedPreferences.edit().putInt("UserID", data.getInt("UserID")).commit();
+                                            AppConfig.UserID = data.getInt("UserID") +"";
+                                        }
                                         enter();
                                     } else {
                                         goToRegister();

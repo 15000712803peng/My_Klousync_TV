@@ -1,5 +1,6 @@
 package com.kloudsync.techexcel2.bean;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class MeetingConfig {
     private List<MeetingMember> meetingInvitors = new ArrayList<>();
     private String meetingHostId ="";
     private String agoraChannelId;
-    private String presenterId;
+    private String presenterId = "";
     private List<AgoraMember> agoraMembers = new ArrayList<>();
     private boolean fromMeeting;
     private int mode;
@@ -102,6 +103,11 @@ public class MeetingConfig {
     }
 
     public void setPresenterId(String presenterId) {
+        if(!this.presenterId.equals(presenterId)){
+            EventPresnterChanged presnterChanged = new EventPresnterChanged();
+            presnterChanged.setPresenterId(presenterId);
+            EventBus.getDefault().post(presnterChanged);
+        }
         this.presenterId = presenterId;
     }
 

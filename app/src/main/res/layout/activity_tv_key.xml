@@ -462,11 +462,14 @@
             android:layout_width="40dp"
             android:layout_height="30dp" />
 
+        <com.kloudsync.techexcel2.view.TipTextView
+            android:id="@+id/txt_top_tip"
+            android:visibility="gone"
+            android:background="@color/orange"
+            android:layout_width="match_parent"
+            android:layout_height="12dp" />
 
     </RelativeLayout>
-
-
-
 
 
     <ImageView
@@ -479,6 +482,8 @@
         android:layout_marginRight="50dp"
         android:src="@drawable/icon_menu"
         android:visibility="invisible" />
+
+
 
 
 </RelativeLayout>

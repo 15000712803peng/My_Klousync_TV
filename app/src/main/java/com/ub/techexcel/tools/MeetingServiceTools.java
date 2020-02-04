@@ -373,7 +373,7 @@ public class MeetingServiceTools {
         switch (config.getType()) {
             case MeetingType.DOC:
                 url = "https://api.peertime.cn/peertime/V1/PageObject/GetPageObjects?lessonID=0&itemID=" + 0 + "&pageNumber=" + config.getPageNumber() +
-                        "&attachmentID=" + config.getDocument().getAttachmentID() + "&soundtrackID=0&displayDrawingLine=0";
+                        "&attachmentID=" + note.getAttachmentID() + "&soundtrackID=0&displayDrawingLine=0";
                 break;
             case MeetingType.MEETING:
                 url = AppConfig.URL_PUBLIC + "PageObject/GetPageObjects?lessonID=" + config.getLessionId() + "&itemID=" +
@@ -465,6 +465,7 @@ public class MeetingServiceTools {
                 for (int j = 0; j < note.getPageCount(); ++j) {
                     String pageUrl = "";
                     DocumentPage page = new DocumentPage();
+                    page.setLocalFileId(note.getLocalFileID());
                     page.setPageNumber(j + 1);
                     page.setDocumentId(note.getDocumentItemID());
                     if (TextUtils.isEmpty(preUrl)) {

@@ -112,7 +112,6 @@ public class NoteViewManager implements OnSpinnerItemSelectedListener {
         backImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                view.setVisibility(View.GONE);
                 EventBus.getDefault().post(new EventCloseNoteView());
                 close();
                 instance = null;
@@ -136,16 +135,13 @@ public class NoteViewManager implements OnSpinnerItemSelectedListener {
     @SuppressLint("WrongConstant")
     private void close(){
         if (noteWeb != null) {
-            noteWeb.setVisibility(View.GONE);
+//            noteWeb.setVisibility(View.GONE);
+            noteWeb.load("javascript:ClearPath()", null);
         }
     }
 
     private void initWeb() {
-//        noteWeb.addJavascriptInterface(this, "AnalyticsWebInterface");
-        XWalkPreferences.setValue("enable-javascript", true);
-        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
-        XWalkPreferences.setValue(XWalkPreferences.JAVASCRIPT_CAN_OPEN_WINDOW, true);
-        XWalkPreferences.setValue(XWalkPreferences.SUPPORT_MULTIPLE_WINDOWS, true);
+
     }
 
     private void showNote(Note note) {
@@ -435,6 +431,7 @@ public class NoteViewManager implements OnSpinnerItemSelectedListener {
             if (new File(page.getSavedLocalPath()).exists()) {
                 page.setDocumentId(documentPage.getDocumentId());
                 page.setPageNumber(documentPage.getPageNumber());
+                page.setLocalFileId(documentPage.getLocalFileId());
                 pageCache.cacheFile(page);
                 notePage.setNotePage(page);
                 EventBus.getDefault().post(notePage);
@@ -610,7 +607,6 @@ public class NoteViewManager implements OnSpinnerItemSelectedListener {
         usersSpinner.setOnSpinnerItemSelectedListener(this);
         initWeb();
         requestNoteToShow(noteId);
-
         if(meetingConfig.getType() == MeetingType.MEETING){
 
         }else {

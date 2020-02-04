@@ -131,7 +131,7 @@ public class ConnectService {
      * @return
      */
     public static JSONObject getIncidentbyHttpGet(String path) {
-        JSONObject jsonObject = null;
+        JSONObject jsonObject = new JSONObject();
         try {
             URL url = new URL(path);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();

@@ -549,6 +549,7 @@ public class MeetingKit implements MeetingSettingDialog.OnUserOptionsListener, A
 
                                 if (member.getPresenter() == 1) {
                                     meetingConfig.setPresenterId(member.getUserId() + "");
+                                    meetingConfig.setPresenterSessionId(member.getSessionId() + "");
                                 }
                             }
                             meetingConfig.setMeetingMembers(members);

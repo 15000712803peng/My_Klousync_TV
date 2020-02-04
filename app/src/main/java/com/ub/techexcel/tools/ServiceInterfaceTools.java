@@ -15,6 +15,7 @@ import com.kloudsync.techexcel2.bean.MeetingType;
 import com.kloudsync.techexcel2.bean.Note;
 import com.kloudsync.techexcel2.bean.NoteDetail;
 import com.kloudsync.techexcel2.bean.SyncBook;
+import com.kloudsync.techexcel2.bean.WebAction;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.help.ApiTask;
 import com.kloudsync.techexcel2.info.ConvertingResult;
@@ -1436,6 +1437,80 @@ public class ServiceInterfaceTools {
         Log.e("syncGetNoteP1Item","url:" + AppConfig.URL_MEETING_BASE + "note/p1_item?noteId=" + noteId + ",result:" + response);
         return response;
     }
+
+    public void getRecordActions(final String url, final int code, ServiceInterfaceListener serviceInterfaceListener) {
+        putInterface(code, serviceInterfaceListener);
+        new ApiTask(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject jsonObject1 = com.ub.techexcel.service.ConnectService.getIncidentbyHttpGet(url);
+                Log.e("getRecordActions", url + "    " + jsonObject1.toString());
+                try {
+                    if (jsonObject1.getInt("RetCode") == 0) {
+                        JSONObject retdata = jsonObject1.getJSONObject("RetData");
+                        JSONArray jsonArray = retdata.getJSONArray("SoundtackActions");
+                        List<WebAction> webActions = new ArrayList<>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject audiojson = jsonArray.getJSONObject(i);
+                            WebAction webAction = new WebAction();
+                            webAction.setTime(audiojson.getInt("Time"));
+                            String data = audiojson.getString("Data").replaceAll("\"", "");
+                            webAction.setData(Tools.getFromBase64(data));
+                            Log.e("data__", webAction.getData());
+                            webAction.setSoundtrackID(audiojson.getInt("SoundtrackID"));
+                            webAction.setPageNumber(audiojson.getString("PageNumber"));
+                            webAction.setAttachmentID(audiojson.getInt("AttachmentID"));
+                            webActions.add(webAction);
+                        }
+                        Message msg3 = Message.obtain();
+                        msg3.obj = webActions;
+                        msg3.what = code;
+                        handler.sendMessage(msg3);
+                    } else {
+                        Message msg3 = Message.obtain();
+                        msg3.what = ERRORMESSAGE;
+                        msg3.obj = jsonObject1.getString("ErrorMessage");
+                        handler.sendMessage(msg3);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start(ThreadManager.getManager());
+    }
+
+    public List<WebAction> syncGetRecordActions(final String url) {
+
+        JSONObject response = com.ub.techexcel.service.ConnectService.getIncidentbyHttpGet(url);
+        Log.e("syncGetRecordActions", url + "    " + response.toString());
+        List<WebAction> webActions = new ArrayList<>();
+        try {
+            if (response.getInt("RetCode") == 0) {
+                JSONObject retdata = response.getJSONObject("RetData");
+                JSONArray jsonArray = retdata.getJSONArray("SoundtackActions");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject audiojson = jsonArray.getJSONObject(i);
+                    WebAction webAction = new WebAction();
+                    webAction.setTime(audiojson.getInt("Time"));
+                    String data = audiojson.getString("Data").replaceAll("\"", "");
+                    webAction.setData(Tools.getFromBase64(data));
+                    Log.e("data__", webAction.getData());
+                    webAction.setSoundtrackID(audiojson.getInt("SoundtrackID"));
+                    webAction.setPageNumber(audiojson.getString("PageNumber"));
+                    webAction.setAttachmentID(audiojson.getInt("AttachmentID"));
+                    webActions.add(webAction);
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return webActions;
+
+    }
+
+
 
 
 }

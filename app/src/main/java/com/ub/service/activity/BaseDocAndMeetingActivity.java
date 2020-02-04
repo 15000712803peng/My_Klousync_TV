@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.view.KloudLoadingView;
+import com.kloudsync.techexcel2.view.TipTextView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.xwalk.core.XWalkView;
@@ -36,6 +37,9 @@ public abstract class BaseDocAndMeetingActivity extends FragmentActivity {
 
     @Bind(R.id.layout_note_users)
     LinearLayout noteUsersLayout;
+
+    @Bind(R.id.txt_top_tip)
+    TipTextView topTipText;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

@@ -50,6 +50,7 @@ import com.kloudsync.techexcel2.bean.EventCloseNoteView;
 import com.kloudsync.techexcel2.bean.EventCloseShare;
 import com.kloudsync.techexcel2.bean.EventDisableTvFollow;
 import com.kloudsync.techexcel2.bean.EventExit;
+import com.kloudsync.techexcel2.bean.EventHeartBeat;
 import com.kloudsync.techexcel2.bean.EventHighlightNote;
 import com.kloudsync.techexcel2.bean.EventInviteUsers;
 import com.kloudsync.techexcel2.bean.EventMeetingDocuments;
@@ -61,6 +62,7 @@ import com.kloudsync.techexcel2.bean.EventOpenNote;
 import com.kloudsync.techexcel2.bean.EventPageActions;
 import com.kloudsync.techexcel2.bean.EventPageNotes;
 import com.kloudsync.techexcel2.bean.EventPlaySoundtrack;
+import com.kloudsync.techexcel2.bean.EventPresnterChanged;
 import com.kloudsync.techexcel2.bean.EventRefreshDocs;
 import com.kloudsync.techexcel2.bean.EventRefreshMembers;
 import com.kloudsync.techexcel2.bean.EventSelectNote;
@@ -69,6 +71,7 @@ import com.kloudsync.techexcel2.bean.EventShareScreen;
 import com.kloudsync.techexcel2.bean.EventShowMenuIcon;
 import com.kloudsync.techexcel2.bean.EventShowNotePage;
 import com.kloudsync.techexcel2.bean.EventSocketMessage;
+import com.kloudsync.techexcel2.bean.EventTopTipsGone;
 import com.kloudsync.techexcel2.bean.EventTvJoin;
 import com.kloudsync.techexcel2.bean.MeetingConfig;
 import com.kloudsync.techexcel2.bean.MeetingDocument;
@@ -104,6 +107,8 @@ import com.ub.techexcel.tools.FileUtils;
 import com.ub.techexcel.tools.ServiceInterfaceListener;
 import com.ub.techexcel.tools.ServiceInterfaceTools;
 import com.ub.techexcel.tools.Tools;
+
+import org.feezu.liuli.timeselector.Utils.TextUtil;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -111,6 +116,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.core.XWalkPreferences;
+import org.xwalk.core.internal.XWalkViewBridge;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -133,7 +139,6 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
-
 
 
 public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBottomMenu.BottomMenuOperationsListener, PopBottomFile.BottomFileOperationsListener, AddFileFromFavoriteDialog.OnFavoriteDocSelectedListener,
@@ -243,16 +248,16 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
 
     }
 
-    private void writeNoteBlankPageImage(){
-        File localNoteFile = new File(FileUtils.getBaseDir() + "note" + File.separator +"blank_note_1.jpg");
-        if(localNoteFile.exists()){
+    private void writeNoteBlankPageImage() {
+        File localNoteFile = new File(FileUtils.getBaseDir() + "note" + File.separator + "blank_note_1.jpg");
+        if (localNoteFile.exists()) {
             return;
         }
         new File(FileUtils.getBaseDir() + "note").mkdirs();
         Observable.just(localNoteFile).observeOn(Schedulers.io()).doOnNext(new Consumer<File>() {
             @Override
             public void accept(File file) throws Exception {
-                copyAssetsToDst("blank_note_1.jpg",file);
+                copyAssetsToDst("blank_note_1.jpg", file);
             }
         }).subscribe();
 
@@ -261,9 +266,9 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     private void copyAssetsToDst(String srcPath, File dstPath) {
         try {
             InputStream is = getAssets().open(srcPath);
-            Log.e("copy_file","is:" + is);
+            Log.e("copy_file", "is:" + is);
             FileOutputStream fos = new FileOutputStream(dstPath);
-            Log.e("copy_file","fos:" + fos);
+            Log.e("copy_file", "fos:" + fos);
             byte[] buffer = new byte[1024];
             int byteCount;
             while ((byteCount = is.read(buffer)) != -1) {
@@ -275,7 +280,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
 
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e("copy_file","Exception:" + e.getMessage());
+            Log.e("copy_file", "Exception:" + e.getMessage());
 
         }
     }
@@ -301,7 +306,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
 
     @Override
     protected void onResume() {
-        Log.e("TvKeyActivity","on_resume");
+        Log.e("TvKeyActivity", "on_resume");
         if (menuManager != null) {
             menuManager.setMenuIcon(menuIcon);
         }
@@ -321,7 +326,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         web.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         web.addJavascriptInterface(this, "AnalyticsWebInterface");
 
-        noteWeb.setZOrderOnTop(false);
+        noteWeb.setZOrderOnTop(true);
         noteWeb.getSettings().setJavaScriptEnabled(true);
         noteWeb.getSettings().setDomStorageEnabled(true);
         noteWeb.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
@@ -365,7 +370,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.e("TvKeyActivity","on_destroy");
+        Log.e("TvKeyActivity", "on_destroy");
         if (messageManager != null) {
             messageManager.sendMessage_LeaveMeeting(meetingConfig);
             messageManager.release();
@@ -375,7 +380,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
             menuManager.release();
         }
 
-        if(wakeLock != null){
+        if (wakeLock != null) {
             wakeLock.release();
         }
 
@@ -424,6 +429,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     }
 
     private void requestDocumentsAndShowPage() {
+        Log.e("TvKeyActivity","requestDocumentsAndShowPage");
         DocumentModel.asyncGetDocumentsInDocAndShowPage(meetingConfig, true);
     }
 
@@ -459,9 +465,14 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshDocuments(EventRefreshDocs refreshDocs) {
         // 所有文档的data
-        Log.e("refreshDocuments", "documents:" + documents);
-        this.documents = refreshDocs.getDocuments();
-        changeDocument(documents.get(documents.indexOf(new MeetingDocument(refreshDocs.getItemId()))), refreshDocs.getPageNumber());
+        this.documents.clear();
+        this.documents.addAll(refreshDocs.getDocuments());
+        Log.e("refreshDocuments", "documents:" + documents.size());
+        int index = documents.indexOf(new MeetingDocument(refreshDocs.getItemId()));
+        if (index < 0 || refreshDocs.getPageNumber() < 0) {
+            return;
+        }
+        changeDocument(documents.get(index), refreshDocs.getPageNumber());
     }
 
     @SuppressLint("WrongConstant")
@@ -473,6 +484,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         Log.e("showDocumentPage", "current_document:" + document);
         if (document != null) {
             meetingConfig.setDocument(document);
+            meetingConfig.setDocumentId(document.getItemID() + "");
             meetingConfig.setPageNumber(meetingConfig.getDocument().getDocumentPages().indexOf(page) + 1);
         }
 
@@ -493,8 +505,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     private long currentNoteId;
 
 
-
-    class TempNoteData{
+    class TempNoteData {
         private String data;
         private long noteId;
 
@@ -514,107 +525,109 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
             this.noteId = noteId;
         }
     }
+
     private CopyOnWriteArrayList<TempNoteData> newNoteDatas = new CopyOnWriteArrayList<>();
+
     @SuppressLint("WrongConstant")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showNotePage(final EventShowNotePage page) {
-        Log.e("showNotePage","page:" + page);
-        if(!TextUtils.isEmpty(page.getNotePage().getLocalFileId())){
-            if(page.getNotePage().getLocalFileId().contains(".")){
-                noteWeb.setVisibility(View.VISIBLE);
+        Log.e("showNotePage", "page:" + page);
+        noteWeb.setVisibility(View.VISIBLE);
+        if (!TextUtils.isEmpty(page.getNotePage().getLocalFileId())) {
+            if (page.getNotePage().getLocalFileId().contains(".")) {
                 currentNoteId = page.getNoteId();
-                String localNoteBlankPage = FileUtils.getBaseDir()  +"note" + File.separator + "blank_note_1.jpg";
-                Log.e("show_PDF","javascript:ShowPDF('" + localNoteBlankPage + "'," + (page.getNotePage().getPageNumber()) + ",''," + page.getAttachmendId() + "," + false + ")");
+                String localNoteBlankPage = FileUtils.getBaseDir() + "note" + File.separator + "blank_note_1.jpg";
+                Log.e("show_PDF", "javascript:ShowPDF('" + localNoteBlankPage + "'," + (page.getNotePage().getPageNumber()) + ",''," + page.getAttachmendId() + "," + false + ")");
                 noteWeb.load("javascript:ShowPDF('" + localNoteBlankPage + "'," + (page.getNotePage().getPageNumber()) + ",''," + page.getAttachmendId() + "," + false + ")", null);
                 noteWeb.load("javascript:Record()", null);
                 handleBluetoothNote(page.getNotePage().getPageUrl());
                 return;
             }
         }
-        noteWeb.setVisibility(View.VISIBLE);
-        Log.e("show_PDF","javascript:ShowPDF('" + page.getNotePage().getShowingPath() + "'," + (page.getNotePage().getPageNumber()) + ",''," + page.getAttachmendId() + "," + false + ")");
-
+        Log.e("show_PDF", "javascript:ShowPDF('" + page.getNotePage().getShowingPath() + "'," + (page.getNotePage().getPageNumber()) + ",''," + page.getAttachmendId() + "," + false + ")");
         noteWeb.load("javascript:ShowPDF('" + page.getNotePage().getShowingPath() + "'," + (page.getNotePage().getPageNumber()) + ",''," + page.getAttachmendId() + "," + false + ")", null);
         noteWeb.load("javascript:Record()", null);
 
     }
 
-    private void handleBluetoothNote(final String url){
-            Observable.just(url).observeOn(Schedulers.io()).map(new Function<String, String>() {
-                @Override
-                public String apply(String s) throws Exception {
-                    String newUrl = "";
-                    int index = url.lastIndexOf("/");
-                    if(index > 0 && index < url.length() - 2){
-                        newUrl  = url.substring(0,index + 1) + "book_page_data.json";
-                    }
-                    return newUrl;
+    private void handleBluetoothNote(final String url) {
+        Observable.just(url).observeOn(Schedulers.io()).map(new Function<String, String>() {
+            @Override
+            public String apply(String s) throws Exception {
+                String newUrl = "";
+                int index = url.lastIndexOf("/");
+                if (index > 0 && index < url.length() - 2) {
+                    newUrl = url.substring(0, index + 1) + "book_page_data.json";
                 }
-            }).map(new Function<String, JSONObject>() {
-                @Override
-                public JSONObject apply(String url) throws Exception {
-                    JSONObject jsonObject = new JSONObject();
-                    if(!TextUtils.isEmpty(url)){
-                        Log.e("check_url","url:" + url);
-                        jsonObject =  ServiceInterfaceTools.getinstance().syncGetNotePageJson(url);
-                    }
-                    return jsonObject;
+                return newUrl;
+            }
+        }).map(new Function<String, JSONObject>() {
+            @Override
+            public JSONObject apply(String url) throws Exception {
+                JSONObject jsonObject = new JSONObject();
+                if (!TextUtils.isEmpty(url)) {
+                    Log.e("check_url", "url:" + url);
+                    jsonObject = ServiceInterfaceTools.getinstance().syncGetNotePageJson(url);
                 }
-            }).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<JSONObject>() {
-                @Override
-                public void accept(JSONObject jsonObject) throws Exception {
-                    String key = "ShowDotPanData";
-                    Log.e("ShowDotPanData","javascript:FromApp('" + key + "'," + jsonObject + ")" );
-                    JSONObject _data = new JSONObject();
-                    _data.put("LinesData",jsonObject);
-                    _data.put("ShowInCenter",false);
-                    _data.put("TriggerEvent",false);
-                    noteWeb.load("javascript:FromApp('" + key + "'," + _data + ")", null);
+                return jsonObject;
+            }
+        }).observeOn(AndroidSchedulers.mainThread()).delay(200, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<JSONObject>() {
+            @Override
+            public void accept(JSONObject jsonObject) throws Exception {
+                String key = "ShowDotPanData";
+                Log.e("ShowDotPanData", "javascript:FromApp('" + key + "'," + jsonObject + ")");
+                JSONObject _data = new JSONObject();
+                _data.put("LinesData", jsonObject);
+                _data.put("ShowInCenter", false);
+                _data.put("TriggerEvent", false);
+                noteWeb.setZOrderOnTop(true);
+                noteWeb.setVisibility(View.VISIBLE);
+                noteWeb.load("javascript:FromApp('" + key + "'," + _data + ")", null);
+            }
+        }).doOnNext(new Consumer<JSONObject>() {
+            @Override
+            public void accept(JSONObject jsonObject) throws Exception {
+                if (!newNoteDatas.isEmpty()) {
+                    Observable.fromIterable(newNoteDatas).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<TempNoteData>() {
+                        @Override
+                        public void accept(TempNoteData tempNoteData) throws Exception {
+                            Log.e("draw_new_note", "temp_note_note");
+                            if (tempNoteData.getNoteId() == currentNoteId) {
+                                String key = "ShowDotPanData";
+                                JSONObject _data = new JSONObject();
+                                _data.put("LinesData", tempNoteData.getData());
+                                _data.put("ShowInCenter", true);
+                                _data.put("TriggerEvent", true);
+                                noteWeb.load("javascript:FromApp('" + key + "'," + _data + ")", null);
+                            }
+                            newNoteDatas.remove(tempNoteData);
+                        }
+                    }).subscribe();
                 }
-            }).doOnNext(new Consumer<JSONObject>() {
-                @Override
-                public void accept(JSONObject jsonObject) throws Exception {
-                    if(!newNoteDatas.isEmpty()){
-                        Observable.fromIterable(newNoteDatas).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<TempNoteData>() {
+            }
+        }).observeOn(Schedulers.io()).doOnNext(new Consumer<JSONObject>() {
+            @Override
+            public void accept(JSONObject jsonObject) throws Exception {
+                JSONObject result = ServiceInterfaceTools.getinstance().syncGetNoteP1Item(currentNoteId);
+                if (result.has("code")) {
+                    if (result.getInt("code") == 0) {
+                        JSONArray dataArray = result.getJSONArray("data");
+                        Observable.just(dataArray).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<JSONArray>() {
                             @Override
-                            public void accept(TempNoteData tempNoteData) throws Exception {
-                                Log.e("draw_new_note","temp_note_note");
-                                if(tempNoteData.getNoteId() == currentNoteId){
-                                    String key = "ShowDotPanData";
-                                    JSONObject _data = new JSONObject();
-                                    _data.put("LinesData",tempNoteData.getData());
-                                    _data.put("ShowInCenter",true);
-                                    _data.put("TriggerEvent",true);
-                                    noteWeb.load("javascript:FromApp('" + key + "'," + _data + ")", null);
+                            public void accept(JSONArray _jsonArray) throws Exception {
+                                for (int i = 0; i < _jsonArray.length(); ++i) {
+                                    JSONObject data = _jsonArray.getJSONObject(i);
+                                    addLinkBorderForDTNew(data);
                                 }
-                                newNoteDatas.remove(tempNoteData);
+
                             }
                         }).subscribe();
+
+
                     }
                 }
-            }).observeOn(Schedulers.io()).doOnNext(new Consumer<JSONObject>() {
-                @Override
-                public void accept(JSONObject jsonObject) throws Exception {
-                    JSONObject result = ServiceInterfaceTools.getinstance().syncGetNoteP1Item(currentNoteId);
-                    if(result.has("code")){
-                        if(result.getInt("code") == 0){
-                            JSONArray dataArray = result.getJSONArray("data");
-                            Observable.just(dataArray).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<JSONArray>() {
-                                @Override
-                                public void accept(JSONArray _jsonArray) throws Exception {
-                                    for(int i = 0 ; i < _jsonArray.length(); ++i){
-                                        JSONObject data = _jsonArray.getJSONObject(i);
-                                        addLinkBorderForDTNew(data);
-                                    }
-
-                                }
-                            }).subscribe();
-
-
-                        }
-                    }
-                }
-            }).subscribe();
+            }
+        }).subscribe();
     }
 
     @SuppressLint("WrongConstant")
@@ -627,18 +640,19 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         } else {
             noteUsersLayout.setVisibility(View.VISIBLE);
         }
+        showNoteView();
         NoteViewManager.getInstance().setContent(this, noteLayout, _note, noteWeb, meetingConfig);
         notifyViewNote(note.getNote());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public synchronized void showSelectedNote(EventSelectNote selectNote){
+    public synchronized void showSelectedNote(EventSelectNote selectNote) {
         Observable.just(selectNote).observeOn(Schedulers.io()).doOnNext(new Consumer<EventSelectNote>() {
             @Override
             public void accept(EventSelectNote selectNote) throws Exception {
-                JSONObject response = ServiceInterfaceTools.getinstance().syncImportNote(meetingConfig,selectNote);
-                if(response != null && response.has("RetCode")){
-                    if(response.getInt("RetCode") == 0){
+                JSONObject response = ServiceInterfaceTools.getinstance().syncImportNote(meetingConfig, selectNote);
+                if (response != null && response.has("RetCode")) {
+                    if (response.getInt("RetCode") == 0) {
                         selectNote.setNewLinkId(response.getInt("RetData"));
                     }
                 }
@@ -646,11 +660,11 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         }).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<EventSelectNote>() {
             @Override
             public void accept(EventSelectNote selectNote) throws Exception {
-                if(selectNote.getLinkId() > 0){
+                if (selectNote.getLinkId() > 0) {
                     deleteNote(selectNote.getLinkId());
                 }
-                if(selectNote.getNewLinkId() > 0){
-                    drawNote(selectNote.getNewLinkId(),selectNote.getLinkProperty(),0);
+                if (selectNote.getNewLinkId() > 0) {
+                    drawNote(selectNote.getNewLinkId(), selectNote.getLinkProperty(), 0);
                 }
             }
         }).subscribe();
@@ -666,12 +680,13 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
             noteUsersLayout.setVisibility(View.VISIBLE);
         }
         hideEnterLoading();
-        NoteViewManager.getInstance().followShowNote(this, noteLayout, noteWeb, noteId, meetingConfig,menuIcon);
+        showNoteView();
+        NoteViewManager.getInstance().followShowNote(this, noteLayout, noteWeb, noteId, meetingConfig, menuIcon);
 
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void showDocumentIfRequestNoteError(EventNoteErrorShowDocument showDocument){
+    public void showDocumentIfRequestNoteError(EventNoteErrorShowDocument showDocument) {
         requestDocumentsAndShowPage();
     }
 
@@ -689,12 +704,13 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void exit(EventExit exit) {
 //        handleExit(exit.isEnd());
+        finish();
     }
 
     @SuppressLint("WrongConstant")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public synchronized void receiveSocketMessage(EventSocketMessage socketMessage) {
-        Log.e("DocAndMeetingActivity", "socket_message:" + socketMessage);
+        Log.e("TvKeyActivity", "socket_message:" + socketMessage);
         String action = socketMessage.getAction();
         if (TextUtils.isEmpty(action)) {
             return;
@@ -796,7 +812,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
                         JSONObject retData = socketMessage.getData().getJSONObject("retData");
                         String noteData = retData.getString("data");
                         long noteId = retData.getInt("noteId");
-                        if(currentNoteId != noteId){
+                        if (currentNoteId != noteId) {
                             TempNoteData _noteData = new TempNoteData();
                             _noteData.setData(Tools.getFromBase64(noteData));
                             _noteData.setNoteId(noteId);
@@ -807,10 +823,11 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
                         if (noteLayout.getVisibility() == View.VISIBLE) {
                             if (noteWeb != null) {
                                 JSONObject _data = new JSONObject();
-                                _data.put("LinesData",Tools.getFromBase64(noteData));
-                                _data.put("ShowInCenter",true);
-                                _data.put("TriggerEvent",true);
-                                noteWeb.load("javascript:FromApp('" + key + "'," + _data + ")", null);                            }
+                                _data.put("LinesData", Tools.getFromBase64(noteData));
+                                _data.put("ShowInCenter", true);
+                                _data.put("TriggerEvent", true);
+                                noteWeb.load("javascript:FromApp('" + key + "'," + _data + ")", null);
+                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -828,13 +845,52 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
                     }
                 }
                 break;
+            case SocketMessageManager.MESSAGE_START_RECOGNIZING_NOTE:
+                Log.e("TvKeyActivity", "showTips");
+                topTipText.showTips();
+                break;
+
+            case SocketMessageManager.MESSAGE_BIND_TV_LEAVE_MEETING:
+
+                Observable.just("leave").delay(1000,TimeUnit.MILLISECONDS).subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        if(noNeedLeave){
+                            return;
+                        }
+                        SocketMessageManager.getManager(TvKeyActivity.this).sendMessage_LeaveMeeting(meetingConfig,1);
+                        finish();
+                    }
+                });
+
+                break;
+
         }
+    }
+
+    @Subscribe
+    public void setTopTipsGone() {
+        topTipText.setVisibility(View.GONE);
+    }
+
+    @Subscribe
+    public void receiveHeartBeatMessage(EventHeartBeat heartBeat) {
+        Log.e("receiveHeartBeatMessage", "heartBeat:" + heartBeat);
+        try {
+            JSONObject heartMessageData = new JSONObject(heartBeat.getMessage());
+            handleMessageHeartBeat(heartMessageData);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ;
+
     }
 
     @Subscribe
     public void receiveEventClose(EventClose close) {
         Log.e("receiveEventClose", "close");
-        finish();
+//        finish();
+        requestNotFollow();
     }
 
 
@@ -966,7 +1022,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
             return;
         }
         deleteTempNote();
-        drawNote(noteId.getLinkID(), meetingConfig.getCurrentLinkProperty(),0);
+        drawNote(noteId.getLinkID(), meetingConfig.getCurrentLinkProperty(), 0);
     }
 
     private void drawNote(int linkId, JSONObject linkProperty, int isOther) {
@@ -985,8 +1041,8 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         }
     }
 
-    private void drawTempNote(){
-        drawNote(-1,meetingConfig.getCurrentLinkProperty(),0);
+    private void drawTempNote() {
+        drawNote(-1, meetingConfig.getCurrentLinkProperty(), 0);
     }
 
     private void deleteNote(int linkId) {
@@ -1010,7 +1066,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         });
     }
 
-    private void deleteTempNote(){
+    private void deleteTempNote() {
         deleteNote(-1);
     }
 
@@ -1330,7 +1386,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         }).subscribe();
     }
 
-    private List<MeetingDocument> documents = new ArrayList<>();
+    private CopyOnWriteArrayList<MeetingDocument> documents = new CopyOnWriteArrayList<>();
     private DocumentPageCache pageCache;
 
     private Uploadao parseQueryResponse(final String jsonstring) {
@@ -1435,6 +1491,9 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     }
 
     private synchronized void queryAndDownLoadPageToShow(final MeetingDocument document, final int pageNumber, final boolean needRedownload) {
+        if (pageNumber <= 0) {
+            return;
+        }
         final DocumentPage _page = document.getDocumentPages().get(pageNumber - 1);
         String pageUrl = _page.getPageUrl();
         final DocumentPage page = pageCache.getPageCache(pageUrl);
@@ -1515,9 +1574,11 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     }
 
     private synchronized void changeDocument(int itemId, int pageNumber) {
+        Log.e("changeDocument", "itemId:" + itemId + ",pageNumber:" + pageNumber);
         if (hasLoadedFile) {
             int index = documents.indexOf(new MeetingDocument(itemId));
             if (index < 0) {
+//                DocumentModel.asyncGetDocumentsInDocAndRefreshFileList(meetingConfig, itemId, pageNumber);
                 return;
             }
             MeetingDocument _document = documents.get(index);
@@ -1796,7 +1857,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
             }
         } else {
             if (!TextUtils.isEmpty(meetingConfig.getPresenterSessionId())) {
-                if (AppConfig.UserToken.equals(meetingConfig.getPresenterSessionId())) {
+                if (AppConfig.UserID.equals(meetingConfig.getPresenterId())) {
                     if (meetingConfig.isInRealMeeting()) {
                         if (messageManager != null) {
                             messageManager.sendMessage_DocumentShowed(meetingConfig);
@@ -1912,6 +1973,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     @Override
     public void menuClosedClicked() {
 //        handleExit(false);
+        finish();
     }
 
 //    ExitDialog exitDialog;
@@ -1968,12 +2030,10 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     }
 
 
-
     @Override
     public void menuNoteClicked() {
 //        showNotesDialog();
     }
-
 
 
     @Override
@@ -1983,7 +2043,6 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         }
 //        showMembersDialog();
     }
-
 
 
     @Override
@@ -2209,8 +2268,6 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     }
 
 
-
-
 //    UserNotesDialog notesDialog;
 //
 //    private void showNotesDialog() {
@@ -2332,11 +2389,6 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     }
 
 
-
-
-
-
-
     private void reqeustNewBlankPage() {
         Observable.just(meetingConfig).observeOn(Schedulers.io()).doOnNext(new Consumer<MeetingConfig>() {
             @Override
@@ -2361,7 +2413,6 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
 
         }
     }
-
 
 
 //    SetPresenterDialog setPresenterDialog;
@@ -2392,15 +2443,35 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     @SuppressLint("WrongConstant")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void closeViewNote(EventCloseNoteView closeNoteView) {
-        Log.e("check_play", "playSoundtrack");
+        Log.e("closeViewNote", "closeNoteView");
         currentNoteId = 0;
         newNoteDatas.clear();
         menuIcon.setVisibility(View.VISIBLE);
+        hideNoteView();
         notifyDocumentChanged();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void presenterChanged(EventPresnterChanged presnterChanged) {
+        if (meetingConfig.getType() != MeetingType.MEETING) {
+            return;
+        }
+        Log.e("check_id", "tv_user_id:" + AppConfig.UserID + ",tv_bind_user_id:" + AppConfig.BINDUSERID);
+        if (presnterChanged.getPresenterId().equals(AppConfig.UserID)) {
+            Log.e("EventPresnterChanged", "presenter is me");
+            web.load("javascript:ShowToolbar(" + true + ")", null);
+            web.load("javascript:Record()", null);
+            noteWeb.load("javascript:ShowToolbar(" + true + ")", null);
+            noteWeb.load("javascript:Record()", null);
 
-
+        } else {
+            web.load("javascript:ShowToolbar(" + false + ")", null);
+            web.load("javascript:Record()", null);
+            noteWeb.load("javascript:ShowToolbar(" + false + ")", null);
+            noteWeb.load("javascript:Record()", null);
+            Log.e("EventPresnterChanged", "presenter is not me");
+        }
+    }
 
 
 //    private SoundtrackPlayDialog soundtrackPlayDialog;
@@ -2525,17 +2596,18 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
                             // 切换文档
                         default:
                             if (noteLayout.getVisibility() == View.VISIBLE) {
-                                noteWeb.setVisibility(View.GONE);
-                                noteLayout.setVisibility(View.GONE);
+                                hideNoteView();
                             }
-                            changeDocument(data.getInt("itemId"), Integer.parseInt(data.getString("pageNumber")));
+                            changeDocument(data.getInt("itemId"), (int) (Float.parseFloat(data.getString("pageNumber"))));
                             break;
                     }
 
                 } else {
                     if (noteLayout.getVisibility() == View.VISIBLE) {
-                        noteWeb.setVisibility(View.GONE);
-                        noteLayout.setVisibility(View.GONE);
+//                        noteWeb.load("javascript:ClearPath()", null);
+////                        noteWeb.setVisibility(View.GONE);
+//                        noteLayout.setVisibility(View.GONE);
+                        hideNoteView();
                     }
                     changeDocument(data.getInt("itemId"), Integer.parseInt(data.getString("pageNumber")));
                 }
@@ -2610,6 +2682,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
 
                 if (data.getInt("retCode") == 0) {
                     // 成功收到JOIN_MEETING的返回
+                    noNeedLeave = false;
                     JSONObject dataJson = data.getJSONObject("retData");
 //                    if (!dataJson.has("CurrentDocumentPage")) {
 //                        Toast.makeText(this, "join meeting failed", Toast.LENGTH_SHORT).show();
@@ -2621,23 +2694,28 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
                     float page = Float.parseFloat(datas[1]);
                     meetingConfig.setPageNumber((int) page);
                     meetingConfig.setType(dataJson.getInt("type"));
-                    if(dataJson.has("lessonId")){
+                    if (dataJson.has("lessonId")) {
                         String lessionId = dataJson.getString("lessonId");
-                        if(!TextUtils.isEmpty(lessionId) && !lessionId.equals("0")){
+                        if (!TextUtils.isEmpty(lessionId) && !lessionId.equals("0")) {
                             meetingConfig.setLessionId(Integer.parseInt(lessionId));
                         }
                     }
                     if (dataJson.has("currentMode")) {
                         meetingConfig.setMode(dataJson.getInt("currentMode"));
                     }
+
                     if (documents == null || documents.size() <= 0) {
-                        if (dataJson.has("noteId") && dataJson.getInt("noteId") > 0) {
+                        requestDocumentsAndShowPage();
+                    }else {
+                        requestDocuments();
+                    }
+
+                    if (dataJson.has("noteId") && dataJson.getInt("noteId") > 0) {
+                        if(dataJson.has("noteUserId")&& !TextUtils.isEmpty(data.getString("noteUserId"))){
                             followShowNote(dataJson.getInt("noteId"));
-                            requestDocuments();
-                        } else {
-                            requestDocumentsAndShowPage();
                         }
                     }
+
 
                     if (meetingConfig.getType() == MeetingType.DOC) {
                         meetingLayout.setVisibility(View.GONE);
@@ -2732,38 +2810,45 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
                 notifyMyNoteWebActions(result, note);
             }
         }
+
+        public void afterLoadPageFunction() {
+
+        }
+
+
     }
 
     private PowerManager.WakeLock wakeLock;
+
     @SuppressLint("WrongConstant")
-    private void keepScreenWake(){
+    private void keepScreenWake() {
         wakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.FULL_WAKE_LOCK, "TEST");
         wakeLock.acquire();
     }
 
     //------ message
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventMessageDisableTvFollow(EventDisableTvFollow disableTvFollow){
+    public void eventMessageDisableTvFollow(EventDisableTvFollow disableTvFollow) {
         finish();
     }
 
+    private boolean noNeedLeave = false;
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventMessageTvJoin(EventTvJoin tvJoin) {
+        noNeedLeave = true;
         String newMeetingId = "";
-
         try {
             JSONObject jsonObject = new JSONObject(tvJoin.getMessage());
 
             JSONObject data = jsonObject.getJSONObject("retData");
             if (data.has("meetingId")) {
                 newMeetingId = data.getString("meetingId");
-                if(!meetingConfig.getMeetingId().equals(newMeetingId)){
+                if (!meetingConfig.getMeetingId().equals(newMeetingId)) {
                     meetingConfig.setMeetingId(newMeetingId);
                     if (data.has("type")) {
                         meetingConfig.setType(data.getInt("type"));
                     }
                     refreshMeeting();
-
                 }
             }
 
@@ -2772,33 +2857,33 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         }
     }
 
-    private void refreshMeeting(){
+    private void refreshMeeting() {
 
-        if(meetingConfig.getType() == MeetingType.MEETING){
+        if (meetingConfig.getType() == MeetingType.MEETING) {
             MeetingKit.getInstance().prepareJoin(this, meetingConfig);
-        }else {
+        } else {
             SocketMessageManager.getManager(this).sendMessage_JoinMeeting(meetingConfig);
         }
     }
 
     private void addLinkBorderForDTNew(JSONObject p1Created) throws JSONException {
-        if(p1Created.has("noteId")){
-            if(currentNoteId == p1Created.getInt("noteId")){
+        if (p1Created.has("noteId")) {
+            if (currentNoteId == p1Created.getInt("noteId")) {
 //                noteWeb.load("javascript:whiteboard");
                 JSONArray positionArray = new JSONArray(p1Created.getString("position"));
-                Log.e("addLinkBorderForDTNew","positionArray:" + positionArray);
+                Log.e("addLinkBorderForDTNew", "positionArray:" + positionArray);
                 JSONObject info = new JSONObject();
-                info.put("ProjectID",p1Created.getInt("projectId"));
-                info.put("TaskID",p1Created.getInt("itemId"));
-                for(int i = 0 ; i < positionArray.length(); ++i){
+                info.put("ProjectID", p1Created.getInt("projectId"));
+                info.put("TaskID", p1Created.getInt("itemId"));
+                for (int i = 0; i < positionArray.length(); ++i) {
                     JSONObject position = positionArray.getJSONObject(i);
-                    doDrawDTNewBorder(position.getInt("left"),position.getInt("top"),position.getInt("width"),position.getInt("height"),info);
+                    doDrawDTNewBorder(position.getInt("left"), position.getInt("top"), position.getInt("width"), position.getInt("height"), info);
                 }
             }
         }
     }
 
-    private void doDrawDTNewBorder(int x,int y,int width,int height,JSONObject info) throws JSONException {
+    private void doDrawDTNewBorder(int x, int y, int width, int height, JSONObject info) throws JSONException {
         JSONObject message = new JSONObject();
         message.put("type", 40);
         message.put("CW", 678);
@@ -2815,6 +2900,114 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         noteWeb.load("javascript:PlayActionByTxt('" + message + "')", null);
     }
 
+    private void hideNoteView() {
+        Observable.just("hide_note_view").observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<String>() {
+            @Override
+            public void accept(String s) throws Exception {
+
+                noteWeb.load("javascript:ClearPath()", null);
+                View childView = (ViewGroup) noteWeb.getChildAt(0);
+                while (childView instanceof ViewGroup) {
+                    childView = ((ViewGroup) childView).getChildAt(0);
+                }
+
+                if (childView instanceof SurfaceView) {
+                    SurfaceView surfaceView = (SurfaceView) childView;
+                    surfaceView.setZOrderMediaOverlay(false);
+                    Log.e("note_view", "setZOrderMediaOverlay,false");
+                }
+                noteWeb.setZOrderOnTop(false);
+                noteWeb.setVisibility(View.GONE);
+                noteLayout.setVisibility(View.GONE);
+
+            }
+        }).subscribe();
+
+
+    }
+
+    private void showNoteView() {
+        Observable.just("show_note").observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer<String>() {
+            @Override
+            public void accept(String s) throws Exception {
+                noteLayout.setVisibility(View.VISIBLE);
+                noteWeb.setVisibility(View.VISIBLE);
+                View childView = (ViewGroup) noteWeb.getChildAt(0);
+                while (childView instanceof ViewGroup) {
+                    childView = ((ViewGroup) childView).getChildAt(0);
+                }
+                if (childView instanceof SurfaceView) {
+                    SurfaceView surfaceView = (SurfaceView) childView;
+                    surfaceView.setZOrderMediaOverlay(true);
+                    Log.e("note_view", "setZOrderMediaOverlay,true");
+                }
+                Log.e("note_view", "childView:" + childView);
+            }
+        }).subscribe();
+
+    }
+
+    private void handleMessageHeartBeat(JSONObject message) throws JSONException {
+        Log.e("followAccordingHeartBeat", "message:" + message);
+        if (message.has("tvOwnerMeetingId")) {
+            if (TextUtils.isEmpty(message.getString("tvOwnerMeetingId"))) {
+                finish();
+            } else {
+
+                if (message.has("currentItemId")) {
+                    if (documents.isEmpty() || TextUtil.isEmpty(meetingConfig.getDocumentId())) {
+                        return;
+                    }
+                    int currentItemId = message.getInt("currentItemId");
+                    int page = message.getInt("currentPageNumber");
+                    if (page == 0) {
+                        return;
+                    }
+                    if (!(currentItemId + "").equals(meetingConfig.getDocumentId())) {
+                        // 如果在不同的文档，切换到相同的问题
+                        changeDocument(currentItemId, page);
+                    } else {
+                        // 在同一个文档，不在同一页
+                        if (meetingConfig.getPageNumber() != message.getInt("currentPageNumber")) {
+                            changeDocument(meetingConfig.getDocument(), message.getInt("currentPageNumber"));
+                        }
+                    }
+                }
+
+                if (message.has("noteId")) {
+
+                    if (message.getInt("noteId") <= 0 || TextUtils.isEmpty(message.getString("noteUserId"))) {
+                        if (noteLayout.getVisibility() == View.VISIBLE) {
+                            hideNoteView();
+                        }
+                    }
+
+                    if (message.getInt("noteId") > 0 && !TextUtils.isEmpty(message.getString("noteUserId"))) {
+                        if (noteLayout.getVisibility() != View.VISIBLE) {
+                            showNoteView();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void requestNotFollow() {
+        getSharedPreferences(AppConfig.LOGININFO,
+                MODE_PRIVATE).edit().putString("tv_bind_user", "").commit();
+        AppConfig.BINDUSERID = "";
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject responsedata = com.ub.techexcel.service.ConnectService.submitDataByJson(
+                        AppConfig.meetingServer + "/tv/logout",
+                        new JSONObject());
+                finish();
+
+            }
+        }).start();
+    }
 
 
 }

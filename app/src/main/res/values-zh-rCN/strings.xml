@@ -480,4 +480,8 @@
     <string name="mtLeave">离开</string>
     <string name="mtEnd">结束</string>
 
+
+    <string name="playing">播放中</string>
+    <string name="paused">已暂停</string>
+
 </resources>
