@@ -66,7 +66,7 @@ public class BottomMenuManager implements View.OnClickListener {
         }
     }
 
-    private void handleMenuClicked() {
+    public void handleMenuClicked() {
         if (bottomMenuPop != null && bottomMenuPop.isShowing()) {
             bottomMenuPop.hide();
             menuIcon.setImageResource(R.drawable.icon_menu);
@@ -83,6 +83,21 @@ public class BottomMenuManager implements View.OnClickListener {
             bottomMenuPop.hide();
         }
 
+    }
+
+    /**接收遥控器的上下按键*/
+    public void remoteUPOrDown(boolean mIsUp){
+        if (bottomMenuPop != null && bottomMenuPop.isShowing()) {
+            bottomMenuPop.remoteUPOrDown(mIsUp);
+        }
+
+    }
+
+    /**接收遥控器的enter按键,执行功能*/
+    public void remoteEnter(){
+        if (bottomMenuPop != null && bottomMenuPop.isShowing()) {
+            bottomMenuPop.remoteEnter();
+        }
     }
 
 

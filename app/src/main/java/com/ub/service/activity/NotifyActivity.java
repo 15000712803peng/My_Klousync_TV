@@ -54,6 +54,7 @@ import com.kloudsync.techexcel2.start.LoginGet;
 import com.kloudsync.techexcel2.start.QrCodeActivity;
 import com.kloudsync.techexcel2.tool.SoftInputUtils;
 import com.kloudsync.techexcel2.ui.MainActivity;
+import com.kloudsync.tv.meeting.MeetingRole;
 import com.ub.techexcel.adapter.NotifyRecyclerAdapter;
 import com.ub.techexcel.bean.LineItem;
 import com.ub.techexcel.bean.ServiceBean;
@@ -134,24 +135,33 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
                     if (lessionid == -1) {     //看看老师是否正在上课
                         getUpcomingLessonList(teacherid + "");
                     } else {
-                        Intent ii = new Intent(NotifyActivity.this, WatchCourseActivity3.class);
-                        ii.putExtra("meetingId", roomid + "");
-                        ii.putExtra("identity", 1);  // 学生
-                        ii.putExtra("lessionId", lessionid + "");
-                        ii.putExtra("isInstantMeeting", 1);
-                        ii.putExtra("teacherid", teacherid + "");
-                        ii.putExtra("meeting_type", 0);
-                        ii.putExtra("is_meeting", true);
-                        if (!WatchCourseActivity3.watch3instance) {
-                            startActivity(ii);
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-//                                fl_main.setBackgroundColor(getApplication().getResources().getColor(R.color.darkblack2));
-//                                    fl_main.setVisibility(View.GONE);
-                                }
-                            }, 2000);
-                        }
+//                        Intent ii = new Intent(NotifyActivity.this, WatchCourseActivity3.class);
+//                        ii.putExtra("meetingId", roomid + "");
+//                        ii.putExtra("identity", 1);  // 学生
+//                        ii.putExtra("lessionId", lessionid + "");
+//                        ii.putExtra("isInstantMeeting", 1);
+//                        ii.putExtra("teacherid", teacherid + "");
+//                        ii.putExtra("meeting_type", 0);
+//                        ii.putExtra("is_meeting", true);
+//                        if (!WatchCourseActivity3.watch3instance) {
+//                            startActivity(ii);
+//                            new Handler().postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+////                                fl_main.setBackgroundColor(getApplication().getResources().getColor(R.color.darkblack2));
+////                                    fl_main.setVisibility(View.GONE);
+//                                }
+//                            }, 2000);
+//                        }
+
+                        Intent intent = new Intent(NotifyActivity.this, TvKeyActivity.class);
+                        intent.putExtra("meeting_id", roomid + "");
+                        intent.putExtra("meeting_type", 0);
+                        intent.putExtra("lession_id", lessionid);
+                        intent.putExtra("meeting_role", 1);
+                        intent.putExtra("from_meeting", false);
+                        startActivity(intent);
+
                     }
                     break;
                 case 0x1305:

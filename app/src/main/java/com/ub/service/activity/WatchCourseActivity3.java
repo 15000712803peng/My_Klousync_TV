@@ -126,7 +126,7 @@ import com.ub.techexcel.adapter.TeacherRecyclerAdapter;
 import com.ub.techexcel.bean.AgoraBean;
 import com.ub.techexcel.bean.AudioActionBean;
 import com.ub.techexcel.bean.LineItem;
-import com.ub.techexcel.bean.Note;
+import com.kloudsync.techexcel2.bean.Note;
 import com.ub.techexcel.bean.NotifyBean;
 import com.ub.techexcel.bean.PageActionBean;
 import com.ub.techexcel.bean.SoundtrackBean;

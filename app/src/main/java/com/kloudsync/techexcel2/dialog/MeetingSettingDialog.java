@@ -36,6 +36,8 @@ public class MeetingSettingDialog implements View.OnClickListener{
     private LinearLayout tabTitlesLayout;
     private LinearLayout recordingLayout;
 
+    private int currentSelectStatus=0;// 0 麦克风  1摄像头  2确定
+
     public boolean isStartMeeting() {
         return isStartMeeting;
     }
@@ -154,44 +156,19 @@ public class MeetingSettingDialog implements View.OnClickListener{
         }
     }
 
+
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.txt_start:
-                if(isStartMeeting){
-                    if(onUserOptionsListener != null){
-                        onUserOptionsListener.onUserStart();
-                    }
-                }else {
-                    if(onUserOptionsListener != null){
-                        onUserOptionsListener.onUserJoin();
-                    }
-                }
-
-                dismiss();
+            case R.id.txt_start://确定
+                doConfirm();
                 break;
-            case R.id.image_micro:
-                boolean isMicroOn = getSettingCache(host).getMeetingSetting().isMicroOn();
-                if(!isMicroOn){
-                    microImage.setImageResource(R.drawable.sound_on1);
-                    microText.setText(R.string.satOn);
-                }else {
-                    microImage.setImageResource(R.drawable.sound_off1);
-                    microText.setText(R.string.satOff);
-                }
-                getSettingCache(host).setMicroOn(!isMicroOn);
-
+            case R.id.image_micro://音频
+                doMicrophone();
                 break;
-            case R.id.image_camera:
-                boolean isCameraOn = getSettingCache(host).getMeetingSetting().isCameraOn();
-                if(!isCameraOn){
-                    cameraImage.setImageResource(R.drawable.cam_on2);
-                    cameraText.setText(R.string.satOn);
-                }else {
-                    cameraImage.setImageResource(R.drawable.cam_off2);
-                    cameraText.setText(R.string.satOff);
-                }
-                getSettingCache(host).setCameraOn(!isCameraOn);
+            case R.id.image_camera://视频
+                doCamera();
                 break;
             case R.id.txt_cancel:
                 if(meetingConfig.isFromMeeting() && meetingConfig.getRole() == MeetingConfig.MeetingRole.HOST){
@@ -209,6 +186,129 @@ public class MeetingSettingDialog implements View.OnClickListener{
             settingCache = MeetingSettingCache.getInstance(host);
         }
         return settingCache;
+    }
+
+    /**接收遥控器的上下左右按键*/
+    public void remoteWayDown(int way){// 0 向上  1 向下  2 向左  3向右
+        switch (way){
+            case 0:
+                if(currentSelectStatus==2){
+                    currentSelectStatus=0;
+                    setCurrentSelectAction(currentSelectStatus);
+                }
+                break;
+            case 1:
+                if(currentSelectStatus==0||currentSelectStatus==1){
+                    currentSelectStatus=2;
+                    setCurrentSelectAction(currentSelectStatus);
+                }
+                break;
+            case 2:
+                if(currentSelectStatus==1){
+                    currentSelectStatus=0;
+                    setCurrentSelectAction(currentSelectStatus);
+                }
+                break;
+            case 3:
+                if(currentSelectStatus==0){
+                    currentSelectStatus=1;
+                    setCurrentSelectAction(currentSelectStatus);
+                }
+                break;
+        }
+    }
+
+    /**接收遥控器的enter按键,执行功能*/
+    public void remoteEnter(){
+        doCurrentSelectAction();
+    }
+
+
+    /**遥控器当前选中的按钮*/
+    public void setCurrentSelectAction(int status){
+        currentSelectStatus=status;
+        switch (status){
+            case 0://麦克风
+                microImage.setBackgroundResource(R.drawable.bg_remote_meeting_select);
+                cameraImage.setBackground(null);
+                startText.setBackgroundResource(R.drawable.bg_remote_meeting_confirm_nor);
+                break;
+            case 1://摄像头
+                microImage.setBackground(null);
+                cameraImage.setBackgroundResource(R.drawable.bg_remote_meeting_select);
+                startText.setBackgroundResource(R.drawable.bg_remote_meeting_confirm_nor);
+                break;
+            case 2://确定
+                microImage.setBackground(null);
+                cameraImage.setBackground(null);
+                startText.setBackgroundResource(R.drawable.bg_remote_meeting_confirm_activite);
+                break;
+        }
+    }
+
+    /**执行当前遥控器选中对应按钮的事件*/
+    public void doCurrentSelectAction(){
+        switch (currentSelectStatus){
+            case 0://麦克风
+                doMicrophone();
+                break;
+            case 1://摄像头
+                doCamera();
+                break;
+            case 2://确定
+                doConfirm();
+                break;
+        }
+    }
+
+    private void doMicrophone(){
+        boolean isMicroOn = getSettingCache(host).getMeetingSetting().isMicroOn();
+        if(!isMicroOn){
+            microImage.setImageResource(R.drawable.sound_on1);
+            microText.setText(R.string.satOn);
+        }else {
+            microImage.setImageResource(R.drawable.sound_off1);
+            microText.setText(R.string.satOff);
+        }
+        getSettingCache(host).setMicroOn(!isMicroOn);
+    }
+
+    private void doCamera(){
+        boolean isCameraOn = getSettingCache(host).getMeetingSetting().isCameraOn();
+        if(!isCameraOn){
+            cameraImage.setImageResource(R.drawable.cam_on2);
+            cameraText.setText(R.string.satOn);
+        }else {
+            cameraImage.setImageResource(R.drawable.cam_off2);
+            cameraText.setText(R.string.satOff);
+        }
+        getSettingCache(host).setCameraOn(!isCameraOn);
+    }
+
+    private void doConfirm(){
+        if(isStartMeeting){
+            if(onUserOptionsListener != null){
+                onUserOptionsListener.onUserStart();
+            }
+        }else {
+            if(onUserOptionsListener != null){
+                onUserOptionsListener.onUserJoin();
+            }
+        }
+        if(onDialogDismissListener!=null){
+            onDialogDismissListener.onDialogDismiss();
+        }
+        dismiss();
+    }
+
+    private OnDialogDismissListener onDialogDismissListener;
+
+    public void setOnDialogDismissListener(OnDialogDismissListener onDialogDismissListener){
+        this.onDialogDismissListener=onDialogDismissListener;
+    }
+
+    public interface OnDialogDismissListener{
+        void onDialogDismiss();
     }
 
 }

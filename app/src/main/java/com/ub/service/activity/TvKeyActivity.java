@@ -209,6 +209,9 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     AgoraCameraAdapter cameraAdapter;
     FullAgoraCameraAdapter fullCameraAdapter;
 
+    /**MeetingSettingDialog是否dismiss*/
+    private boolean mIsSettingDialogCancel=false;
+
     @Override
     public void showErrorPage() {
 
@@ -236,6 +239,12 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
             messageManager.sendMessage_JoinMeeting(meetingConfig);
         } else {
             MeetingKit.getInstance().prepareJoin(this, meetingConfig);
+            MeetingKit.getInstance().setOnDialogDismissListener(new MeetingKit.OnDialogDismissListener() {
+                @Override
+                public void onDialogDismiss() {
+                    mIsSettingDialogCancel=true;
+                }
+            });
         }
 
         pageCache = DocumentPageCache.getInstance(this);
@@ -718,7 +727,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
 
         switch (action) {
             case SocketMessageManager.MESSAGE_LEAVE_MEETING:
-                handleMessageLeaveMeeting(socketMessage.getData());
+                //handleMessageLeaveMeeting(socketMessage.getData());
                 break;
 
             case SocketMessageManager.MESSAGE_JOIN_MEETING:
@@ -2951,7 +2960,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         Log.e("followAccordingHeartBeat", "message:" + message);
         if (message.has("tvOwnerMeetingId")) {
             if (TextUtils.isEmpty(message.getString("tvOwnerMeetingId"))) {
-                finish();
+                //finish();
             } else {
 
                 if (message.has("currentItemId")) {
@@ -3009,5 +3018,52 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         }).start();
     }
 
-
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int keyCode = event.getKeyCode();
+        if (event.getAction() != KeyEvent.ACTION_DOWN) {
+            return super.dispatchKeyEvent(event);
+        }
+        if (keyCode == KeyEvent.KEYCODE_MENU&&mIsSettingDialogCancel) {//dialog消失
+            if(menuManager!=null){
+                menuManager.handleMenuClicked();
+            }
+            return false;
+        }
+        if(!mIsSettingDialogCancel){//点击遥控器按键作用于dialog 0 1 2 3分别代表上下左右
+            switch (keyCode){
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    MeetingKit.getInstance().remoteDirectionDown(0);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    MeetingKit.getInstance().remoteDirectionDown(1);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    MeetingKit.getInstance().remoteDirectionDown(2);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    MeetingKit.getInstance().remoteDirectionDown(3);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                    MeetingKit.getInstance().remoteEnterDown();
+                    break;
+            }
+        }else {//点击遥控器按键作用于menu
+            switch (keyCode){
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    if(menuManager!=null)
+                        menuManager.remoteUPOrDown(true);//向上
+                    break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    if(menuManager!=null)
+                        menuManager.remoteUPOrDown(false);//向下
+                    break;
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                    if(menuManager!=null)
+                        menuManager.remoteEnter();
+                    break;
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
 }

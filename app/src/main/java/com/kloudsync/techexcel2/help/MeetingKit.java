@@ -124,6 +124,18 @@ public class MeetingKit implements MeetingSettingDialog.OnUserOptionsListener, A
         settingDialog.show(host,meetingConfig);
     }
 
+    public void remoteDirectionDown(int direction){
+        if(settingDialog!=null&&settingDialog.isShowing()){
+            settingDialog.remoteWayDown(direction);
+        }
+    }
+
+    public void remoteEnterDown(){
+        if(settingDialog!=null&&settingDialog.isShowing()){
+            settingDialog.remoteEnter();
+        }
+    }
+
     public void prepareJoin(Activity host, MeetingConfig meetingConfig) {
         this.host = host;
         this.meetingConfig = meetingConfig;
@@ -143,6 +155,14 @@ public class MeetingKit implements MeetingSettingDialog.OnUserOptionsListener, A
             return;
         }
         settingDialog.show(host,meetingConfig);
+        settingDialog.setOnDialogDismissListener(new MeetingSettingDialog.OnDialogDismissListener() {
+            @Override
+            public void onDialogDismiss() {
+                if(onDialogDismissListener!=null){
+                    onDialogDismissListener.onDialogDismiss();
+                }
+            }
+        });
     }
 
     public void startMeeting() {
@@ -669,6 +689,16 @@ public class MeetingKit implements MeetingSettingDialog.OnUserOptionsListener, A
 
             }
         }).subscribe();
+    }
+
+    private OnDialogDismissListener onDialogDismissListener;
+
+    public void setOnDialogDismissListener(OnDialogDismissListener onDialogDismissListener){
+        this.onDialogDismissListener=onDialogDismissListener;
+    }
+
+    public interface OnDialogDismissListener{
+        void onDialogDismiss();
     }
 
 }

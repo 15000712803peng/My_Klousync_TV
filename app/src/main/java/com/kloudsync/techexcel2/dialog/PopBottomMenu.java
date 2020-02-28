@@ -17,6 +17,9 @@ import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.bean.MeetingConfig;
 import com.kloudsync.techexcel2.bean.MeetingType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickListener {
 
@@ -35,6 +38,13 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
     //----
     private MeetingConfig meetingConfig;
 
+    private int currentMeetStatus=0;//0 file  1 用户笔记  2 参会者  3 chat 4 设置
+
+    private int currentDocStatus=0;//0 file  1 用户笔记  2 参会者
+
+    private List<View> meetViews=new ArrayList<>();
+    private List<View> docViews=new ArrayList<>();
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -46,33 +56,21 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
                 }
                 break;
             case R.id.bottom_menu_file:
-                hide();
-                if (bottomMenuOperationsListener != null) {
-                    bottomMenuOperationsListener.menuFileClicked();
-                }
+                doMenuFile();
                 break;
 
 
             case R.id.bottom_menu_notes:
-                hide();
-                if(bottomMenuOperationsListener != null){
-                    bottomMenuOperationsListener.menuNoteClicked();
-                }
+                doMenuNote();
                 break;
 
 
             case R.id.bottom_menu_members:
-                hide();
-                if(bottomMenuOperationsListener != null){
-                    bottomMenuOperationsListener.menuMeetingMembersClicked();
-                }
+                doMenuMember();
                 break;
 
             case R.id.bottom_menu_chat:
-                hide();
-                if(bottomMenuOperationsListener != null){
-                    bottomMenuOperationsListener.menuChatClicked();
-                }
+                doMenuChat();
                 break;
         }
     }
@@ -148,6 +146,11 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
                 menuChat.setVisibility(View.GONE);
                 menuSetting.setVisibility(View.GONE);
 
+                docViews.add(menuFile);
+                docViews.add(menuNote);
+                docViews.add(menuMember);
+                setCurrentDocAction(currentDocStatus);
+
                 break;
             case MeetingType.MEETING:
                 menuFile.setVisibility(View.VISIBLE);
@@ -157,6 +160,13 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
                 menuMember.setVisibility(View.VISIBLE);
                 menuChat.setVisibility(View.VISIBLE);
                 menuSetting.setVisibility(View.VISIBLE);
+
+                meetViews.add(menuFile);
+                meetViews.add(menuNote);
+                meetViews.add(menuMember);
+                meetViews.add(menuChat);
+                meetViews.add(menuSetting);
+                setCurrentMeetAction(currentMeetStatus);
                 break;
             case MeetingType.SYNCBOOK:
                 break;
@@ -197,4 +207,124 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
         }
         bottomMenuWindow = null;
     }
+
+    /**接收遥控器的上下按键*/
+    public void remoteUPOrDown(boolean mIsUp){
+        if(meetingConfig.getType()==MeetingType.MEETING){//会议
+            if(mIsUp){//向上按键遥控器
+                if(currentMeetStatus>0){
+                    currentMeetStatus-=1;
+                    setCurrentMeetAction(currentMeetStatus);
+                }
+            }else {//向下按键遥控器
+                if(currentMeetStatus<4){
+                    currentMeetStatus+=1;
+                    setCurrentMeetAction(currentMeetStatus);
+                }
+            }
+        }else {//文档
+            if(mIsUp){//向上按键遥控器
+                if(currentDocStatus>0){
+                    currentDocStatus-=1;
+                    setCurrentDocAction(currentDocStatus);
+                }
+            }else {//向下按键遥控器
+                if(currentMeetStatus<2){
+                    currentMeetStatus+=1;
+                    setCurrentDocAction(currentDocStatus);
+                }
+            }
+        }
+    }
+
+    /**接收遥控器的enter按键,执行功能*/
+    public void remoteEnter(){
+        if(meetingConfig.getType()==MeetingType.MEETING){//会议
+            doCurrentMeetAction();
+        }else {//文档
+            doCurrentDocAction();
+        }
+    }
+
+    /**遥控器当前选中的会议选项*/
+    public void setCurrentMeetAction(int status){
+        currentMeetStatus=status;
+        for(int i=0;i<meetViews.size();i++){
+            meetViews.get(i).setBackground(null);
+        }
+        meetViews.get(status).setBackgroundResource(R.drawable.bg_remote_doc_select);
+    }
+
+    /**遥控器当前选中的文档选项*/
+    public void setCurrentDocAction(int status){
+        currentDocStatus=status;
+        for(int i=0;i<docViews.size();i++){
+            docViews.get(i).setBackground(null);
+        }
+        docViews.get(status).setBackgroundResource(R.drawable.bg_remote_doc_select);
+    }
+
+    /**执行遥控器当前选中的会议选项操作*/
+    public void doCurrentMeetAction(){
+        switch (currentMeetStatus){
+            case 0://File
+                doMenuFile();
+                break;
+            case 1://用户笔记
+                doMenuNote();
+                break;
+            case 2://参会者
+                doMenuMember();
+                break;
+            case 3://chat
+                doMenuChat();
+                break;
+            case 4://设置
+                break;
+        }
+    }
+
+    /**执行遥控器当前选中的会议选项操作*/
+    public void doCurrentDocAction(){
+        switch (currentDocStatus){
+            case 0://File
+                doMenuFile();
+                break;
+            case 1://用户笔记
+                doMenuNote();
+                break;
+            case 2://参会者
+                doMenuMember();
+                break;
+        }
+    }
+
+    private void doMenuFile(){
+        hide();
+        if (bottomMenuOperationsListener != null) {
+            bottomMenuOperationsListener.menuFileClicked();
+        }
+    }
+
+    private void doMenuNote(){
+        hide();
+        if(bottomMenuOperationsListener != null){
+            bottomMenuOperationsListener.menuNoteClicked();
+        }
+    }
+
+    private void doMenuMember(){
+        hide();
+        if(bottomMenuOperationsListener != null){
+            bottomMenuOperationsListener.menuMeetingMembersClicked();
+        }
+    }
+
+    private void doMenuChat(){
+        hide();
+        if(bottomMenuOperationsListener != null){
+            bottomMenuOperationsListener.menuChatClicked();
+        }
+    }
+
 }
