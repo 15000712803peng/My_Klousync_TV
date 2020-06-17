@@ -36,12 +36,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -83,9 +92,57 @@ public class ServiceInterfaceTools {
     private static ServiceInterfaceTools serviceInterfaceTools;
 
     private ServiceInterfaceTools() {
+
+
+        OkHttpClient sClient = new OkHttpClient();
+        SSLContext sc = null;
+        try {
+            sc = SSLContext.getInstance("SSL");
+            sc.init(null, new TrustManager[]{new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
+
+                }
+
+                @Override
+                public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
+
+                }
+
+                @Override
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+            }}, new SecureRandom());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        HostnameVerifier hv1 = new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+
+        String workerClassName = "okhttp3.OkHttpClient";
+        try {
+            Class workerClass = Class.forName(workerClassName);
+            Field hostnameVerifier = workerClass.getDeclaredField("hostnameVerifier");
+            hostnameVerifier.setAccessible(true);
+            hostnameVerifier.set(sClient, hv1);
+
+            Field sslSocketFactory = workerClass.getDeclaredField("sslSocketFactory");
+            sslSocketFactory.setAccessible(true);
+            sslSocketFactory.set(sClient, sc.getSocketFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl(AppConfig.URL_PUBLIC)
+                .baseUrl(AppConfig.URL_PUBLIC).client(sClient)
                 .build();
         request = retrofit.create(TempleteCourse_interface.class);
     }
