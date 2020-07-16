@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.bean.MeetingConfig;
@@ -40,7 +42,7 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
 
     private int currentMeetStatus=0;//0 file  1 用户笔记  2 参会者  3 chat 4 设置
 
-    private int currentDocStatus=0;//0 file  1 用户笔记  2 参会者
+    private int currentDocStatus=0;//0 file  1 用户笔记  2 关闭
 
     private List<View> meetViews=new ArrayList<>();
     private List<View> docViews=new ArrayList<>();
@@ -49,11 +51,7 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bottom_menu_close:
-                hide();
-                Log.e("PopBottomMenu", "menu_close_clicked:" + bottomMenuOperationsListener);
-                if (bottomMenuOperationsListener != null) {
-                    bottomMenuOperationsListener.menuClosedClicked();
-                }
+                doMenuClose();
                 break;
             case R.id.bottom_menu_file:
                 doMenuFile();
@@ -120,6 +118,28 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
 
         menuSetting = popupWindow.findViewById(R.id.bottom_menu_setting);
         menuSetting.setOnClickListener(this);
+
+        popupWindow.setFocusableInTouchMode(true);
+        popupWindow.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
+                    int keyCode = keyEvent.getKeyCode();
+                    switch (keyCode){
+                        case KeyEvent.KEYCODE_DPAD_UP:
+                            remoteUPOrDown(true);
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_DOWN:
+                            remoteUPOrDown(false);
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_CENTER:
+                            remoteEnter();
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
         width = (int) (mContext.getResources().getDisplayMetrics().widthPixels);
         bottomMenuWindow = new PopupWindow(popupWindow, LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT, false);
@@ -148,7 +168,7 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
 
                 docViews.add(menuFile);
                 docViews.add(menuNote);
-                docViews.add(menuMember);
+                docViews.add(menuClose);
                 setCurrentDocAction(currentDocStatus);
 
                 break;
@@ -210,7 +230,8 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
 
     /**接收遥控器的上下按键*/
     public void remoteUPOrDown(boolean mIsUp){
-        if(meetingConfig.getType()==MeetingType.MEETING){//会议
+        Toast.makeText(mContext,"pop->"+meetingConfig.getType(),Toast.LENGTH_LONG).show();
+        if(meetingConfig.getType()==MeetingType.MEETING){
             if(mIsUp){//向上按键遥控器
                 if(currentMeetStatus>0){
                     currentMeetStatus-=1;
@@ -229,8 +250,8 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
                     setCurrentDocAction(currentDocStatus);
                 }
             }else {//向下按键遥控器
-                if(currentMeetStatus<2){
-                    currentMeetStatus+=1;
+                if(currentDocStatus<2){
+                    currentDocStatus+=1;
                     setCurrentDocAction(currentDocStatus);
                 }
             }
@@ -293,8 +314,8 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
             case 1://用户笔记
                 doMenuNote();
                 break;
-            case 2://参会者
-                doMenuMember();
+            case 2://关闭
+                doMenuClose();
                 break;
         }
     }
@@ -324,6 +345,13 @@ public class PopBottomMenu implements PopupWindow.OnDismissListener, OnClickList
         hide();
         if(bottomMenuOperationsListener != null){
             bottomMenuOperationsListener.menuChatClicked();
+        }
+    }
+
+    private void doMenuClose(){
+        hide();
+        if(bottomMenuOperationsListener != null){
+            bottomMenuOperationsListener.menuClosedClicked();
         }
     }
 

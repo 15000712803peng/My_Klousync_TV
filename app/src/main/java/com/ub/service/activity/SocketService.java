@@ -188,7 +188,7 @@ public class SocketService extends Service implements KloudWebClientManager.OnMe
                 handleUpdateMeetingStatusMessage(msg);
                 break;
             case "END_MEETING":
-//                handleEndMeetingMessage(msg);
+                handleEndMeetingMessage(msg);
                 break;
             case "BIND_TV":
                 handleBindTVMessage(msg);

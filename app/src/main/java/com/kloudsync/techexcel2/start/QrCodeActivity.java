@@ -35,7 +35,6 @@ import com.google.zxing.common.BitMatrix;
 import com.kloudsync.techexcel2.R;
 import com.kloudsync.techexcel2.config.AppConfig;
 import com.kloudsync.techexcel2.tool.DensityUtil;
-import com.kloudsync.techexcel2.tool.Md5Tool;
 import com.pgyersdk.update.DownloadFileListener;
 import com.pgyersdk.update.PgyUpdateManager;
 import com.pgyersdk.update.UpdateManagerListener;
@@ -71,7 +70,7 @@ public class QrCodeActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_qr_code);
+        setContentView(R.layout.activity_qr_code_old);
         instance = this;
         StartWBService();
         findView();

@@ -309,7 +309,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private MyHandler handler;
 
     private LinearLayout syncroomll;
-    private RelativeLayout syncdisplaydocument, syncdisplaynote, syncdisplaymembers, syncdisplaymeeting, syncdisplaychat, syncdisplayproperty, syncdisplayshare, syncyinxiang, syncdisplayquit;
+    private RelativeLayout syncdisplaydocument, syncdisplaynote, syncdisplaymembers, syncdisplaymeeting, syncdisplaychat, syncdisplaymore, syncdisplayshare, syncyinxiang, syncdisplayquit;
 
 
     private int screenWidth;
@@ -340,6 +340,9 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private RelativeLayout filedownprogress;
     private ProgressBar fileprogress;
     private TextView progressbartv;
+
+    private int currentMenuStatus=0;//0 file 1 用户笔记 2 音想 3 成员 4 会议 5聊天 6 同步 7更多 8关闭
+    private List<View> menuViews=new ArrayList<>();
 
     @Override
     public void onFavoriteDocSelected(String docId) {
@@ -448,9 +451,9 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         break;
                     case AppConfig.SUCCESS:
                         mProgressBar.setVisibility(View.GONE);
-                        getAllData((List<Customer>) msg.obj);
+                        //getAllData((List<Customer>) msg.obj);
                         getSyncRoomDetail();
-                        getVideoList();
+                        //getVideoList();
                         break;
                     case 0x3102:
                         activity3.mProgressBar.setVisibility(View.GONE);
@@ -786,6 +789,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.syncroomactivity);
         initView();
+        Toast.makeText(this,"SyncRoomActivity",Toast.LENGTH_LONG).show();
         instance = this;
         watchSyncroomInstance = true;
         WindowManager wm = (WindowManager)
@@ -1034,7 +1038,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             JSONObject jsonObject = new JSONObject(msg);
             changeNumber = jsonObject.getString("changeNumber");
             JSONObject retdata = jsonObject.getJSONObject("retData");
-            JSONArray jsonArray = retdata.getJSONArray("usersList");
+            //JSONArray jsonArray = retdata.getJSONArray("usersList");
             lessonId = retdata.getString("lessonId");
             if (TextUtils.isEmpty(lessonId) || lessonId.equals("0")) {
                 Log.e("SyncRoomActivity", "lession id is illegal,lession id:" + lessonId);
@@ -1042,7 +1046,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                     lessonId = meetingId;
                 }
             }
-            List<Customer> joinlist = Tools.getUserListByJoinMeeting(jsonArray);
+            //List<Customer> joinlist = Tools.getUserListByJoinMeeting(jsonArray);
             msg = retdata.toString();
             String currentLine2 = getRetCodeByReturnData2("currentLine", msg);
             currentLine = Integer.parseInt(currentLine2);
@@ -1097,7 +1101,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             }
 
             Message message1 = Message.obtain();
-            message1.obj = joinlist;
+            //message1.obj = joinlist;
             message1.what = AppConfig.SUCCESS;
             handler.sendMessage(message1);
 
@@ -1464,7 +1468,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
                         if (jsonObject.has("position")) {
                             int position = jsonObject.getInt("position");
                             if (syncRoomDocumentPopup != null && syncRoomDocumentPopup.isShowing()) {
-                                syncRoomDocumentPopup.changeSelectedPostion(position);
+                                //syncRoomDocumentPopup.changeSelectedPostion(position);
                             }
                         }
                     }
@@ -1741,12 +1745,10 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
     private KeyboardSupporter keyboardSupporter;
 
 
-    private LinearLayout keyboard_file, keyboard_note, keyboard_yinxiang, keyboard_members, keyboard_meeting, keyboard_chat, keyboard_share, keyboard_property, keyboard_quit;
+    //private LinearLayout keyboard_file, keyboard_note, keyboard_yinxiang, keyboard_members, keyboard_meeting, keyboard_chat, keyboard_share, keyboard_property, keyboard_quit;
 
 
     private void initView() {
-
-        tt = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
         puo2 = new Popupdate2();
         puo2.getPopwindow(SyncRoomActivity.this);
         prompt = (TextView) findViewById(R.id.prompt);
@@ -1812,10 +1814,22 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         syncdisplaymeeting.setOnClickListener(this);
         syncdisplaychat = (RelativeLayout) findViewById(R.id.syncdisplaychat);
         syncdisplaychat.setOnClickListener(this);
-        syncdisplayproperty = (RelativeLayout) findViewById(R.id.syncdisplayproperty);
-        syncdisplayproperty.setOnClickListener(this);
+        syncdisplaymore = (RelativeLayout) findViewById(R.id.syncdisplaymore);
+        syncdisplaymore.setOnClickListener(this);
         syncdisplayquit = (RelativeLayout) findViewById(R.id.syncdisplayquit);
         syncdisplayquit.setOnClickListener(this);
+
+        menuViews.add(syncdisplaydocument);
+        menuViews.add(syncdisplaynote);
+        menuViews.add(syncdisplayshare);
+        menuViews.add(syncyinxiang);
+
+        menuViews.add(syncdisplaymembers);
+        menuViews.add(syncdisplaymeeting);
+        menuViews.add(syncdisplaychat);
+        menuViews.add(syncdisplaymore);
+        menuViews.add(syncdisplayquit);
+
 
 
         //设置视频控制器
@@ -1930,107 +1944,107 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
 
         //------keyboard
 
-        initkeyboard();
+        //initkeyboard();
 
     }
 
 
-    private void initkeyboard() {
-
-        keyboard_file = findViewById(R.id.keyboard_file);
-        KeyboardView fileView = new KeyboardView();
-        fileView.setSelected(true);
-        fileView.setTargeview(keyboard_file);
-        fileView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
-
-
-        keyboard_note = findViewById(R.id.keyboard_note);
-        KeyboardView noteView = new KeyboardView();
-        noteView.setSelected(false);
-        noteView.setTargeview(keyboard_note);
-        noteView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
-
-        keyboard_yinxiang = findViewById(R.id.keyboard_yinxiang);
-        KeyboardView yinxiangView = new KeyboardView();
-        yinxiangView.setSelected(false);
-        yinxiangView.setTargeview(keyboard_yinxiang);
-        yinxiangView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
-
-        keyboard_members = findViewById(R.id.keyboard_members);
-        KeyboardView membersView = new KeyboardView();
-        membersView.setSelected(false);
-        membersView.setTargeview(keyboard_members);
-        membersView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
-
-        keyboard_meeting = findViewById(R.id.keyboard_meeting);
-        KeyboardView meetingView = new KeyboardView();
-        meetingView.setSelected(false);
-        meetingView.setTargeview(keyboard_meeting);
-        meetingView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
-
-        keyboard_chat = findViewById(R.id.keyboard_chat);
-        KeyboardView chatView = new KeyboardView();
-        chatView.setSelected(false);
-        chatView.setTargeview(keyboard_chat);
-        chatView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
-
-        keyboard_share = findViewById(R.id.keyboard_share);
-        KeyboardView shareView = new KeyboardView();
-        shareView.setSelected(false);
-        shareView.setTargeview(keyboard_share);
-        shareView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
-
-        keyboard_property = findViewById(R.id.keyboard_property);
-        KeyboardView propertyView = new KeyboardView();
-        propertyView.setSelected(false);
-        propertyView.setTargeview(keyboard_property);
-        propertyView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
-
-        keyboard_quit = findViewById(R.id.keyboard_quit);
-        KeyboardView quitView = new KeyboardView();
-        quitView.setSelected(false);
-        quitView.setTargeview(keyboard_quit);
-        quitView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
-
-        fileView.setBottomView(noteView);
-        noteView.setTopView(fileView);
-
-        noteView.setBottomView(yinxiangView);
-        yinxiangView.setTopView(noteView);
-
-        yinxiangView.setBottomView(membersView);
-        membersView.setTopView(yinxiangView);
-
-        membersView.setBottomView(meetingView);
-        meetingView.setTopView(membersView);
-
-        meetingView.setBottomView(chatView);
-        chatView.setTopView(meetingView);
-
-        chatView.setBottomView(shareView);
-        shareView.setTopView(chatView);
-
-        shareView.setBottomView(propertyView);
-        propertyView.setTopView(shareView);
-
-        propertyView.setBottomView(quitView);
-        quitView.setTopView(propertyView);
-
-        keyboardSupporter = new KeyboardSupporter();
-        keyboardSupporter.addKeyboardView(fileView);
-        keyboardSupporter.addKeyboardView(noteView);
-        keyboardSupporter.addKeyboardView(yinxiangView);
-        keyboardSupporter.addKeyboardView(membersView);
-        keyboardSupporter.addKeyboardView(meetingView);
-        keyboardSupporter.addKeyboardView(chatView);
-        keyboardSupporter.addKeyboardView(shareView);
-        keyboardSupporter.addKeyboardView(propertyView);
-        keyboardSupporter.addKeyboardView(quitView);
-
-        keyboardSupporter.init();
-
-
-    }
+//    private void initkeyboard() {
+//
+//        keyboard_file = findViewById(R.id.keyboard_file);
+//        KeyboardView fileView = new KeyboardView();
+//        fileView.setSelected(true);
+//        fileView.setTargeview(keyboard_file);
+//        fileView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+//
+//
+//        keyboard_note = findViewById(R.id.keyboard_note);
+//        KeyboardView noteView = new KeyboardView();
+//        noteView.setSelected(false);
+//        noteView.setTargeview(keyboard_note);
+//        noteView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+//
+//        keyboard_yinxiang = findViewById(R.id.keyboard_yinxiang);
+//        KeyboardView yinxiangView = new KeyboardView();
+//        yinxiangView.setSelected(false);
+//        yinxiangView.setTargeview(keyboard_yinxiang);
+//        yinxiangView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+//
+//        keyboard_members = findViewById(R.id.keyboard_members);
+//        KeyboardView membersView = new KeyboardView();
+//        membersView.setSelected(false);
+//        membersView.setTargeview(keyboard_members);
+//        membersView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+//
+//        keyboard_meeting = findViewById(R.id.keyboard_meeting);
+//        KeyboardView meetingView = new KeyboardView();
+//        meetingView.setSelected(false);
+//        meetingView.setTargeview(keyboard_meeting);
+//        meetingView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+//
+//        keyboard_chat = findViewById(R.id.keyboard_chat);
+//        KeyboardView chatView = new KeyboardView();
+//        chatView.setSelected(false);
+//        chatView.setTargeview(keyboard_chat);
+//        chatView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+//
+//        keyboard_share = findViewById(R.id.keyboard_share);
+//        KeyboardView shareView = new KeyboardView();
+//        shareView.setSelected(false);
+//        shareView.setTargeview(keyboard_share);
+//        shareView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+//
+//        keyboard_property = findViewById(R.id.keyboard_property);
+//        KeyboardView propertyView = new KeyboardView();
+//        propertyView.setSelected(false);
+//        propertyView.setTargeview(keyboard_property);
+//        propertyView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+//
+//        keyboard_quit = findViewById(R.id.keyboard_quit);
+//        KeyboardView quitView = new KeyboardView();
+//        quitView.setSelected(false);
+//        quitView.setTargeview(keyboard_quit);
+//        quitView.setSelectedBackgroud(getResources().getDrawable(R.drawable.rect_keybord_selected));
+//
+//        fileView.setBottomView(noteView);
+//        noteView.setTopView(fileView);
+//
+//        noteView.setBottomView(yinxiangView);
+//        yinxiangView.setTopView(noteView);
+//
+//        yinxiangView.setBottomView(membersView);
+//        membersView.setTopView(yinxiangView);
+//
+//        membersView.setBottomView(meetingView);
+//        meetingView.setTopView(membersView);
+//
+//        meetingView.setBottomView(chatView);
+//        chatView.setTopView(meetingView);
+//
+//        chatView.setBottomView(shareView);
+//        shareView.setTopView(chatView);
+//
+//        shareView.setBottomView(propertyView);
+//        propertyView.setTopView(shareView);
+//
+//        propertyView.setBottomView(quitView);
+//        quitView.setTopView(propertyView);
+//
+//        keyboardSupporter = new KeyboardSupporter();
+//        keyboardSupporter.addKeyboardView(fileView);
+//        keyboardSupporter.addKeyboardView(noteView);
+//        keyboardSupporter.addKeyboardView(yinxiangView);
+//        keyboardSupporter.addKeyboardView(membersView);
+//        keyboardSupporter.addKeyboardView(meetingView);
+//        keyboardSupporter.addKeyboardView(chatView);
+//        keyboardSupporter.addKeyboardView(shareView);
+//        keyboardSupporter.addKeyboardView(propertyView);
+//        keyboardSupporter.addKeyboardView(quitView);
+//
+//        keyboardSupporter.init();
+//
+//
+//    }
 
 
     private Favorite favoriteAudio = new Favorite();
@@ -4343,7 +4357,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         syncRoomDocumentPopup.getPopwindow(this);
         syncRoomDocumentPopup.setWebCamPopupListener(new SyncRoomDocumentPopup.WebCamPopupListener() {
             @Override
-            public void changeOptions(LineItem syncRoomBean) { //切换文档
+            public void changeOptions(LineItem syncRoomBean,int position) { //切换文档
                 if (isHavePresenter()) {
 
                 }
@@ -5717,6 +5731,7 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
             }
         }
     }
+
 
 
     /**
@@ -8178,5 +8193,17 @@ public class SyncRoomActivity extends BaseActivity implements View.OnClickListen
         });
     }
 
-
+    private void initdefault() {
+        mWebSocketClient = AppConfig.webSocketClient;
+        if (mWebSocketClient == null) {
+            return;
+        }
+        if (mWebSocketClient.getReadyState() == WebSocket.READYSTATE.OPEN) {
+            if (identity == 2) {
+                //sendStringBySocket2("JOIN_MEETING", AppConfig.UserToken, "", meetingId, "", true, "v20140605.0", false, identity, isInstantMeeting);
+            } else {
+                //getOnstageMemberCount(meetingId);
+            }
+        }
+    }
 }

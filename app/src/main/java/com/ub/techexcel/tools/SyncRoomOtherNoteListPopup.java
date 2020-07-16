@@ -43,6 +43,8 @@ public class SyncRoomOtherNoteListPopup {
     private TextView swichuser;
     private ImageView back;
 
+    private LinearLayout ll_sync_parent,ll_no_note;
+
     public void getPopwindow(Context context) {
         this.mContext = context;
         width = mContext.getResources().getDisplayMetrics().widthPixels;
@@ -63,6 +65,8 @@ public class SyncRoomOtherNoteListPopup {
 
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
         view = layoutInflater.inflate(R.layout.syncroom_othernotelist_popup, null);
+        ll_sync_parent = view.findViewById(R.id.ll_sync_parent);
+        ll_no_note = (LinearLayout) view.findViewById(R.id.ll_no_note);
         recycleview = view.findViewById(R.id.recycleview);
         recycleview.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
         name = view.findViewById(R.id.name);
@@ -174,6 +178,13 @@ public class SyncRoomOtherNoteListPopup {
                 useNoteList.addAll((List<NoteDetail>) object);
                 syncRoomNoteListAdapter = new SyncRoomNoteListAdapter(mContext, items);
                 recycleview.setAdapter(syncRoomNoteListAdapter);
+                if(useNoteList.size()==0){
+                    ll_no_note.setVisibility(View.VISIBLE);
+                    recycleview.setVisibility(View.GONE);
+                }else {
+                    ll_no_note.setVisibility(View.GONE);
+                    recycleview.setVisibility(View.VISIBLE);
+                }
             }
         });
     }

@@ -3,7 +3,7 @@
     android:id="@+id/mainmain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/darkblack2"
+    android:background="@color/white"
     android:orientation="horizontal">
 
     <RelativeLayout
@@ -72,7 +72,7 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="50dp"
+            android:layout_marginRight="10dp"
             android:layout_marginTop="3dp"
             android:src="@drawable/icon_command" />
 
@@ -87,7 +87,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="45dp"
+                android:layout_marginRight="10dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -188,374 +188,389 @@
 
         <LinearLayout
             android:id="@+id/syncroomll"
-            android:layout_width="170dp"
+            android:layout_width="146dp"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_marginBottom="55dp"
+            android:layout_marginBottom="52dp"
             android:layout_marginRight="10dp"
-            android:alpha="0.8"
-            android:background="@drawable/icon_menu_bg"
-            android:orientation="vertical"
-            android:paddingBottom="2dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="2dp"
-            android:visibility="gone">
+            android:orientation="vertical">
 
-            <RelativeLayout
-                android:id="@+id/syncdisplaydocument"
+            <ScrollView
+                android:background="@drawable/bg_pop_menu"
                 android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal"
-                android:visibility="visible">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
-                    android:id="@+id/keyboard_file"
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:layout_height="wrap_content">
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:padding="1dp"
-                        android:src="@drawable/icon_menu_file" />
+                    <RelativeLayout
+                        android:id="@+id/syncdisplaydocument"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal"
+                        android:visibility="visible">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="30dp"
-                        android:text="@string/mtFile"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
+                        <ImageView
+                            android:layout_marginLeft="19dp"
+                            android:layout_width="12dp"
+                            android:layout_height="14dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/icon_menu_file" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="43dp"
+                            android:text="@string/mtFile"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/syncdisplaynote"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:layout_marginLeft="19dp"
+                            android:layout_width="12dp"
+                            android:layout_height="14dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/icon_menu_mynote" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="43dp"
+                            android:text="@string/mtNote"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:alpha="0.2"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/syncyinxiang"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_centerVertical="true"
+                            android:layout_width="11dp"
+                            android:layout_height="14dp"
+                            android:layout_marginLeft="19dp"
+                            android:src="@drawable/yinxiang" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="43dp"
+                            android:text="@string/mtSync"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/syncdisplaymembers"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_marginLeft="19dp"
+                            android:layout_width="14dp"
+                            android:layout_height="11dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/icon_menu_audience" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="43dp"
+                            android:text="@string/mtAttendee"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/syncdisplaymeeting"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_marginLeft="19dp"
+                            android:layout_width="14dp"
+                            android:layout_height="11dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/qun" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="43dp"
+                            android:text="@string/Meeting"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/syncdisplaychat"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:layout_marginLeft="19dp"
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/icon_menu_chat" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="43dp"
+                            android:text="@string/mtChat"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/prepareScanTV"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_marginLeft="19dp"
+                            android:layout_width="12dp"
+                            android:layout_height="11dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/scan_menu" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="43dp"
+                            android:text="@string/saTv"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/prepareStart"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/qun" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="30dp"
+                            android:text="@string/sMeeting"
+                            android:textColor="@color/white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/syncdisplayshare"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/syncdisplayshare" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="30dp"
+                            android:text="@string/share"
+                            android:textColor="@color/white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/syncdisplaymore"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_marginLeft="19dp"
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/more_white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="43dp"
+                            android:text="@string/mtMore"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/syncdisplayproperty"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/qun" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="30dp"
+                            android:text="@string/sProperty"
+                            android:textColor="@color/white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:alpha="0.2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/divider_line" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/syncdisplayquit"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:orientation="horizontal"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:layout_marginLeft="19dp"
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/close_menu" />
+
+                        <TextView
+                            android:layout_centerVertical="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="43dp"
+                            android:text="@string/mtClose"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                    </RelativeLayout>
                 </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/syncdisplaynote"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:id="@+id/keyboard_note"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:padding="1dp"
-                        android:src="@drawable/icon_menu_file" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="30dp"
-                        android:text="@string/mtNote"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/syncyinxiang"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-
-
-                <LinearLayout
-                    android:id="@+id/keyboard_yinxiang"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/yinxiang" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="30dp"
-                        android:text="@string/mtSync"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/syncdisplaymembers"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:id="@+id/keyboard_members"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/icon_menu_audience" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="30dp"
-                        android:text="@string/mtAttendee"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/syncdisplaymeeting"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:id="@+id/keyboard_meeting"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/qun" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="30dp"
-                        android:text="@string/Meeting"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/syncdisplaychat"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:id="@+id/keyboard_chat"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/icon_menu_chat" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="30dp"
-                        android:text="@string/mtChat"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/syncdisplayshare"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:id="@+id/keyboard_share"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/syncdisplayshare" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="30dp"
-                        android:text="@string/share"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-            </RelativeLayout>
-
-            <RelativeLayout
-
-                android:id="@+id/syncdisplayproperty"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-
-                <LinearLayout
-                    android:id="@+id/keyboard_property"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/qun" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="30dp"
-                        android:text="@string/sProperty"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentBottom="true"
-                    android:background="@color/divider_line" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/syncdisplayquit"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:id="@+id/keyboard_quit"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/close_menu" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="30dp"
-                        android:text="@string/mtClose"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-            </RelativeLayout>
+            </ScrollView>
         </LinearLayout>
 
 

@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -1228,14 +1230,30 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
     private void enter() {
         if (!TextUtils.isEmpty(roomid) && !TextUtils.isEmpty(AppConfig.BINDUSERID)) {
             Log.e("NotifyActivity", "follow user,meeting type:" + type + ",meeting id" + roomid);
-            Intent intent = new Intent(this, TvKeyActivity.class);
-            intent.putExtra("userid", AppConfig.BINDUSERID);
-            intent.putExtra("meeting_id", roomid);
-            intent.putExtra("isTeamspace", true);
-            intent.putExtra("identity", 1);
-            intent.putExtra("lessionId", "");
-            intent.putExtra("isInstantMeeting", 1);
-            intent.putExtra("meeting_type", type);
+            Intent intent=null;
+            if(type==2){
+                intent= new Intent(this, TvKeyActivity.class);
+                intent.putExtra("meeting_id", roomid);
+                intent.putExtra("userid", AppConfig.BINDUSERID);
+                intent.putExtra("isTeamspace", true);
+                intent.putExtra("identity", 1);
+                intent.putExtra("lessionId", "");
+                intent.putExtra("isInstantMeeting", 1);
+                intent.putExtra("meeting_type", type);
+            }else if(type==1){
+                intent= new Intent(this, SyncRoomActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("userid", AppConfig.BINDUSERID);
+                intent.putExtra("meetingId", roomid);
+                intent.putExtra("isTeamspace", true);
+                intent.putExtra("identity", 1);
+                intent.putExtra("is_meeting", false);
+                intent.putExtra("lessionId", "");
+                intent.putExtra("isInstantMeeting", 1);
+                intent.putExtra("meeting_type", type);
+                intent.putExtra("teacherid", AppConfig.BINDUSERID.replace("-", ""));
+                intent.putExtra("isStartCourse", false);
+            }
             startActivity(intent);
         } else {
             Toast.makeText(NotifyActivity.this, getString(R.string.joinroom), Toast.LENGTH_LONG).show();
@@ -1335,9 +1353,6 @@ public class NotifyActivity extends Activity implements View.OnClickListener {
         }
 
     }
-
-
-
 }
 
 

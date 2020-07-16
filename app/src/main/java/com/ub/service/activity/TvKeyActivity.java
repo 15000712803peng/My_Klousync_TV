@@ -1,6 +1,4 @@
 package com.ub.service.activity;
-
-
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -102,6 +100,7 @@ import com.kloudsync.techexcel2.tool.SocketMessageManager;
 import com.kloudsync.techexcel2.tool.UserData;
 
 import com.ub.techexcel.tools.DownloadUtil;
+import com.ub.techexcel.tools.ExitDialog;
 import com.ub.techexcel.tools.FavoriteVideoPopup;
 import com.ub.techexcel.tools.FileUtils;
 import com.ub.techexcel.tools.ServiceInterfaceListener;
@@ -212,6 +211,8 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     /**MeetingSettingDialog是否dismiss*/
     private boolean mIsSettingDialogCancel=false;
 
+    ExitDialog exitDialog;
+
     @Override
     public void showErrorPage() {
 
@@ -221,6 +222,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     @Override
     public void initData() {
 
+        Toast.makeText(this,"TvKeyActivity",Toast.LENGTH_LONG).show();
         boolean createSuccess = FileUtils.createFileSaveDir(this);
         if (!createSuccess) {
             Toast.makeText(getApplicationContext(), "文件系统异常，打开失败", Toast.LENGTH_SHORT).show();
@@ -727,7 +729,7 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
 
         switch (action) {
             case SocketMessageManager.MESSAGE_LEAVE_MEETING:
-                //handleMessageLeaveMeeting(socketMessage.getData());
+                handleMessageLeaveMeeting(socketMessage.getData());
                 break;
 
             case SocketMessageManager.MESSAGE_JOIN_MEETING:
@@ -1981,45 +1983,15 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
 
     @Override
     public void menuClosedClicked() {
-//        handleExit(false);
-        finish();
+        Toast.makeText(this,"TVKey",Toast.LENGTH_LONG).show();
+        exitDialog=new ExitDialog(this);
+        exitDialog.setDialogClickListener(new ExitDialog.ExitDialogClickListener() {
+            @Override
+            public void onLeaveClick() {
+                finish();
+            }
+        });
     }
-
-//    ExitDialog exitDialog;
-//    private void handleExit(boolean isEnd) {
-//        if (exitDialog != null) {
-//            if (exitDialog.isShowing()) {
-//                exitDialog.dismiss();
-//            }
-//            exitDialog = null;
-//        }
-//
-//        exitDialog = new ExitDialog(this, meetingConfig);
-//        exitDialog.setEndMeeting(isEnd);
-//        exitDialog.setDialogClickListener(new ExitDialog.ExitDialogClickListener() {
-//            @Override
-//            public void onSaveAndLeaveClick() {
-//
-//                if (exitDialog.isEndMeeting() && meetingConfig.isInRealMeeting()) {
-//                    messageManager.sendMessage_EndMeeting(meetingConfig);
-//                }
-//                if (messageManager != null) {
-//                    messageManager.sendMessage_UpdateAttchment(meetingConfig);
-//                }
-//                PageActionsAndNotesMgr.requestActionsSaved(meetingConfig);
-//                finish();
-//            }
-//
-//            @Override
-//            public void onLeaveClick() {
-//                if (exitDialog.isEndMeeting() && meetingConfig.isInRealMeeting()) {
-//                    messageManager.sendMessage_EndMeeting(meetingConfig);
-//                }
-//                finish();
-//            }
-//        });
-//        exitDialog.show();
-//    }
 
     @Override
     public void menuFileClicked() {
@@ -2500,19 +2472,9 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-//        handleExit(false);
+        finish();
+        //handleExit(false);
     }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-//            handleExit(false);
-        }
-        return true;
-
-    }
-
-    //------Camera vedio options
 
     @Override
     public void onCameraFrameClick(AgoraMember member) {
@@ -2564,28 +2526,6 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
         Log.e("fitFullCameraList", "span:" + currentSpanCount);
     }
 
-//    private void fitCameraList() {
-//
-//        int size = meetingConfig.getAgoraMembers().size();
-//
-//        if (size > 0 && size <= 8) {
-//            cameraList.setLayoutManager(new GridLayoutManager(this, 1, GridLayoutManager.HORIZONTAL, false));
-//
-//        } else if (size > 8 && size <= 16) {
-//
-//            cameraList.setLayoutManager(new GridLayoutManager(this, 2, GridLayoutManager.HORIZONTAL, false));
-//
-//        } else if (size > 16 ) {
-//
-//            cameraList.setLayoutManager(new GridLayoutManager(this, 3, GridLayoutManager.HORIZONTAL, false));
-//
-//        }
-//        GridLayoutManager s = (GridLayoutManager) fullCameraList.getLayoutManager();
-//        int currentSpanCount = s.getSpanCount();
-//    }
-
-    // ----handle_message
-
     @SuppressLint("WrongConstant")
     private void handleMessageSendMessage(JSONObject data) throws JSONException {
         if (!data.has("actionType")) {
@@ -2613,9 +2553,6 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
 
                 } else {
                     if (noteLayout.getVisibility() == View.VISIBLE) {
-//                        noteWeb.load("javascript:ClearPath()", null);
-////                        noteWeb.setVisibility(View.GONE);
-//                        noteLayout.setVisibility(View.GONE);
                         hideNoteView();
                     }
                     changeDocument(data.getInt("itemId"), Integer.parseInt(data.getString("pageNumber")));
@@ -3021,49 +2958,22 @@ public class TvKeyActivity extends BaseDocAndMeetingActivity implements PopBotto
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         int keyCode = event.getKeyCode();
-        if (event.getAction() != KeyEvent.ACTION_DOWN) {
-            return super.dispatchKeyEvent(event);
-        }
-        if (keyCode == KeyEvent.KEYCODE_MENU&&mIsSettingDialogCancel) {//dialog消失
-            if(menuManager!=null){
-                menuManager.handleMenuClicked();
-            }
-            return false;
-        }
-        if(!mIsSettingDialogCancel){//点击遥控器按键作用于dialog 0 1 2 3分别代表上下左右
+        if (event.getAction() == KeyEvent.ACTION_UP){
             switch (keyCode){
-                case KeyEvent.KEYCODE_DPAD_UP:
-                    MeetingKit.getInstance().remoteDirectionDown(0);
+                case KeyEvent.KEYCODE_MENU:
+                    menuManager.handleMenuClicked();
                     break;
-                case KeyEvent.KEYCODE_DPAD_DOWN:
-                    MeetingKit.getInstance().remoteDirectionDown(1);
-                    break;
-                case KeyEvent.KEYCODE_DPAD_LEFT:
-                    MeetingKit.getInstance().remoteDirectionDown(2);
-                    break;
-                case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    MeetingKit.getInstance().remoteDirectionDown(3);
-                    break;
-                case KeyEvent.KEYCODE_DPAD_CENTER:
-                    MeetingKit.getInstance().remoteEnterDown();
-                    break;
-            }
-        }else {//点击遥控器按键作用于menu
-            switch (keyCode){
-                case KeyEvent.KEYCODE_DPAD_UP:
-                    if(menuManager!=null)
-                        menuManager.remoteUPOrDown(true);//向上
-                    break;
-                case KeyEvent.KEYCODE_DPAD_DOWN:
-                    if(menuManager!=null)
-                        menuManager.remoteUPOrDown(false);//向下
-                    break;
-                case KeyEvent.KEYCODE_DPAD_CENTER:
-                    if(menuManager!=null)
-                        menuManager.remoteEnter();
-                    break;
+                case KeyEvent.KEYCODE_BACK:
+                    exitDialog=new ExitDialog(this);
+                    exitDialog.setDialogClickListener(new ExitDialog.ExitDialogClickListener() {
+                        @Override
+                        public void onLeaveClick() {
+                            finish();
+                        }
+                    });
+                     break;
             }
         }
-        return super.dispatchKeyEvent(event);
+        return false;
     }
 }

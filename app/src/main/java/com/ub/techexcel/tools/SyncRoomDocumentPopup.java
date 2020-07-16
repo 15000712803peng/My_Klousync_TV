@@ -33,7 +33,7 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
     public int width;
     public Dialog mPopupWindow;
     private View view;
-    private ImageView adddocument;
+    private TextView adddocument;
     private RecyclerView recycleview;
     private SyncRoomTeamAdapter syncRoomTeamAdapter;
 
@@ -61,7 +61,7 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
         view = layoutInflater.inflate(R.layout.syncroom_document_popup, null);
 
         recycleview = (RecyclerView) view.findViewById(R.id.recycleview);
-        adddocument = (ImageView) view.findViewById(R.id.adddocument);
+        adddocument = (TextView) view.findViewById(R.id.adddocument);
         adddocument.setOnClickListener(this);
         recycleview.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
         upload_linearlayout = (LinearLayout) view.findViewById(R.id.upload_linearlayout);
@@ -168,7 +168,7 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
 
     public interface WebCamPopupListener {
 
-        void changeOptions(LineItem syncRoomBean);
+        void changeOptions(LineItem syncRoomBean, int position);
 
         void teamDocument();
 
@@ -224,9 +224,20 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
 
         private List<LineItem> list = new ArrayList<>();
 
+        private void setSelectedFile(LineItem file){
+            for(LineItem fileItem : list){
+                if(file.equals(fileItem)){
+                    fileItem.setSelect(true);
+                }else {
+                    fileItem.setSelect(false);
+                }
+            }
+            notifyDataSetChanged();
+        }
+
         public SyncRoomTeamAdapter(Context context, List<LineItem> list) {
             this.context = context;
-            this.list = list;
+            this.list.addAll(list);
         }
 
         @Override
@@ -238,24 +249,27 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
 
 
         @Override
-        public void onBindViewHolder(RecycleHolder2 holder, int position) {
+        public void onBindViewHolder(RecycleHolder2 holder, final int position) {
             final LineItem lineItem = list.get(position);
-            holder.title.setText(lineItem.getFileName());
-            holder.synccount.setText("Sync:" + lineItem.getSyncRoomCount());
-            String date = lineItem.getCreatedDate();
-            if (!TextUtils.isEmpty(date)) {
-                long dd = Long.parseLong(date);
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd HH:mm:ss");
-                String haha = simpleDateFormat.format(dd);
-                holder.date.setText("Create Date: " + haha);
+            holder.name.setText(lineItem.getFileName());
+            holder.mTvCreateUserName.setText(null);
+            int syncCount = lineItem.getSyncRoomCount();
+            if (syncCount > 0) {
+                holder.mLlyYinXiangCount.setVisibility(View.VISIBLE);
+                holder.mTvYinXiangCount.setText(String.valueOf(syncCount));
+            } else {
+                holder.mLlyYinXiangCount.setVisibility(View.GONE);
+                holder.mTvYinXiangCount.setText("");
             }
-            holder.img_url.setOnClickListener(new View.OnClickListener() {
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    webCamPopupListener.changeOptions(lineItem);
+                    morell.setVisibility(View.GONE);
+                    setSelectedFile(lineItem);
+                    webCamPopupListener.changeOptions(lineItem,position);
                 }
             });
-            holder.more.setOnClickListener(new View.OnClickListener() {
+            holder.mIvItemDocMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     selectLineItem = lineItem;
@@ -264,14 +278,6 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
                     } else {
                         morell.setVisibility(View.VISIBLE);
                     }
-                    upload_linearlayout.setVisibility(View.GONE);
-                }
-            });
-            holder.ll.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    morell.setVisibility(View.GONE);
-                    upload_linearlayout.setVisibility(View.GONE);
                 }
             });
             String url = lineItem.getUrl();
@@ -281,26 +287,10 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
                 if (!TextUtils.isEmpty(url)) {
                     imageUri = Uri.parse(url);
                 }
-                holder.img_url.setImageURI(imageUri);
+                holder.icon.setImageURI(imageUri);
             }
+            holder.headll.setSelected(lineItem.isSelect());
 
-            if(lineItem.isSelect()){
-                holder.ll.setBackgroundColor(mContext.getResources().getColor(R.color.lightgrey));
-            }else {
-                holder.ll.setBackgroundColor(mContext.getResources().getColor(R.color.white));
-
-            }
-        }
-
-        public void setSelectedFile(int index){
-            for(int i = 0 ; i < list.size(); ++i){
-                if(index == i){
-                    list.get(i).setSelect(true);
-                }else {
-                    list.get(i).setSelect(false);
-                }
-            }
-            notifyDataSetChanged();
         }
 
         @Override
@@ -308,36 +298,27 @@ public class SyncRoomDocumentPopup implements View.OnClickListener {
             return list.size();
         }
 
+        public void setSearchList(List<LineItem> searchList) {
+            list.clear();
+            list.addAll(searchList);
+        }
+
         class RecycleHolder2 extends RecyclerView.ViewHolder {
-            TextView title;
-            TextView synccount;
-            ImageView more;
-            LinearLayout ll;
-            SimpleDraweeView img_url;
-            TextView date;
+            SimpleDraweeView icon;
+            TextView name, mTvYinXiangCount, mTvCreateUserName;
+            LinearLayout headll, mLlyYinXiangCount;
+            ImageView mIvItemDocMore;
 
             public RecycleHolder2(View itemView) {
                 super(itemView);
-                title = (TextView) itemView.findViewById(R.id.title);
-                synccount = (TextView) itemView.findViewById(R.id.synccount);
-                date = (TextView) itemView.findViewById(R.id.date);
-                more = (ImageView) itemView.findViewById(R.id.more);
-                ll = (LinearLayout) itemView.findViewById(R.id.ll);
-                img_url = (SimpleDraweeView) itemView.findViewById(R.id.img_url);
+                icon = itemView.findViewById(R.id.studenticon);
+                name = (TextView) itemView.findViewById(R.id.studentname);
+                headll = (LinearLayout) itemView.findViewById(R.id.headll);
+                mIvItemDocMore = itemView.findViewById(R.id.iv_item_doc_more);
+                mTvCreateUserName = itemView.findViewById(R.id.tv_item_create_user_name);
+                mLlyYinXiangCount = itemView.findViewById(R.id.lly_item_doc_yin_xiang_count);
+                mTvYinXiangCount = itemView.findViewById(R.id.tv_item_yin_xiang_count);
             }
         }
     }
-
-    public void changeSelectedPostion(int position){
-        if(syncRoomTeamAdapter != null){
-            syncRoomTeamAdapter.setSelectedFile(position);
-            if(recycleview != null){
-                recycleview.scrollToPosition(position);
-            }
-        }
-    }
-
-
-
-
 }

@@ -4226,7 +4226,7 @@ public class SyncBookActivity extends BaseActivity implements View.OnClickListen
         syncRoomDocumentPopup.getPopwindow(this);
         syncRoomDocumentPopup.setWebCamPopupListener(new SyncRoomDocumentPopup.WebCamPopupListener() {
             @Override
-            public void changeOptions(LineItem syncRoomBean) { //切换文档
+            public void changeOptions(LineItem syncRoomBean,int position) { //切换文档
                 if (isHavePresenter()) {
 
                 }

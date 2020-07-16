@@ -3,7 +3,9 @@ package com.kloudsync.techexcel2.dialog;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -11,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.kloudsync.techexcel2.R;
@@ -72,7 +75,7 @@ public class MeetingSettingDialog implements View.OnClickListener{
         }
     }
 
-    public void initPopuptWindow(Activity host) {
+    public void initPopuptWindow(final Activity host) {
         LayoutInflater layoutInflater = LayoutInflater.from(host);
         view = layoutInflater.inflate(R.layout.dialog_meeting_setting, null);
         microImage = view.findViewById(R.id.image_micro);
@@ -90,6 +93,33 @@ public class MeetingSettingDialog implements View.OnClickListener{
         settingDialog = new Dialog(host, R.style.my_dialog);
         settingDialog.setContentView(view);
         settingDialog.setCancelable(false);
+        settingDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+                    int keyCode = keyEvent.getKeyCode();
+                    switch (keyCode){
+                        case KeyEvent.KEYCODE_DPAD_UP:
+                            remoteWayDown(0);
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_DOWN:
+                            remoteWayDown(1);
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_LEFT:
+                            remoteWayDown(2);
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_RIGHT:
+                            remoteWayDown(3);
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_CENTER:
+                            remoteEnter();
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
+        setCurrentSelectAction(currentSelectStatus);
 
         Window window = settingDialog.getWindow();
         WindowManager.LayoutParams lp = window.getAttributes();

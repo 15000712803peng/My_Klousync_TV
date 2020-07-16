@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="350dp"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:id="@+id/ll_sync_parent"
+    android:background="@drawable/shape_white_left_radius_15"
     android:orientation="vertical">
 
     <RelativeLayout
-        android:layout_width="350dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -23,6 +24,27 @@
             android:layout_marginLeft="10dp"
             android:text="我的笔记"
             android:textColor="@color/black" />
+
+        <LinearLayout
+            android:layout_marginRight="10dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="@drawable/icon_note_refresh"
+                android:layout_width="12dp"
+                android:layout_height="12dp"/>
+            <TextView
+                android:layout_marginLeft="3dp"
+                android:textSize="12sp"
+                android:textColor="@color/skyblue"
+                android:text="@string/mtRefresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
     </RelativeLayout>
 
     <TextView
@@ -32,6 +54,7 @@
 
 
     <RelativeLayout
+        android:visibility="gone"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:paddingBottom="5dp"
@@ -63,12 +86,36 @@
     </RelativeLayout>
 
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycleview"
-        android:layout_width="350dp"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/ss"></android.support.v7.widget.RecyclerView>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycleview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/ss"/>
+        <LinearLayout
+            android:id="@+id/ll_no_note"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="@drawable/icon_no_note"
+                android:layout_width="80dp"
+                android:layout_height="77dp"/>
+            <TextView
+                android:layout_marginTop="16dp"
+                android:textSize="12sp"
+                android:textColor="#B9BBC4"
+                android:text="@string/no_notes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </RelativeLayout>
+
 
 
 </LinearLayout>

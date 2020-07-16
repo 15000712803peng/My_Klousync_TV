@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="350dp"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@drawable/shape_white_left_radius_15"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingBottom="10dp"
@@ -14,56 +14,67 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="60dp"
+            android:layout_toLeftOf="@+id/adddocument"
+            android:layout_marginRight="10dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:background="@drawable/inviteuserleft"
-            android:gravity="center_vertical">
+            android:layout_height="21dp">
 
-            <LinearLayout
-                android:id="@+id/lin_search"
-                android:layout_width="wrap_content"
-                android:layout_height="35dp"
-                android:layout_gravity="center_vertical"
+            <ImageView
+                android:layout_width="10dp"
+                android:src="@drawable/searchicon"
                 android:layout_marginLeft="10dp"
+                android:layout_height="10dp" />
+
+            <EditText
+                android:id="@+id/et_dialog_bottom_file_file_name"
+                android:layout_marginLeft="5dp"
+                android:layout_width="match_parent"
+                android:background="@null"
+                android:hint="@string/Search_Contact"
+                android:textSize="11sp"
+                android:singleLine="true"
+                android:imeOptions="actionSearch"
+                android:imeActionLabel="@string/Search_Contact"
+                android:textColorHint="@color/colorFont99"
+                android:textColor="@color/colorFont33"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/radio"
-                android:gravity="center_vertical">
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
 
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/searchicon" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/Search_Contact"
-                    android:textColor="@color/newgrey"
-                    android:textSize="16sp" />
-            </LinearLayout>
-        </RelativeLayout>
-
-        <ImageView
+        <TextView
             android:id="@+id/adddocument"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="十"
             android:layout_marginRight="10dp"
-            android:src="@drawable/syncdocumentadd" />
+            android:background="@drawable/shape_ovar_blue_3d78fb" />
+
     </RelativeLayout>
+    <View
+        android:layout_below="@+id/ss"
+        android:layout_marginTop="9dp"
+        android:id="@+id/view_divider_right_file"
+        android:layout_width="match_parent"
+        android:background="#E7E7E7"
+        android:layout_height="1dp" />
 
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycleview"
         android:layout_width="350dp"
         android:layout_height="match_parent"
-        android:layout_below="@+id/ss"></android.support.v7.widget.RecyclerView>
+        android:layout_below="@+id/view_divider_right_file"/>
 
 
     <LinearLayout

@@ -63,6 +63,47 @@ public class LoginActivity extends Activity {
     private static final int CODE_TOKEN_EXPIRED = -1401;
     String deviceId;
 
+    private int currentSelectStatus=0;// 0 用户名 1 密码 2 登录
+
+    /**遥控器当前选中的按钮*/
+    public void setCurrentSelectAction(int status){
+        currentSelectStatus=status;
+        switch (status){
+            case 0:
+            case 1:
+                tv_login.setBackgroundResource(R.drawable.login_greenback);
+                break;
+            case 2://登录
+                tv_login.setBackgroundResource(R.drawable.login_greenback_remote);
+                break;
+        }
+    }
+
+    /**接收遥控器的上下按键*/
+    public void remoteWayDown(int way){// 0 向上  1 向下
+        switch (way){
+            case 0:
+                if(currentSelectStatus>0){
+                    currentSelectStatus-=1;
+                    setCurrentSelectAction(currentSelectStatus);
+                }
+                break;
+            case 1:
+                if(currentSelectStatus<2){
+                    currentSelectStatus+=1;
+                    setCurrentSelectAction(currentSelectStatus);
+                }
+                break;
+        }
+    }
+
+    /**接收遥控器的enter按键,执行功能*/
+    public void remoteEnter(){
+        if(currentSelectStatus==2){
+            GoToSign();
+        }
+    }
+
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -590,5 +631,25 @@ public class LoginActivity extends Activity {
         return null;
     }
 
-
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int keyCode = event.getKeyCode();
+        if (event.getAction() != KeyEvent.ACTION_DOWN) {
+            return super.dispatchKeyEvent(event);
+        }
+        if (event.getAction() == KeyEvent.ACTION_UP){
+            switch (keyCode){
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    remoteWayDown(0);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    remoteWayDown(1);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                    remoteEnter();
+                    break;
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
 }

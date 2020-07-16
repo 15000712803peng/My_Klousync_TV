@@ -116,4 +116,9 @@
     <color name="bg_gray">#F6F8F9</color>
 
     <color name="remote_sel">#00EF93</color>
+
+    <color name="colorFont99">#999999</color>
+    <color name="colorFont33">#333333</color>
+    <color name="color3d78fb">#3D78FB</color>
+    <color name="colorBGd5ebff">#D5EBFF</color>
 </resources>

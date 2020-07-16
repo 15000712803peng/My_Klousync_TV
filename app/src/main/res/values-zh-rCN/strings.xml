@@ -61,7 +61,7 @@
     <string name="Upload_Medical_Report">帮他/她上传</string>
 
     <string name="Search_Contact">搜索</string>
-    <string name="Cancel">关闭</string>
+    <string name="Cancel">取消</string>
     <string name="Back">返回</string>
 
 
@@ -484,4 +484,22 @@
     <string name="playing">播放中</string>
     <string name="paused">已暂停</string>
 
+    <string name="confirm">确定</string>
+    <string name="exit_confirm">您确定要离开吗?</string>
+
+    <string name="sMeeting">开始会议</string>
+    <string name="saTv">同步TV APP</string>
+
+    <string name="mtFile">文件</string>
+    <string name="mtAttendee">成员</string>
+    <string name="mtChat">聊天</string>
+    <string name="mtSync">音想</string>
+    <string name="mtSetting">设置</string>
+    <string name="Meeting">会议</string>
+    <string name="share">分享</string>
+    <string name="sProperty">熟性</string>
+    <string name="mtClose">关闭</string>
+
+    <string name="mtRefresh">刷新</string>
+    <string name="no_notes">暂无笔记</string>
 </resources>
